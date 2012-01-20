@@ -24,6 +24,8 @@ namespace DreadWyrm
         bool m_gameStarted = false;                        //Whether or not we are at the title screen
         SpriteFont titleFont;                              //The font used in the game for the title screen
         Vector2 vStartTitleTextLoc = new Vector2(250, 50); //The location for the title screen text
+        SpriteFont title2Font;                             //Additional font for the title screen
+        Vector2 vStartTitle2TextLoc = new Vector2(440, 450);//The location for the additional title screen text
 
         public Game1()
         {
@@ -58,9 +60,10 @@ namespace DreadWyrm
 
             // TODO: use this.Content to load your game content here
             titleFont = Content.Load<SpriteFont>(@"Fonts\Title");
+            title2Font = Content.Load<SpriteFont>(@"Fonts\Title2");
 
             t2dTitleScreen = Content.Load<Texture2D>(@"Textures\titlescreen");
-            
+       
             bgm = Content.Load<Song>(@"Sounds\bgm");
 
             MediaPlayer.IsRepeating = true;
@@ -104,6 +107,12 @@ namespace DreadWyrm
             else
             {
                 #region Title Screen Mode (m_gameStarted == false)
+
+                if (keystate.IsKeyDown(Keys.Space))
+                {
+                    startNewGame();
+                }
+
                 #endregion
             }
 
@@ -132,14 +141,26 @@ namespace DreadWyrm
             else
             {
                 #region Title Screen Mode (m_gameStarted == false)
+
                 spriteBatch.Draw(t2dTitleScreen, new Rectangle(0, 0, 1280, 720), Color.White);
                 spriteBatch.DrawString(titleFont, "D R E A D   W Y R M", vStartTitleTextLoc, Color.Black);
+
+                if (gameTime.TotalGameTime.Milliseconds % 1000 < 500)
+                {
+                    spriteBatch.DrawString(title2Font, "Press Spacebar to BEGIN YOUR FEAST", vStartTitle2TextLoc, Color.Black);
+                }
+
                 #endregion
             }
             //Close the SpriteBatch
             spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        void startNewGame()
+        {
+            m_gameStarted = true;
         }
     }
 }

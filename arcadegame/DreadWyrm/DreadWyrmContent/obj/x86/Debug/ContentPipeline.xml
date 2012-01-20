@@ -8,7 +8,7 @@
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
       <Output>C:\Users\Patrick\Documents\School Documents\Spring 2012\CS 447\github\gamedesign\arcadegame\DreadWyrm\DreadWyrm\bin\x86\Debug\Content\Textures\titlescreen.xnb</Output>
-      <Time>2012-01-20T12:27:11.4732067-08:00</Time>
+      <Time>2012-01-20T13:37:38.754608-08:00</Time>
     </Item>
     <Item>
       <Source>Fonts\Title.spritefont</Source>
@@ -28,6 +28,15 @@
       <Output>C:\Users\Patrick\Documents\School Documents\Spring 2012\CS 447\github\gamedesign\arcadegame\DreadWyrm\DreadWyrm\bin\x86\Debug\Content\Sounds\bgm.xnb</Output>
       <Extra>C:\Users\Patrick\Documents\School Documents\Spring 2012\CS 447\github\gamedesign\arcadegame\DreadWyrm\DreadWyrm\bin\x86\Debug\Content\Sounds\bgm.wma</Extra>
       <Time>2012-01-20T13:19:49.267544-08:00</Time>
+    </Item>
+    <Item>
+      <Source>Fonts\Title2.spritefont</Source>
+      <Name>Fonts\Title2</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Patrick\Documents\School Documents\Spring 2012\CS 447\github\gamedesign\arcadegame\DreadWyrm\DreadWyrm\bin\x86\Debug\Content\Fonts\Title2.xnb</Output>
+      <Time>2012-01-20T13:49:12.5282959-08:00</Time>
     </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>
