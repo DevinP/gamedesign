@@ -26,6 +26,7 @@ namespace DreadWyrm
         Vector2 vStartTitleTextLoc = new Vector2(250, 50); //The location for the title screen text
         SpriteFont title2Font;                             //Additional font for the title screen
         Vector2 vStartTitle2TextLoc = new Vector2(440, 450);//The location for the additional title screen text
+        SoundEffect roar;
 
         public Game1()
         {
@@ -63,7 +64,9 @@ namespace DreadWyrm
             title2Font = Content.Load<SpriteFont>(@"Fonts\Title2");
 
             t2dTitleScreen = Content.Load<Texture2D>(@"Textures\titlescreen");
-       
+
+            roar = Content.Load<SoundEffect>(@"Sounds\Predator Roar");
+
             bgm = Content.Load<Song>(@"Sounds\bgm");
 
             MediaPlayer.IsRepeating = true;
@@ -161,6 +164,7 @@ namespace DreadWyrm
         void startNewGame()
         {
             m_gameStarted = true;
+            roar.Play();
         }
     }
 }
