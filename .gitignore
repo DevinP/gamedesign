@@ -24,6 +24,8 @@
 *.lib
 *.sbr
 *.sdf
+*.pdb
+*.exe
 ipch/
 obj/
 [Bb]in
