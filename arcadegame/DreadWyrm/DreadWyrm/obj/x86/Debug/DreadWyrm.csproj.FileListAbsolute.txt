@@ -1,0 +1,6 @@
+C:\Users\Patrick\Documents\School Documents\Spring 2012\CS 447\github\gamedesign\arcadegame\DreadWyrm\DreadWyrm\bin\x86\Debug\DreadWyrm.exe
+C:\Users\Patrick\Documents\School Documents\Spring 2012\CS 447\github\gamedesign\arcadegame\DreadWyrm\DreadWyrm\bin\x86\Debug\DreadWyrm.pdb
+C:\Users\Patrick\Documents\School Documents\Spring 2012\CS 447\github\gamedesign\arcadegame\DreadWyrm\DreadWyrm\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\Patrick\Documents\School Documents\Spring 2012\CS 447\github\gamedesign\arcadegame\DreadWyrm\DreadWyrm\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
+C:\Users\Patrick\Documents\School Documents\Spring 2012\CS 447\github\gamedesign\arcadegame\DreadWyrm\DreadWyrm\obj\x86\Debug\DreadWyrm.exe
+C:\Users\Patrick\Documents\School Documents\Spring 2012\CS 447\github\gamedesign\arcadegame\DreadWyrm\DreadWyrm\obj\x86\Debug\DreadWyrm.pdb
