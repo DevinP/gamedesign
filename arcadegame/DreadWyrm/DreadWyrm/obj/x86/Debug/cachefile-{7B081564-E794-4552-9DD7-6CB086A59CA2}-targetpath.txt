@@ -1,5 +1,5 @@
-Content\Textures\titlescreen.xnb
 Content\Fonts\Title.xnb
+Content\Fonts\Title2.xnb
+Content\Textures\titlescreen.xnb
 Content\Sounds\bgm.xnb
 Content\Sounds\bgm.wma
-Content\Fonts\Title2.xnb
