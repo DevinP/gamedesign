@@ -1,6 +1,34 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <XnaContent xmlns:Pipeline="Microsoft.Xna.Framework.Content.Pipeline">
   <Asset Type="Pipeline:BuildItemCollection">
+    <Item>
+      <Source>Textures\titlescreen.png</Source>
+      <Name>Textures\titlescreen</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Patrick\Documents\School Documents\Spring 2012\CS 447\github\gamedesign\arcadegame\DreadWyrm\DreadWyrm\bin\x86\Debug\Content\Textures\titlescreen.xnb</Output>
+      <Time>2012-01-20T12:27:11.4732067-08:00</Time>
+    </Item>
+    <Item>
+      <Source>Fonts\Title.spritefont</Source>
+      <Name>Fonts\Title</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Patrick\Documents\School Documents\Spring 2012\CS 447\github\gamedesign\arcadegame\DreadWyrm\DreadWyrm\bin\x86\Debug\Content\Fonts\Title.xnb</Output>
+      <Time>2012-01-20T13:10:45.0042156-08:00</Time>
+    </Item>
+    <Item>
+      <Source>Sounds\bgm.mp3</Source>
+      <Name>Sounds\bgm</Name>
+      <Importer>Mp3Importer</Importer>
+      <Processor>SongProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Patrick\Documents\School Documents\Spring 2012\CS 447\github\gamedesign\arcadegame\DreadWyrm\DreadWyrm\bin\x86\Debug\Content\Sounds\bgm.xnb</Output>
+      <Extra>C:\Users\Patrick\Documents\School Documents\Spring 2012\CS 447\github\gamedesign\arcadegame\DreadWyrm\DreadWyrm\bin\x86\Debug\Content\Sounds\bgm.wma</Extra>
+      <Time>2012-01-20T13:19:49.267544-08:00</Time>
+    </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>
       <TargetPlatform>Windows</TargetPlatform>
@@ -13,6 +41,30 @@
       <OutputDirectory>C:\Users\Patrick\Documents\School Documents\Spring 2012\CS 447\github\gamedesign\arcadegame\DreadWyrm\DreadWyrm\bin\x86\Debug\Content\</OutputDirectory>
     </Settings>
     <Assemblies>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.XImporter.dll</Key>
+        <Value>2010-08-23T13:41:18-07:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.VideoImporters.dll</Key>
+        <Value>2010-08-23T13:41:18-07:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.TextureImporter.dll</Key>
+        <Value>2010-08-23T13:41:18-07:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.FBXImporter.dll</Key>
+        <Value>2010-08-23T13:41:18-07:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.EffectImporter.dll</Key>
+        <Value>2010-08-23T13:41:18-07:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.AudioImporters.dll</Key>
+        <Value>2010-08-23T13:41:18-07:00</Value>
+      </Assembly>
       <Assembly>
         <Key>C:\Windows\Microsoft.Net\assembly\GAC_32\Microsoft.Xna.Framework.Content.Pipeline\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Content.Pipeline.dll</Key>
         <Value>2012-01-19T10:25:51.8721669-08:00</Value>

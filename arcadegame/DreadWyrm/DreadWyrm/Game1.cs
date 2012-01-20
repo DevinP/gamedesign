@@ -19,6 +19,12 @@ namespace DreadWyrm
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        Texture2D t2dTitleScreen;                          //The title screen for the game
+        Song bgm;                                          //The background music for the game
+        bool m_gameStarted = false;                        //Whether or not we are at the title screen
+        SpriteFont titleFont;                              //The font used in the game for the title screen
+        Vector2 vStartTitleTextLoc = new Vector2(250, 50); //The location for the title screen text
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -34,6 +40,9 @@ namespace DreadWyrm
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            graphics.PreferredBackBufferHeight = 720;
+            graphics.PreferredBackBufferWidth = 1280;
+            graphics.ApplyChanges();
 
             base.Initialize();
         }
@@ -48,6 +57,14 @@ namespace DreadWyrm
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            titleFont = Content.Load<SpriteFont>(@"Fonts\Title");
+
+            t2dTitleScreen = Content.Load<Texture2D>(@"Textures\titlescreen");
+            
+            bgm = Content.Load<Song>(@"Sounds\bgm");
+
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(bgm);
         }
 
         /// <summary>
@@ -66,11 +83,29 @@ namespace DreadWyrm
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+            // Store values for the Keyboard so we aren't
+            // Querying them multiple times per Update
+            KeyboardState keystate = Keyboard.GetState();
+
+            // If the Escape Key is pressed, exit the game.
+            if (keystate.IsKeyDown(Keys.Escape))
                 this.Exit();
 
             // TODO: Add your update logic here
+
+            // Get elapsed game time since last call to Update
+            float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (m_gameStarted)
+            {
+                #region GamePlay Mode (m_gameStarted == true)
+                #endregion
+            }
+            else
+            {
+                #region Title Screen Mode (m_gameStarted == false)
+                #endregion
+            }
 
             base.Update(gameTime);
         }
@@ -84,6 +119,25 @@ namespace DreadWyrm
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
+
+            // Start a SpriteBatch.Begin which will be used
+            // by all of our drawing code.
+            spriteBatch.Begin();
+
+            if (m_gameStarted)
+            {
+                #region Game Play Mode (m_gameStarted == true)
+                #endregion
+            }
+            else
+            {
+                #region Title Screen Mode (m_gameStarted == false)
+                spriteBatch.Draw(t2dTitleScreen, new Rectangle(0, 0, 1280, 720), Color.White);
+                spriteBatch.DrawString(titleFont, "D R E A D   W Y R M", vStartTitleTextLoc, Color.Black);
+                #endregion
+            }
+            //Close the SpriteBatch
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
