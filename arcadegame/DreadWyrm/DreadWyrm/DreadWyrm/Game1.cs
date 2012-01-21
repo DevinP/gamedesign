@@ -148,7 +148,7 @@ namespace DreadWyrm
                 spriteBatch.Draw(t2dTitleScreen, new Rectangle(0, 0, 1280, 720), Color.White);
                 spriteBatch.DrawString(titleFont, "D R E A D   W Y R M", vStartTitleTextLoc, Color.Black);
 
-                if (gameTime.TotalGameTime.Milliseconds % 1000 < 500)
+                if (gameTime.TotalGameTime.Milliseconds % 1000 < 700)
                 {
                     spriteBatch.DrawString(title2Font, "Press Spacebar to BEGIN YOUR FEAST", vStartTitle2TextLoc, Color.Black);
                 }
