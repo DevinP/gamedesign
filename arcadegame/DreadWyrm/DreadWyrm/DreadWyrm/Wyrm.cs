@@ -52,6 +52,7 @@ namespace DreadWyrm
 
         float f_HeadSpeed;
         float f_HeadSpeedMax;
+        float f_HeadSpeedMin;
 
         float f_HeadDirection;
 
@@ -100,6 +101,12 @@ namespace DreadWyrm
         {
             get { return f_HeadSpeedMax; }
             set { f_HeadSpeedMax = value; }
+        }
+
+        public float HeadSpeedMin
+        {
+            get { return f_HeadSpeedMin; }
+            set { f_HeadSpeedMin = value; }
         }
 
         public float HeadDirection
@@ -152,6 +159,11 @@ namespace DreadWyrm
 
         public Wyrm(float initialX, float initialY, List<Texture2D> textures, int segments)
         {
+            f_HeadSpeedMax = 5;
+            f_HeadSpeedMin = 0;
+            f_HeadRotationSpeedMax = 5;
+            f_HeadRotationSpeedMin = -5;
+
             l_f_SegmentXPos = new List<float>();
             l_f_SegmentYPos = new List<float>();
 
@@ -188,9 +200,15 @@ namespace DreadWyrm
                 l_f_SegmentYPos[HEAD] += f_HeadSpeed * (float) Math.Sin(f_HeadDirection);
 
                 //Update the velocity of the head (including the angle and magnitude)
-                f_HeadSpeed += f_HeadAcceleration;
+                if (f_HeadSpeed + f_HeadAcceleration > f_HeadSpeedMax)
+                    f_HeadSpeed = f_HeadSpeedMax;
+                else if (f_HeadSpeed + f_HeadAcceleration < f_HeadSpeedMin)
+                    f_HeadSpeed = f_HeadSpeedMin;
+                else
+                    f_HeadSpeed += f_HeadAcceleration;
+
                 f_HeadDirection += f_HeadRotationSpeed;
-                f_HeadRotationSpeed += f_HeadRotationAcceleration;
+             //   f_HeadRotationSpeed += f_HeadRotationAcceleration;
 
                 f_WyrmMoveCount = 0f;
             }

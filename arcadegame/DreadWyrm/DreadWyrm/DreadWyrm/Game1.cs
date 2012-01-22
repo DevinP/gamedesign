@@ -116,7 +116,7 @@ namespace DreadWyrm
             {
                 #region GamePlay Mode (m_gameStarted == true)
 
-                thePlayer.Update(gameTime);
+                thePlayer.Update(gameTime, keystate);
 
                 #endregion
             }

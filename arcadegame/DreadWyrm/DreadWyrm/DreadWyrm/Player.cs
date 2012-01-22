@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace DreadWyrm
 {
@@ -48,8 +49,42 @@ namespace DreadWyrm
             theWyrm = new Wyrm(0, 0, wyrmTextures, WYRMSEGMENTS);
         }
 
-        public void Update(GameTime gametime)
+        public void Update(GameTime gametime, KeyboardState keystate)
         {
+            /*if (keystate.IsKeyDown(Keys.Right))
+            {
+                theWyrm.HeadAcceleration = 1;
+            }
+            else if (keystate.IsKeyDown(Keys.Left))
+            {
+                theWyrm.HeadAcceleration = -1;
+            }
+            else if (keystate.IsKeyUp(Keys.Right) && keystate.IsKeyUp(Keys.Left))
+            {
+                theWyrm.HeadAcceleration = 0;
+            }*/
+
+            if (keystate.IsKeyDown(Keys.Up))
+                theWyrm.HeadAcceleration = 1;
+            else if (keystate.IsKeyUp(Keys.Up))
+                theWyrm.HeadAcceleration = -0.1f;
+
+            if (keystate.IsKeyDown(Keys.Right))
+            {
+                theWyrm.HeadRotationSpeed = -0.05f;
+               // theWyrm.HeadRotationAcceleration = -1;
+            }
+            else if (keystate.IsKeyDown(Keys.Left))
+            {
+                theWyrm.HeadRotationSpeed = 0.05f;
+               // theWyrm.HeadRotationAcceleration = 1;
+            }
+            else if (keystate.IsKeyUp(Keys.Right) && keystate.IsKeyUp(Keys.Left))
+            {
+              //  theWyrm.HeadRotationAcceleration = 0;
+                theWyrm.HeadRotationSpeed = 0;
+            }
+
             theWyrm.Update(gametime);
         }
 
