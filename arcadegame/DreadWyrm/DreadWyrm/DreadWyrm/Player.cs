@@ -51,18 +51,6 @@ namespace DreadWyrm
 
         public void Update(GameTime gametime, KeyboardState keystate)
         {
-            /*if (keystate.IsKeyDown(Keys.Right))
-            {
-                theWyrm.HeadAcceleration = 1;
-            }
-            else if (keystate.IsKeyDown(Keys.Left))
-            {
-                theWyrm.HeadAcceleration = -1;
-            }
-            else if (keystate.IsKeyUp(Keys.Right) && keystate.IsKeyUp(Keys.Left))
-            {
-                theWyrm.HeadAcceleration = 0;
-            }*/
 
             if (keystate.IsKeyDown(Keys.Up))
                 theWyrm.HeadAcceleration = 1;
@@ -72,16 +60,13 @@ namespace DreadWyrm
             if (keystate.IsKeyDown(Keys.Right))
             {
                 theWyrm.HeadRotationSpeed = -0.05f;
-               // theWyrm.HeadRotationAcceleration = -1;
             }
             else if (keystate.IsKeyDown(Keys.Left))
             {
                 theWyrm.HeadRotationSpeed = 0.05f;
-               // theWyrm.HeadRotationAcceleration = 1;
             }
             else if (keystate.IsKeyUp(Keys.Right) && keystate.IsKeyUp(Keys.Left))
             {
-              //  theWyrm.HeadRotationAcceleration = 0;
                 theWyrm.HeadRotationSpeed = 0;
             }
 

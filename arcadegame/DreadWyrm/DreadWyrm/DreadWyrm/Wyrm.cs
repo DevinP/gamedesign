@@ -208,7 +208,6 @@ namespace DreadWyrm
                     f_HeadSpeed += f_HeadAcceleration;
 
                 f_HeadDirection += f_HeadRotationSpeed;
-             //   f_HeadRotationSpeed += f_HeadRotationAcceleration;
 
                 f_WyrmMoveCount = 0f;
             }
@@ -221,13 +220,8 @@ namespace DreadWyrm
 
         public void Draw(SpriteBatch sb)
         {
-            for (int i = 0; i < i_numSegments; i++)
-            {
-                asSprites[i].Draw(sb, (int) l_f_SegmentXPos[i], (int) l_f_SegmentYPos[i], false);
-            }
+            asSprites[HEAD].Draw(sb, (int)l_f_SegmentXPos[HEAD] + (SPRITEWIDTH/2), (int)l_f_SegmentYPos[HEAD] + (SPRITEHEIGHT/2), f_HeadDirection, false);
         }
-        
-
 
     }
 }

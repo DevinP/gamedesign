@@ -131,6 +131,34 @@ namespace DreadWyrm
                 spriteBatch.End();
         }
 
+       public void Draw(
+       SpriteBatch spriteBatch,
+       int XOffset,
+       int YOffset,
+       float rotationAngle,
+       bool NeedBeginEnd)
+        {
+            if (NeedBeginEnd)
+                spriteBatch.Begin();
+
+            spriteBatch.Draw(
+                t2dTexture,
+                new Rectangle(
+                    iScreenX + XOffset,
+                    iScreenY + YOffset,
+                    iFrameWidth,
+                    iFrameHeight),
+                    GetSourceRect(),
+                    cTinting,
+                    rotationAngle,
+                    new Vector2(iFrameWidth/2,iFrameHeight/2),
+                    SpriteEffects.None,
+                    0f);
+
+            if (NeedBeginEnd)
+                spriteBatch.End();
+        }
+
         public void Draw(SpriteBatch spriteBatch, int XOffset, int YOffset)
         {
             Draw(spriteBatch, XOffset, YOffset, true);
