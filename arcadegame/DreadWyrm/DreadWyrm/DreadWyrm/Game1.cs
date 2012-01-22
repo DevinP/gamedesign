@@ -28,6 +28,9 @@ namespace DreadWyrm
         Vector2 vStartTitle2TextLoc = new Vector2(440, 450);//The location for the additional title screen text
         SoundEffect roar;
 
+        Texture2D t2dWyrmHead;                              //The sprite for the Wyrm head
+        Player thePlayer;                                   //The player of the game
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -69,6 +72,13 @@ namespace DreadWyrm
 
             bgm = Content.Load<Song>(@"Sounds\bgm");
 
+            t2dWyrmHead = Content.Load<Texture2D>(@"Textures\wyrmhead");
+
+            List<Texture2D> wyrmTextures = new List<Texture2D>();
+            wyrmTextures.Add(t2dWyrmHead);
+
+            thePlayer = new Player(0, wyrmTextures);
+
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(bgm);
         }
@@ -106,7 +116,7 @@ namespace DreadWyrm
             {
                 #region GamePlay Mode (m_gameStarted == true)
 
-
+                thePlayer.Update(gameTime);
 
                 #endregion
             }
@@ -142,6 +152,9 @@ namespace DreadWyrm
             if (m_gameStarted)
             {
                 #region Game Play Mode (m_gameStarted == true)
+
+                thePlayer.Draw(spriteBatch);
+
                 #endregion
             }
             else

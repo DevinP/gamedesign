@@ -9,6 +9,9 @@ namespace DreadWyrm
 {
     class Player
     {
+        //The 0-indexed number of segments in this player's Wyrm
+        const int WYRMSEGMENTS = 1;
+
         //game variables
         int i_playerID;
         Wyrm theWyrm;
@@ -42,12 +45,17 @@ namespace DreadWyrm
             i_playerID = ID;
 
             //Create a Wyrm
-            theWyrm = new Wyrm(0, 0, wyrmTextures, 6);
+            theWyrm = new Wyrm(0, 0, wyrmTextures, WYRMSEGMENTS);
         }
 
         public void Update(GameTime gametime)
         {
+            theWyrm.Update(gametime);
+        }
 
+        public void Draw(SpriteBatch sb)
+        {
+            theWyrm.Draw(sb);
         }
 
 

@@ -19,13 +19,16 @@ namespace DreadWyrm
         const int TAIL = 1;
 
         //The width of the Wyrm sprites
-        const int SPRITEWIDTH = 32;
+        const int SPRITEWIDTH = 154;
 
         //The height of the Wyrm sprites
-        const int SPRITEHEIGHT = 32;
+        const int SPRITEHEIGHT = 154;
 
         //The number of frames in the head animation
-        const int HEADFRAMES;
+        const int HEADFRAMES = 0;
+
+        float f_WyrmMoveCount = 0.0f;
+        float f_WyrmMoveDelay = 0.01f;
 
         //Body Parts
         
@@ -66,7 +69,7 @@ namespace DreadWyrm
         public int numSegments
         {
             get { return i_numSegments; }
-            set { i_numSegments = (int)MathHelper.Clamp(value, 2, 10); }
+            set { i_numSegments = (int)MathHelper.Clamp(value, 0, 10); }
         }
 
         public List<Texture2D> SegmentTextures
@@ -102,7 +105,7 @@ namespace DreadWyrm
         public float HeadDirection
         {
             get { return f_HeadDirection; }
-            set { f_HeadDirection = value % 360; }
+            set { f_HeadDirection = value % (float)(2*Math.PI); }
         }
 
         public float HeadAcceleration
@@ -149,28 +152,61 @@ namespace DreadWyrm
 
         public Wyrm(float initialX, float initialY, List<Texture2D> textures, int segments)
         {
-            l_f_SegmentXPos[HEAD] = initialX;
-            l_f_SegmentYPos[HEAD] = initialY;
+            l_f_SegmentXPos = new List<float>();
+            l_f_SegmentYPos = new List<float>();
+
+            l_f_SegmentXPos.Add(initialX);
+            l_f_SegmentYPos.Add(initialY);
             l_t2d_SegmentTextures = textures;
 
             numSegments = segments;
 
+            asSprites = new List<AnimatedSprite>();
             //Create the head sprite, with its animation
             asSprites.Add(new AnimatedSprite(l_t2d_SegmentTextures[HEAD], (int)initialX, (int)initialY, SPRITEWIDTH, SPRITEHEIGHT, HEADFRAMES));
             asSprites[HEAD].IsAnimating = false;
 
-            //Add the rest of the sprites, which do not animate
-            for (int i = 1; i < numSegments; i++)
+            if (numSegments > 1)
             {
-                asSprites.Add(new AnimatedSprite(l_t2d_SegmentTextures[i], (int) initialX, (int) initialY, SPRITEWIDTH, SPRITEHEIGHT, 0));
-                asSprites[i].IsAnimating = false;
+                //Add the rest of the sprites, which do not animate
+                for (int i = 1; i < numSegments; i++)
+                {
+                    asSprites.Add(new AnimatedSprite(l_t2d_SegmentTextures[i], (int)initialX, (int)initialY, SPRITEWIDTH, SPRITEHEIGHT, 0));
+                    asSprites[i].IsAnimating = false;
+                }
             }
         }
 
         public void Update(GameTime gametime)
         {
-            f_HeadSpeed += f_HeadRotationAcceleration;
-            f_HeadDirection += f_HeadRotationSpeed;
+            f_WyrmMoveCount += (float)gametime.ElapsedGameTime.TotalSeconds;
+            if(f_WyrmMoveCount > f_WyrmMoveDelay)
+            {
+                //Update the X and Y positions of the head based on the magnitude and direction of the
+                //velocity of the head
+                l_f_SegmentXPos[HEAD] += f_HeadSpeed * (float) Math.Cos(f_HeadDirection);
+                l_f_SegmentYPos[HEAD] += f_HeadSpeed * (float) Math.Sin(f_HeadDirection);
+
+                //Update the velocity of the head (including the angle and magnitude)
+                f_HeadSpeed += f_HeadAcceleration;
+                f_HeadDirection += f_HeadRotationSpeed;
+                f_HeadRotationSpeed += f_HeadRotationAcceleration;
+
+                f_WyrmMoveCount = 0f;
+            }
+
+            for(int i = 0; i < numSegments; i++)
+            {
+                asSprites[i].Update(gametime);
+            }
+        }
+
+        public void Draw(SpriteBatch sb)
+        {
+            for (int i = 0; i < i_numSegments; i++)
+            {
+                asSprites[i].Draw(sb, (int) l_f_SegmentXPos[i], (int) l_f_SegmentYPos[i], false);
+            }
         }
         
 
