@@ -108,6 +108,15 @@ namespace DreadWyrm
             }
         }
 
+        /* Draw()
+         * 
+         * This method is a version of Draw which is best used in sprites that do not rotate
+         * 
+         * @params spriteBatch - the SpriteBatch to use in drawing
+         *         XOffset - the X location on the screen to begin drawing the sprite
+         *         YOffset - the Y location on the screen to begin drawing the sprite
+         *         NeedBeginEnd - Should be true if the spritebatch needs a begin and end statement
+         */
         public void Draw(
         SpriteBatch spriteBatch,
         int XOffset,
@@ -131,6 +140,16 @@ namespace DreadWyrm
                 spriteBatch.End();
         }
 
+       /* Draw()
+        * 
+        * This method is a version of Draw which is best used in sprites that will be rotating around their center
+        * 
+        * @params spriteBatch - the SpriteBatch to use in drawing
+        *         XOffset - the X location on the screen to begin drawing the sprite
+        *         YOffset - the Y location on the screen to begin drawing the sprite
+        *         rotationAngle - the angle of rotation the sprite will be drawn at, in radians
+        *         NeedBeginEnd - Should be true if the spritebatch needs a begin and end statement
+        */
        public void Draw(
        SpriteBatch spriteBatch,
        int XOffset,
@@ -151,7 +170,7 @@ namespace DreadWyrm
                     GetSourceRect(),
                     cTinting,
                     rotationAngle,
-                    new Vector2(iFrameWidth/2,iFrameHeight/2),
+                    new Vector2(iFrameWidth/2,iFrameHeight/2), //Provide the sprite's center as the rotation origin
                     SpriteEffects.None,
                     0f);
 

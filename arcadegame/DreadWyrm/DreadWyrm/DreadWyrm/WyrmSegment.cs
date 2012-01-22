@@ -12,10 +12,9 @@ namespace DreadWyrm
         //The texture of this Wyrm segment
         Texture2D t2d_segmentSprite;
 
-        //The segments in front of and behind this Wyrm segment
-        //A null value indicates it is the head or tail (depending on which value is null)
+        //The segment in front of this Wyrm segment
+        //A null value indicates it is the head
         WyrmSegment frontSeg;
-        WyrmSegment backSeg;
 
         //The physical parameters of this Wyrm segment
         float f_xPos;
@@ -93,13 +92,23 @@ namespace DreadWyrm
             set { f_RotationSpeedMax = value; }
         }
 
-        public WyrmSegment(Texture2D texture, float X, float Y, WyrmSegment front, WyrmSegment back)
+        public WyrmSegment FrontSegment
+        {
+            get { return frontSeg; }
+            set { frontSeg = value; }
+        }
+
+        public WyrmSegment(Texture2D texture, float X, float Y, WyrmSegment front)
         {
             t2d_segmentSprite = texture;
             f_xPos = X;
             f_yPos = Y;
             frontSeg = front;
-            backSeg = back;
+        }
+
+        public void Update()
+        {
+
         }
     }
 }

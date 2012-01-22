@@ -35,6 +35,12 @@ namespace DreadWyrm
         //the textures are contained in a list.
         //The first texture is the head, the second is the tail, and the rest are middle segments
         List<Texture2D> l_t2d_SegmentTextures;
+
+        //Similarly, a list of the segments themselves
+        //The first element is the head, the second is the tail, and the rest are middle segments
+        List<WyrmSegment> l_segments;
+        
+        //A list of animated sprite objects, one for each segment
         List<AnimatedSprite> asSprites;
 
         //How many segments the Wyrm has
@@ -159,10 +165,10 @@ namespace DreadWyrm
 
         public Wyrm(float initialX, float initialY, List<Texture2D> textures, int segments)
         {
-            f_HeadSpeedMax = 5;
-            f_HeadSpeedMin = 0;
-            f_HeadRotationSpeedMax = 5;
-            f_HeadRotationSpeedMin = -5;
+            f_HeadSpeedMax = 8;
+            f_HeadSpeedMin = 1f;
+            f_HeadRotationSpeedMax = 6;
+            f_HeadRotationSpeedMin = -6;
 
             l_f_SegmentXPos = new List<float>();
             l_f_SegmentYPos = new List<float>();
@@ -172,6 +178,11 @@ namespace DreadWyrm
             l_t2d_SegmentTextures = textures;
 
             numSegments = segments;
+
+            l_segments = new List<WyrmSegment>();
+
+            //Create the Wyrm head
+            l_segments.Add(new WyrmSegment(l_t2d_SegmentTextures[HEAD], initialX, initialY, null));
 
             asSprites = new List<AnimatedSprite>();
             //Create the head sprite, with its animation
@@ -183,6 +194,10 @@ namespace DreadWyrm
                 //Add the rest of the sprites, which do not animate
                 for (int i = 1; i < numSegments; i++)
                 {
+                    //Create a new segment and attach it to the one in front of it
+                    l_segments.Add(new WyrmSegment(l_t2d_SegmentTextures[i], initialX, initialY, l_segments[i - 1]));
+
+                    //Create a sprite object to correspond to the wyrm segment
                     asSprites.Add(new AnimatedSprite(l_t2d_SegmentTextures[i], (int)initialX, (int)initialY, SPRITEWIDTH, SPRITEHEIGHT, 0));
                     asSprites[i].IsAnimating = false;
                 }
@@ -214,13 +229,24 @@ namespace DreadWyrm
 
             for(int i = 0; i < numSegments; i++)
             {
+                //Update each Wyrm segment
+                l_segments[i].Update();
+
+                //Update the Wyrm sprites
                 asSprites[i].Update(gametime);
             }
         }
 
         public void Draw(SpriteBatch sb)
         {
+            //Draw the head
             asSprites[HEAD].Draw(sb, (int)l_f_SegmentXPos[HEAD] + (SPRITEWIDTH/2), (int)l_f_SegmentYPos[HEAD] + (SPRITEHEIGHT/2), f_HeadDirection, false);
+
+            //Draw the rest of the segments
+            for (int i = 1; i < numSegments; i++)
+            {
+                asSprites[i].Draw(sb, (int)l_f_SegmentXPos[i] + (SPRITEWIDTH / 2), (int)l_f_SegmentYPos[i] + (SPRITEHEIGHT / 2), l_segments[i].Direction, false);
+            }
         }
 
     }
