@@ -31,6 +31,9 @@ namespace DreadWyrm
         Texture2D t2dWyrmHead;                              //The sprite for the Wyrm head
         Player thePlayer;                                   //The player of the game
 
+
+        bool canRoar = true;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -118,6 +121,16 @@ namespace DreadWyrm
 
                 thePlayer.Update(gameTime, keystate);
 
+                if (keystate.IsKeyDown(Keys.LeftControl) && canRoar)
+                {
+                    roar.Play();
+                    canRoar = false;
+                }
+                else if (keystate.IsKeyUp(Keys.LeftControl) && !canRoar)
+                {
+                    canRoar = true;
+                }
+
                 #endregion
             }
             else
@@ -180,7 +193,6 @@ namespace DreadWyrm
         void startNewGame()
         {
             m_gameStarted = true;
-            roar.Play();
         }
     }
 }

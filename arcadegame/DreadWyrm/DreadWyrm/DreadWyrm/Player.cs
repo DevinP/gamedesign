@@ -59,11 +59,11 @@ namespace DreadWyrm
 
             if (keystate.IsKeyDown(Keys.Right))
             {
-                theWyrm.HeadRotationSpeed = -0.05f;
+                theWyrm.HeadRotationSpeed = 0.05f;
             }
             else if (keystate.IsKeyDown(Keys.Left))
             {
-                theWyrm.HeadRotationSpeed = 0.05f;
+                theWyrm.HeadRotationSpeed = -0.05f;
             }
             else if (keystate.IsKeyUp(Keys.Right) && keystate.IsKeyUp(Keys.Left))
             {
