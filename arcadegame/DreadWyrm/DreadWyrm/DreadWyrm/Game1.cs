@@ -78,7 +78,7 @@ namespace DreadWyrm
             bgm = Content.Load<Song>(@"Sounds\bgm");
 
             t2dWyrmHead = Content.Load<Texture2D>(@"Textures\wyrmhead");
-            t2dWyrmSeg = Content.Load<Texture2D>(@"Textures\wyrmseg_100x100");
+            t2dWyrmSeg = Content.Load<Texture2D>(@"Textures\wyrmseg");
 
             List<Texture2D> wyrmTextures = new List<Texture2D>();
             wyrmTextures.Add(t2dWyrmHead);
