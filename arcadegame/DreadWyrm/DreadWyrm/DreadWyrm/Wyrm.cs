@@ -175,6 +175,13 @@ namespace DreadWyrm
 
             l_f_SegmentXPos.Add(initialX);
             l_f_SegmentYPos.Add(initialY);
+
+            //for 8 other segments...
+            for (int i = 0; i < 8; i++)
+            {
+                l_f_SegmentXPos.Add(initialX);
+                l_f_SegmentYPos.Add(initialY);
+            }
             l_t2d_SegmentTextures = textures;
 
             numSegments = segments;
@@ -186,7 +193,7 @@ namespace DreadWyrm
 
             asSprites = new List<AnimatedSprite>();
             //Create the head sprite, with its animation
-            asSprites.Add(new AnimatedSprite(l_t2d_SegmentTextures[HEAD], (int)initialX, (int)initialY, SPRITEWIDTH, SPRITEHEIGHT, HEADFRAMES));
+            asSprites.Add(new AnimatedSprite(l_t2d_SegmentTextures[HEAD], (int)0, (int)0, SPRITEWIDTH, SPRITEHEIGHT, HEADFRAMES));
             asSprites[HEAD].IsAnimating = false;
 
             if (numSegments > 1)
@@ -198,10 +205,14 @@ namespace DreadWyrm
                     l_segments.Add(new WyrmSegment(l_t2d_SegmentTextures[i], initialX, initialY, l_segments[i - 1]));
 
                     //Create a sprite object to correspond to the wyrm segment
-                    asSprites.Add(new AnimatedSprite(l_t2d_SegmentTextures[i], (int)initialX, (int)initialY, SPRITEWIDTH, SPRITEHEIGHT, 0));
+                    asSprites.Add(new AnimatedSprite(l_t2d_SegmentTextures[i], (int)0, (int)0, l_t2d_SegmentTextures[i].Width, l_t2d_SegmentTextures[i].Height, 0));
                     asSprites[i].IsAnimating = false;
                 }
             }
+
+            //lets update the offsets for the newly created segments
+            WyrmSegment.calcOffsets();
+
         }
 
         public void Update(GameTime gametime)
@@ -209,10 +220,8 @@ namespace DreadWyrm
             f_WyrmMoveCount += (float)gametime.ElapsedGameTime.TotalSeconds;
             if(f_WyrmMoveCount > f_WyrmMoveDelay)
             {
-                //Update the X and Y positions of the head based on the magnitude and direction of the
-                //velocity of the head
-                l_f_SegmentXPos[HEAD] += f_HeadSpeed * (float) Math.Cos(f_HeadDirection);
-                l_f_SegmentYPos[HEAD] += f_HeadSpeed * (float) Math.Sin(f_HeadDirection);
+
+
 
                 //Update the velocity of the head (including the angle and magnitude)
                 if (f_HeadSpeed + f_HeadAcceleration > f_HeadSpeedMax)
@@ -225,16 +234,39 @@ namespace DreadWyrm
                 f_HeadDirection += f_HeadRotationSpeed;
 
                 f_WyrmMoveCount = 0f;
+
+                //update all segments
+                for (int i = 0; i < numSegments; i++)
+                {
+                    //are we on the head?
+                    if (i == HEAD)
+                    {
+                        //Update the X and Y positions of the head based on the magnitude and direction of the
+                        //velocity of the head
+                       // l_f_SegmentXPos[HEAD] += f_HeadSpeed * (float) Math.Cos(f_HeadDirection);
+                       // l_f_SegmentYPos[HEAD] += f_HeadSpeed * (float) Math.Sin(f_HeadDirection);
+
+                        l_segments[HEAD].X = l_segments[HEAD].X + (f_HeadSpeed * (float)Math.Cos(f_HeadDirection));
+                        l_segments[HEAD].Y = l_segments[HEAD].Y + (f_HeadSpeed * (float)Math.Sin(f_HeadDirection));
+                    }
+                    else
+                    {
+                        //Update each Wyrm segment
+                        l_segments[i].Update();
+                    }
+                    //now copy the segment data into the location lists
+                    l_f_SegmentXPos[i] = l_segments[i].X;
+                    l_f_SegmentYPos[i] = l_segments[i].Y;
+
+                    //Update the Wyrm sprites
+                    asSprites[i].Update(gametime);
+                }
             }
 
-            for(int i = 0; i < numSegments; i++)
-            {
-                //Update each Wyrm segment
-                l_segments[i].Update();
+            
 
-                //Update the Wyrm sprites
-                asSprites[i].Update(gametime);
-            }
+            
+
         }
 
         public void Draw(SpriteBatch sb)

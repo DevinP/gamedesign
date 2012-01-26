@@ -29,6 +29,8 @@ namespace DreadWyrm
         SoundEffect roar;
 
         Texture2D t2dWyrmHead;                              //The sprite for the Wyrm head
+        Texture2D t2dWyrmSeg;
+
         Player thePlayer;                                   //The player of the game
 
 
@@ -76,9 +78,16 @@ namespace DreadWyrm
             bgm = Content.Load<Song>(@"Sounds\bgm");
 
             t2dWyrmHead = Content.Load<Texture2D>(@"Textures\wyrmhead");
+            t2dWyrmSeg = Content.Load<Texture2D>(@"Textures\wyrmseg_100x100");
 
             List<Texture2D> wyrmTextures = new List<Texture2D>();
             wyrmTextures.Add(t2dWyrmHead);
+            
+            //for 8 more segments....
+            for (int i = 0; i < 8; i++)
+            {
+                wyrmTextures.Add(t2dWyrmSeg);
+            }
 
             thePlayer = new Player(0, wyrmTextures);
 

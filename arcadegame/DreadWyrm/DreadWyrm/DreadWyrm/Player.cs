@@ -46,7 +46,7 @@ namespace DreadWyrm
             i_playerID = ID;
 
             //Create a Wyrm
-            theWyrm = new Wyrm(0, 0, wyrmTextures, WYRMSEGMENTS);
+            theWyrm = new Wyrm(500, 100, wyrmTextures, WYRMSEGMENTS);
         }
 
         public void Update(GameTime gametime, KeyboardState keystate)
