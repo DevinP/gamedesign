@@ -76,7 +76,7 @@ namespace DreadWyrm
         public int numSegments
         {
             get { return i_numSegments; }
-            set { i_numSegments = (int)MathHelper.Clamp(value, 0, 10); }
+            set { i_numSegments = (int)MathHelper.Clamp(value, 0, Game1.WYRMSEGS); }
         }
 
         public List<Texture2D> SegmentTextures
@@ -254,9 +254,9 @@ namespace DreadWyrm
         public void Draw(SpriteBatch sb)
         {
             //Draw the rest of the segments
-            for (int i = 0; i < numSegments; i++)
+            for (int i = 1; i <= numSegments; i++)
             {
-                asSprites[i].Draw(sb, (int)l_segments[i].X, (int)l_segments[i].Y + (SPRITEHEIGHT / 2), l_segments[i].Direction, false);
+                asSprites[numSegments - i].Draw(sb, (int)l_segments[numSegments - i].X, (int)l_segments[numSegments - i].Y + (SPRITEHEIGHT / 2), l_segments[numSegments - i].Direction, false);
             }
         }
 

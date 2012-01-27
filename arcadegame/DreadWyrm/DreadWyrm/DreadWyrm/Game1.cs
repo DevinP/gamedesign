@@ -19,11 +19,13 @@ namespace DreadWyrm
 
         static int SCREENWIDTH = 1280;
         static int SCREENHEIGHT = 720;
+        public static int WYRMSEGS = 100;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
         Texture2D t2dTitleScreen;                          //The title screen for the game
+        Texture2D t2dmainBackground;                          //The main background for the game
         Song bgm;                                          //The background music for the game
         bool m_gameStarted = false;                        //Whether or not we are at the title screen
         SpriteFont titleFont;                              //The font used in the game for the title screen
@@ -77,6 +79,8 @@ namespace DreadWyrm
 
             t2dTitleScreen = Content.Load<Texture2D>(@"Textures\titlescreen");
 
+            t2dmainBackground = Content.Load<Texture2D>(@"Textures\background_1280x720");
+
             roar = Content.Load<SoundEffect>(@"Sounds\Predator Roar");
 
             bgm = Content.Load<Song>(@"Sounds\bgm");
@@ -87,8 +91,8 @@ namespace DreadWyrm
             List<Texture2D> wyrmTextures = new List<Texture2D>();
             wyrmTextures.Add(t2dWyrmHead);
             
-            //for 8 more segments....
-            for (int i = 0; i < 10; i++)
+            //for wyrmseg more segments....
+            for (int i = 0; i < WYRMSEGS; i++)
             {
                 wyrmTextures.Add(t2dWyrmSeg);
             }
@@ -96,7 +100,7 @@ namespace DreadWyrm
             thePlayer = new Player(0, wyrmTextures);
 
             MediaPlayer.IsRepeating = true;
-          //  MediaPlayer.Play(bgm);
+            MediaPlayer.Play(bgm);
         }
 
         /// <summary>
@@ -135,19 +139,19 @@ namespace DreadWyrm
                 thePlayer.Update(gameTime, keystate);
 
                 //Make it so the player can't move off the screen
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < WYRMSEGS; i++)
                 {
-                    if (thePlayer.theWyrm.l_segments[i].X < 0)
-                        thePlayer.theWyrm.l_segments[i].X = 0;
+                    if (thePlayer.theWyrm.l_segments[i].X < 50)
+                        thePlayer.theWyrm.l_segments[i].X = 50;
 
-                    if (thePlayer.theWyrm.l_segments[i].X > SCREENWIDTH)
-                        thePlayer.theWyrm.l_segments[i].X = (float)SCREENWIDTH;
+                    if (thePlayer.theWyrm.l_segments[i].X > SCREENWIDTH - 50)
+                        thePlayer.theWyrm.l_segments[i].X = (float)SCREENWIDTH - 50;
 
                     if(thePlayer.theWyrm.l_segments[i].Y < 0)
                         thePlayer.theWyrm.l_segments[i].Y = 0;
 
-                    if (thePlayer.theWyrm.l_segments[i].Y > SCREENHEIGHT)
-                        thePlayer.theWyrm.l_segments[i].Y = (float)SCREENHEIGHT;
+                    if (thePlayer.theWyrm.l_segments[i].Y > SCREENHEIGHT - 100)
+                        thePlayer.theWyrm.l_segments[i].Y = (float)SCREENHEIGHT - 100;
                 }
 
                 if (keystate.IsKeyDown(Keys.LeftControl) && canRoar)
@@ -195,6 +199,8 @@ namespace DreadWyrm
             {
                 #region Game Play Mode (m_gameStarted == true)
 
+                spriteBatch.Draw(t2dmainBackground, new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT), Color.White);
+
                 thePlayer.Draw(spriteBatch);
 
                 #endregion
@@ -203,7 +209,7 @@ namespace DreadWyrm
             {
                 #region Title Screen Mode (m_gameStarted == false)
 
-                spriteBatch.Draw(t2dTitleScreen, new Rectangle(0, 0, 1280, 720), Color.White);
+                spriteBatch.Draw(t2dTitleScreen, new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT), Color.White);
                 spriteBatch.DrawString(titleFont, "D R E A D   W Y R M", vStartTitleTextLoc, Color.Black);
 
                 if (gameTime.TotalGameTime.Milliseconds % 1000 < 700)

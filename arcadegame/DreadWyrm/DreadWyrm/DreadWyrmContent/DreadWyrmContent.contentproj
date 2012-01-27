@@ -70,7 +70,13 @@
       <Processor>SoundEffectProcessor</Processor>
     </Compile>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Compile Include="Textures\background_1280x720.png">
+      <Name>background_1280x720</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="Textures\titlescreen.png">
       <Name>titlescreen</Name>
