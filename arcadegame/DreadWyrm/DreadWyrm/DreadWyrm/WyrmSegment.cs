@@ -162,24 +162,36 @@ namespace DreadWyrm
             float yDiff = frontY - Y;
             float xDiff = frontX - X;
 
-            if (xDiff > 0)
+            string debug = "";
+
+            //Change the calculation based on which quadrant we're in
+            if (xDiff > 0 && yDiff > 0) //Quadrant 1 (0 degrees to 90 degrees)
             {
                 Direction = (float)Math.Atan(yDiff / xDiff);
-            }
-            else if (yDiff > 0)
-            {
-                Direction = (float)(Math.Atan(yDiff / xDiff) + Math.PI);
-            }
-            else if (yDiff < 0)
-            {
-                Direction = (float)(Math.PI - Math.Atan(yDiff / xDiff));
-            }
 
-            Direction = (float)Math.Atan(yDiff / xDiff);
+                debug = debug + "Quadrant 1";
+            }
+            else if (xDiff < 0 && yDiff > 0) //Quadrant 2 (90 degrees to 180 degrees)
+            {
+                Direction = (float)(Math.PI + Math.Atan(yDiff / xDiff));
+                debug = debug + "Quadrant 2";
+            }
+            else if (xDiff < 0 && yDiff < 0) //Quadrant 3 (180 degrees to 270 degrees)
+            {
+                Direction = (float)(Math.PI + Math.Atan(yDiff / xDiff));
+                debug = debug + "Quadrant 3";
+            }
+            else if (xDiff > 0 && yDiff < 0) //Quadrant 4 (270 degrees to 360 aka 0 degrees)
+            {
+                Direction = (float)Math.Atan(yDiff / xDiff);
+                debug = debug + "Quadrant 4";
+            }
 
             int dirDeg = (int)(Direction * ((180 / Math.PI))+360) % 360;
 
-            Console.WriteLine("Arctan calculation: " + dirDeg);
+            debug = debug + ", Arctan calculation: " + dirDeg;
+
+            //Console.WriteLine(debug);
 
             /*
             #region Trying to get a better "follow" pattern
@@ -221,15 +233,19 @@ namespace DreadWyrm
             #endregion
 
             #region Find self offset(selfX and selfY are new offsetted points)
+
             //simply take the current position and add the offsets
             int index = dirDeg;
             float selfX = X + f_XOFFS[index];
             float selfY = Y + f_YOFFS[index];
+
             #endregion
 
             #region Move self to appropriate location (X and Y are modified)
+
             X = X + frontX - selfX;
             Y = Y + frontY - selfY;
+
             #endregion
 
             //In theory, everything is done

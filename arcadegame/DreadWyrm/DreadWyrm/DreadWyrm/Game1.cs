@@ -16,6 +16,10 @@ namespace DreadWyrm
     /// </summary>
     public class Game1 : Microsoft.Xna.Framework.Game
     {
+
+        static int SCREENWIDTH = 1280;
+        static int SCREENHEIGHT = 720;
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
@@ -51,8 +55,8 @@ namespace DreadWyrm
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            graphics.PreferredBackBufferHeight = 720;
-            graphics.PreferredBackBufferWidth = 1280;
+            graphics.PreferredBackBufferHeight = SCREENHEIGHT;
+            graphics.PreferredBackBufferWidth = SCREENWIDTH;
             graphics.ApplyChanges();
 
             base.Initialize();
@@ -84,7 +88,7 @@ namespace DreadWyrm
             wyrmTextures.Add(t2dWyrmHead);
             
             //for 8 more segments....
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 10; i++)
             {
                 wyrmTextures.Add(t2dWyrmSeg);
             }
@@ -92,7 +96,7 @@ namespace DreadWyrm
             thePlayer = new Player(0, wyrmTextures);
 
             MediaPlayer.IsRepeating = true;
-            MediaPlayer.Play(bgm);
+          //  MediaPlayer.Play(bgm);
         }
 
         /// <summary>
@@ -129,6 +133,22 @@ namespace DreadWyrm
                 #region GamePlay Mode (m_gameStarted == true)
 
                 thePlayer.Update(gameTime, keystate);
+
+                //Make it so the player can't move off the screen
+                for (int i = 0; i < 10; i++)
+                {
+                    if (thePlayer.theWyrm.l_segments[i].X < 0)
+                        thePlayer.theWyrm.l_segments[i].X = 0;
+
+                    if (thePlayer.theWyrm.l_segments[i].X > SCREENWIDTH)
+                        thePlayer.theWyrm.l_segments[i].X = (float)SCREENWIDTH;
+
+                    if(thePlayer.theWyrm.l_segments[i].Y < 0)
+                        thePlayer.theWyrm.l_segments[i].Y = 0;
+
+                    if (thePlayer.theWyrm.l_segments[i].Y > SCREENHEIGHT)
+                        thePlayer.theWyrm.l_segments[i].Y = (float)SCREENHEIGHT;
+                }
 
                 if (keystate.IsKeyDown(Keys.LeftControl) && canRoar)
                 {

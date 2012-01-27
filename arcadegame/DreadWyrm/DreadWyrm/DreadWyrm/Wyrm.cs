@@ -38,7 +38,7 @@ namespace DreadWyrm
 
         //Similarly, a list of the segments themselves
         //The first element is the head, the second is the tail, and the rest are middle segments
-        List<WyrmSegment> l_segments;
+        public List<WyrmSegment> l_segments;
         
         //A list of animated sprite objects, one for each segment
         List<AnimatedSprite> asSprites;
@@ -84,18 +84,6 @@ namespace DreadWyrm
             get{return l_t2d_SegmentTextures;}
             set{l_t2d_SegmentTextures = value;}
         }
-
-/*        public List<float> SegmentXPos
-        {
-            get { return l_f_SegmentXPos; }
-            set { l_f_SegmentXPos = value; }
-        }
-
-        public List<float> SegmentYPos
-        {
-            get { return l_f_SegmentYPos; }
-            set { l_f_SegmentYPos = value; }
-        }*/
 
         public float HeadSpeed
         {
