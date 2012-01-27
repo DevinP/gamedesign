@@ -50,13 +50,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\titlescreen.png">
-      <Name>titlescreen</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Sounds\bgm.mp3">
       <Name>bgm</Name>
       <Importer>Mp3Importer</Importer>
@@ -77,23 +70,30 @@
       <Processor>SoundEffectProcessor</Processor>
     </Compile>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
+    <Compile Include="Textures\titlescreen.png">
+      <Name>titlescreen</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
     <Compile Include="Textures\wyrmhead.png">
       <Name>wyrmhead</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Textures\wyrmseg_100x100.png">
-      <Name>wyrmseg_100x100</Name>
+    <Compile Include="Textures\wyrmhead_100x100.png">
+      <Name>wyrmhead_100x100</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Textures\wyrmseg.png">
       <Name>wyrmseg</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Textures\wyrmseg_100x100.png">
+      <Name>wyrmseg_100x100</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

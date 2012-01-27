@@ -19,10 +19,10 @@ namespace DreadWyrm
         const int TAIL = 1;
 
         //The width of the Wyrm sprites
-        const int SPRITEWIDTH = 154;
+        const int SPRITEWIDTH = 100;
 
         //The height of the Wyrm sprites
-        const int SPRITEHEIGHT = 154;
+        const int SPRITEHEIGHT = 100;
 
         //The number of frames in the head animation
         const int HEADFRAMES = 0;
@@ -49,8 +49,8 @@ namespace DreadWyrm
 
         //The wyrm contains the positions of each and every segment
         //The first is the head, the second is the tail, and the rest are middle segments
-        List<float> l_f_SegmentXPos;
-        List<float> l_f_SegmentYPos;
+//        List<float> l_f_SegmentXPos;
+//        List<float> l_f_SegmentYPos;
 
         //All segments are designed to simply "follow" the head
 
@@ -85,7 +85,7 @@ namespace DreadWyrm
             set{l_t2d_SegmentTextures = value;}
         }
 
-        public List<float> SegmentXPos
+/*        public List<float> SegmentXPos
         {
             get { return l_f_SegmentXPos; }
             set { l_f_SegmentXPos = value; }
@@ -95,7 +95,7 @@ namespace DreadWyrm
         {
             get { return l_f_SegmentYPos; }
             set { l_f_SegmentYPos = value; }
-        }
+        }*/
 
         public float HeadSpeed
         {
@@ -170,44 +170,34 @@ namespace DreadWyrm
             f_HeadRotationSpeedMax = 6;
             f_HeadRotationSpeedMin = -6;
 
-            l_f_SegmentXPos = new List<float>();
-            l_f_SegmentYPos = new List<float>();
-
-            l_f_SegmentXPos.Add(initialX);
-            l_f_SegmentYPos.Add(initialY);
-
-            //for 8 other segments...
-            for (int i = 0; i < 8; i++)
-            {
-                l_f_SegmentXPos.Add(initialX);
-                l_f_SegmentYPos.Add(initialY);
-            }
             l_t2d_SegmentTextures = textures;
 
-            numSegments = segments;
-
+            //Start the Wyrm by creating the head
             l_segments = new List<WyrmSegment>();
-
-            //Create the Wyrm head
             l_segments.Add(new WyrmSegment(l_t2d_SegmentTextures[HEAD], initialX, initialY, null));
-
             asSprites = new List<AnimatedSprite>();
             //Create the head sprite, with its animation
             asSprites.Add(new AnimatedSprite(l_t2d_SegmentTextures[HEAD], (int)0, (int)0, SPRITEWIDTH, SPRITEHEIGHT, HEADFRAMES));
-            asSprites[HEAD].IsAnimating = false;
+            asSprites[HEAD].IsAnimating = false;  
 
-            if (numSegments > 1)
+            numSegments = segments;
+
+            //Add the rest of the Wyrm segments on and create sprites for them
+            for (int i = 1; i < numSegments; i++)
             {
-                //Add the rest of the sprites, which do not animate
-                for (int i = 1; i < numSegments; i++)
-                {
-                    //Create a new segment and attach it to the one in front of it
-                    l_segments.Add(new WyrmSegment(l_t2d_SegmentTextures[i], initialX, initialY, l_segments[i - 1]));
+                //Create a new segment and attach it to the one in front of it
+                l_segments.Add(new WyrmSegment(l_t2d_SegmentTextures[i], initialX, initialY, l_segments[i - 1]));
 
-                    //Create a sprite object to correspond to the wyrm segment
-                    asSprites.Add(new AnimatedSprite(l_t2d_SegmentTextures[i], (int)0, (int)0, l_t2d_SegmentTextures[i].Width, l_t2d_SegmentTextures[i].Height, 0));
-                    asSprites[i].IsAnimating = false;
-                }
+                //Create a sprite object to correspond to the wyrm segment
+                asSprites.Add(new AnimatedSprite(l_t2d_SegmentTextures[i], (int)0, (int)0, l_t2d_SegmentTextures[i].Width, l_t2d_SegmentTextures[i].Height, 0));
+                asSprites[i].IsAnimating = false;
+            }
+
+            //for other segments...
+            for (int i = 0; i < numSegments; i++)
+            {
+                l_segments[i].X = initialX;
+                l_segments[i].Y = initialY;
             }
 
             //lets update the offsets for the newly created segments
@@ -220,9 +210,6 @@ namespace DreadWyrm
             f_WyrmMoveCount += (float)gametime.ElapsedGameTime.TotalSeconds;
             if(f_WyrmMoveCount > f_WyrmMoveDelay)
             {
-
-
-
                 //Update the velocity of the head (including the angle and magnitude)
                 if (f_HeadSpeed + f_HeadAcceleration > f_HeadSpeedMax)
                     f_HeadSpeed = f_HeadSpeedMax;
@@ -231,7 +218,14 @@ namespace DreadWyrm
                 else
                     f_HeadSpeed += f_HeadAcceleration;
 
-                f_HeadDirection += f_HeadRotationSpeed;
+                f_HeadDirection = (f_HeadDirection + f_HeadRotationSpeed) % (float) (2*Math.PI);
+
+                if (f_HeadDirection < 0)
+                {
+                    f_HeadDirection = (float) (2*Math.PI);
+                }
+
+                l_segments[HEAD].Direction = f_HeadDirection;
 
                 f_WyrmMoveCount = 0f;
 
@@ -255,8 +249,8 @@ namespace DreadWyrm
                         l_segments[i].Update();
                     }
                     //now copy the segment data into the location lists
-                    l_f_SegmentXPos[i] = l_segments[i].X;
-                    l_f_SegmentYPos[i] = l_segments[i].Y;
+                    //l_f_SegmentXPos[i] = l_segments[i].X;
+                    //l_f_SegmentYPos[i] = l_segments[i].Y;
 
                     //Update the Wyrm sprites
                     asSprites[i].Update(gametime);
@@ -271,13 +265,10 @@ namespace DreadWyrm
 
         public void Draw(SpriteBatch sb)
         {
-            //Draw the head
-            asSprites[HEAD].Draw(sb, (int)l_f_SegmentXPos[HEAD] + (SPRITEWIDTH/2), (int)l_f_SegmentYPos[HEAD] + (SPRITEHEIGHT/2), f_HeadDirection, false);
-
             //Draw the rest of the segments
-            for (int i = 1; i < numSegments; i++)
+            for (int i = 0; i < numSegments; i++)
             {
-                asSprites[i].Draw(sb, (int)l_f_SegmentXPos[i] + (SPRITEWIDTH / 2), (int)l_f_SegmentYPos[i] + (SPRITEHEIGHT / 2), l_segments[i].Direction, false);
+                asSprites[i].Draw(sb, (int)l_segments[i].X, (int)l_segments[i].Y + (SPRITEHEIGHT / 2), l_segments[i].Direction, false);
             }
         }
 

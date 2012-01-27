@@ -21,7 +21,7 @@ namespace DreadWyrm
         static float f_height = 100f;
 
         //a magic number float of the percentage from the center to the "chain" node.
-        static float f_DISTORIGIN = 0.85f;
+        static float f_DISTORIGIN = 0.75f;
         
         //a static list of the x and y offsets for each degree of rotation
         static float[] f_XOFFS = new float[360];
@@ -143,24 +143,43 @@ namespace DreadWyrm
         public void Follow()
         {
             #region Find front offset (frontX and frontY are new offsetted points)
+
             //now we figure out where exactly its offset point is
             //the front's angle in degrees...
             int frontAngle = (int)(frontSeg.Direction * (180 / Math.PI));
+
             //now get the "other" side
             frontAngle = (frontAngle + 180) % 360;
             //look it up in the table
             float frontX = frontSeg.X + f_XOFFS[frontAngle];
             float frontY = frontSeg.Y + f_YOFFS[frontAngle];
+
             #endregion
 
-            #region Self point at front (chande Direction to point at front node)
+            #region Self point at front (change Direction to point at front node)
+
             //the change in Y..
             float yDiff = frontY - Y;
             float xDiff = frontX - X;
 
+            if (xDiff > 0)
+            {
+                Direction = (float)Math.Atan(yDiff / xDiff);
+            }
+            else if (yDiff > 0)
+            {
+                Direction = (float)(Math.Atan(yDiff / xDiff) + Math.PI);
+            }
+            else if (yDiff < 0)
+            {
+                Direction = (float)(Math.PI - Math.Atan(yDiff / xDiff));
+            }
+
             Direction = (float)Math.Atan(yDiff / xDiff);
-            
+
             int dirDeg = (int)(Direction * ((180 / Math.PI))+360) % 360;
+
+            Console.WriteLine("Arctan calculation: " + dirDeg);
 
             /*
             #region Trying to get a better "follow" pattern
@@ -213,7 +232,7 @@ namespace DreadWyrm
             Y = Y + frontY - selfY;
             #endregion
 
-            //In theory, everythign is done
+            //In theory, everything is done
         }
 
         public static void calcOffsets()
