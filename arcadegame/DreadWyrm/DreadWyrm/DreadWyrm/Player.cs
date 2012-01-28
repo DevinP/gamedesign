@@ -50,9 +50,9 @@ namespace DreadWyrm
         {
 
             if (keystate.IsKeyDown(Keys.Up))
-                theWyrm.HeadAcceleration = 1;
+                theWyrm.HeadAcceleration = 0.7f;
             else if (keystate.IsKeyUp(Keys.Up))
-                theWyrm.HeadAcceleration = -0.1f;
+                theWyrm.HeadAcceleration = -0.05f;
 
             if (keystate.IsKeyDown(Keys.Right))
             {

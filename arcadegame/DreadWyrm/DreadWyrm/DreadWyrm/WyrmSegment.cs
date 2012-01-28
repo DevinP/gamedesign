@@ -21,11 +21,13 @@ namespace DreadWyrm
         static float f_height = 100f;
 
         //a magic number float of the percentage from the center to the "chain" node.
-        static float f_DISTORIGIN = 0.75f;
+        static float f_DISTORIGIN = 0.65f;
         
         //a static list of the x and y offsets for each degree of rotation
         static float[] f_XOFFS = new float[360];
         static float[] f_YOFFS = new float[360];
+
+        bool isHead;
 
         //The physical parameters of this Wyrm segment
         float f_xPos;
@@ -43,7 +45,11 @@ namespace DreadWyrm
         float f_RotationSpeedMin;
         float f_RotationSpeedMax;
 
-
+        public bool isFrontSegment
+        {
+            get { return isHead; }
+            set { isHead = value; }
+        }
 
         public float height
         {
@@ -150,9 +156,12 @@ namespace DreadWyrm
 
             //now get the "other" side
             frontAngle = (frontAngle + 180) % 360;
-            //look it up in the table
-            float frontX = frontSeg.X + f_XOFFS[frontAngle];
-            float frontY = frontSeg.Y + f_YOFFS[frontAngle];
+
+            float frontX;
+            float frontY;
+
+            frontX = frontSeg.X + f_XOFFS[frontAngle];
+            frontY = frontSeg.Y + f_YOFFS[frontAngle];
 
             #endregion
 
@@ -162,73 +171,25 @@ namespace DreadWyrm
             float yDiff = frontY - Y;
             float xDiff = frontX - X;
 
-            string debug = "";
-
             //Change the calculation based on which quadrant we're in
             if (xDiff > 0 && yDiff > 0) //Quadrant 1 (0 degrees to 90 degrees)
             {
                 Direction = (float)Math.Atan(yDiff / xDiff);
-
-                debug = debug + "Quadrant 1";
             }
             else if (xDiff < 0 && yDiff > 0) //Quadrant 2 (90 degrees to 180 degrees)
             {
                 Direction = (float)(Math.PI + Math.Atan(yDiff / xDiff));
-                debug = debug + "Quadrant 2";
             }
             else if (xDiff < 0 && yDiff < 0) //Quadrant 3 (180 degrees to 270 degrees)
             {
                 Direction = (float)(Math.PI + Math.Atan(yDiff / xDiff));
-                debug = debug + "Quadrant 3";
             }
             else if (xDiff > 0 && yDiff < 0) //Quadrant 4 (270 degrees to 360 aka 0 degrees)
             {
                 Direction = (float)Math.Atan(yDiff / xDiff);
-                debug = debug + "Quadrant 4";
             }
 
-            int dirDeg = (int)(Direction * ((180 / Math.PI))+360) % 360;
-
-            debug = debug + ", Arctan calculation: " + dirDeg;
-
-            //Console.WriteLine(debug);
-
-            /*
-            #region Trying to get a better "follow" pattern
-            //lets make the angles closer together
-            //find the difference
-            int dirDif = frontAngle - dirDeg;
-
-            //find the absolute x% of the difference
-            int dirMod = (int)(Math.Abs(dirDif) * 0.001);            
-            //is the difference greater than 180?
-            int posneg = 1;
-            if (dirDif > 180 || dirDif < -180)
-            {
-                //we will be going the opposite direction for our modification
-                posneg = -1;
-            }
-
-            dirMod = dirMod * posneg;
-
-            //add the modifier to the direction
-            Direction = Direction + (dirMod * posneg);
-
-            //make sure the new direction is between 0 and 360
-            if (Direction > 360)
-            {
-                Direction = Direction % 360;
-            }
-            if (Direction < 0)
-            {
-                Direction = 360 + Direction;
-            }
-
-            //now really for really set the direction to this
-
-            Direction = Direction * ((float)Math.PI / 180);
-            #endregion
-            */
+            int dirDeg = (int)(Direction * ((180 / Math.PI)) + 360) % 360;
 
             #endregion
 
@@ -265,16 +226,9 @@ namespace DreadWyrm
             for (int i = 0; i < 360; i++)
             {
                 float iRad = ((float)Math.PI/180) * i;
-                f_YOFFS[i] = (float)Math.Sin(iRad) * ((f_width * f_DISTORIGIN) / 2);
+                f_YOFFS[i] = (float)Math.Sin(iRad) * ((f_height * f_DISTORIGIN) / 2);
                 f_XOFFS[i] = (float)Math.Cos(iRad) * ((f_width * f_DISTORIGIN) / 2);
             }
-            
-
-
         }
-
-
-
-
     }
 }

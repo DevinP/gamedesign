@@ -15,13 +15,12 @@ namespace DreadWyrm
         //The location in the segment array representing the head
         const int HEAD = 0;
 
-        //The location in the segment array representing the tail
-        const int TAIL = 1;
-
         //The width of the Wyrm sprites
+        const int SPRITEWIDTH_HEAD = 160; //The head is larger so it can have mandibles
         const int SPRITEWIDTH = 100;
 
         //The height of the Wyrm sprites
+        const int SPRITEHEIGHT_HEAD = 160;
         const int SPRITEHEIGHT = 100;
 
         //The number of frames in the head animation
@@ -33,11 +32,11 @@ namespace DreadWyrm
         //Body Parts
         
         //the textures are contained in a list.
-        //The first texture is the head, the second is the tail, and the rest are middle segments
+        //The first texture is the head, the middle textures are segment textures, and the last segment is the tail texture
         List<Texture2D> l_t2d_SegmentTextures;
 
         //Similarly, a list of the segments themselves
-        //The first element is the head, the second is the tail, and the rest are middle segments
+        //The first element is the head, the middle elements are segment textures, and the last element is the tail texture
         public List<WyrmSegment> l_segments;
         
         //A list of animated sprite objects, one for each segment
@@ -46,13 +45,7 @@ namespace DreadWyrm
         //How many segments the Wyrm has
         int i_numSegments;
 
-
-        //The wyrm contains the positions of each and every segment
-        //The first is the head, the second is the tail, and the rest are middle segments
-//        List<float> l_f_SegmentXPos;
-//        List<float> l_f_SegmentYPos;
-
-        //All segments are designed to simply "follow" the head
+        //All segments are designed to simply "follow" the segment in front of it
 
         //The head has a velocity, etc.
 
@@ -158,28 +151,38 @@ namespace DreadWyrm
             f_HeadRotationSpeedMax = 6;
             f_HeadRotationSpeedMin = -6;
 
+            //Save the wyrm textures given to us
             l_t2d_SegmentTextures = textures;
 
             //Start the Wyrm by creating the head
             l_segments = new List<WyrmSegment>();
             l_segments.Add(new WyrmSegment(l_t2d_SegmentTextures[HEAD], initialX, initialY, null));
+            l_segments[0].isFrontSegment = true;
             asSprites = new List<AnimatedSprite>();
+
             //Create the head sprite, with its animation
-            asSprites.Add(new AnimatedSprite(l_t2d_SegmentTextures[HEAD], (int)0, (int)0, SPRITEWIDTH, SPRITEHEIGHT, HEADFRAMES));
+            asSprites.Add(new AnimatedSprite(l_t2d_SegmentTextures[HEAD], (int)0, (int)0, SPRITEWIDTH_HEAD, SPRITEHEIGHT_HEAD, HEADFRAMES));
             asSprites[HEAD].IsAnimating = false;  
 
             numSegments = segments;
 
             //Add the rest of the Wyrm segments on and create sprites for them
-            for (int i = 1; i < numSegments; i++)
+            for (int i = 1; i <= numSegments - 1; i++)
             {
                 //Create a new segment and attach it to the one in front of it
                 l_segments.Add(new WyrmSegment(l_t2d_SegmentTextures[i], initialX, initialY, l_segments[i - 1]));
+                l_segments[i].isFrontSegment = false;
 
                 //Create a sprite object to correspond to the wyrm segment
                 asSprites.Add(new AnimatedSprite(l_t2d_SegmentTextures[i], (int)0, (int)0, l_t2d_SegmentTextures[i].Width, l_t2d_SegmentTextures[i].Height, 0));
                 asSprites[i].IsAnimating = false;
             }
+
+            //Finish creating the wyrm by adding on the tail
+            l_segments.Add(new WyrmSegment(l_t2d_SegmentTextures[l_t2d_SegmentTextures.Count - 1], initialX, initialY, l_segments[l_t2d_SegmentTextures.Count - 2]));
+            asSprites.Add(new AnimatedSprite(l_t2d_SegmentTextures[l_t2d_SegmentTextures.Count - 1], 0, 0, 
+                                             l_t2d_SegmentTextures[l_t2d_SegmentTextures.Count - 1].Width, 
+                                             l_t2d_SegmentTextures[l_t2d_SegmentTextures.Count - 1].Height, 0));
 
             //for other segments...
             for (int i = 0; i < numSegments; i++)
@@ -190,7 +193,6 @@ namespace DreadWyrm
 
             //lets update the offsets for the newly created segments
             WyrmSegment.calcOffsets();
-
         }
 
         public void Update(GameTime gametime)
@@ -256,7 +258,14 @@ namespace DreadWyrm
             //Draw the rest of the segments
             for (int i = 1; i <= numSegments; i++)
             {
-                asSprites[numSegments - i].Draw(sb, (int)l_segments[numSegments - i].X, (int)l_segments[numSegments - i].Y + (SPRITEHEIGHT / 2), l_segments[numSegments - i].Direction, false);
+                //Do a special case for drawing the head since it's a bigger sprite
+                //RIGHT NOW: it's not actually different
+                if (i == numSegments)
+                    asSprites[numSegments - i].Draw(sb, (int)l_segments[numSegments - i].X, (int)l_segments[numSegments - i].Y + (SPRITEHEIGHT / 2),
+                                                l_segments[numSegments - i].Direction, false);
+                else
+                    asSprites[numSegments - i].Draw(sb, (int)l_segments[numSegments - i].X, (int)l_segments[numSegments - i].Y + (SPRITEHEIGHT / 2), 
+                                                l_segments[numSegments - i].Direction, false);
             }
         }
 

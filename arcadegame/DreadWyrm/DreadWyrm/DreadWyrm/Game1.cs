@@ -19,28 +19,31 @@ namespace DreadWyrm
 
         static int SCREENWIDTH = 1280;
         static int SCREENHEIGHT = 720;
-        public static int WYRMSEGS = 100;
+        public static int WYRMSEGS = 10;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
         Texture2D t2dTitleScreen;                          //The title screen for the game
-        Texture2D t2dmainBackground;                          //The main background for the game
+        Texture2D t2dmainBackground;                       //The main background for the game
         Song bgm;                                          //The background music for the game
+        Song bgm2;
         bool m_gameStarted = false;                        //Whether or not we are at the title screen
         SpriteFont titleFont;                              //The font used in the game for the title screen
-        Vector2 vStartTitleTextLoc = new Vector2(250, 50); //The location for the title screen text
-        SpriteFont title2Font;                             //Additional font for the title screen
-        Vector2 vStartTitle2TextLoc = new Vector2(440, 450);//The location for the additional title screen text
+        Vector2 vStartTitleTextLoc = new Vector2(440, 440);//The location for the additional title screen text
         SoundEffect roar;
 
         Texture2D t2dWyrmHead;                              //The sprite for the Wyrm head
-        Texture2D t2dWyrmSeg;
+        Texture2D t2dWyrmSeg;                               //The sprite for the Wyrm segments
+        Texture2D t2dWyrmTail;                              //The sprite for the Wyrm tail
 
         Player thePlayer;                                   //The player of the game
 
 
         bool canRoar = true;
+        bool canSwitchSongs = true;
+        bool bgm1Playing = false;
+        bool bgm2Playing = false;
 
         public Game1()
         {
@@ -75,32 +78,39 @@ namespace DreadWyrm
 
             // TODO: use this.Content to load your game content here
             titleFont = Content.Load<SpriteFont>(@"Fonts\Title");
-            title2Font = Content.Load<SpriteFont>(@"Fonts\Title2");
 
-            t2dTitleScreen = Content.Load<Texture2D>(@"Textures\titlescreen");
+            t2dTitleScreen = Content.Load<Texture2D>(@"Textures\titleScreen");
 
-            t2dmainBackground = Content.Load<Texture2D>(@"Textures\background_1280x720");
+            t2dmainBackground = Content.Load<Texture2D>(@"Textures\background");
 
             roar = Content.Load<SoundEffect>(@"Sounds\Predator Roar");
 
             bgm = Content.Load<Song>(@"Sounds\bgm");
+            bgm2 = Content.Load<Song>(@"Sounds\bgm2");
 
-            t2dWyrmHead = Content.Load<Texture2D>(@"Textures\wyrmhead");
-            t2dWyrmSeg = Content.Load<Texture2D>(@"Textures\wyrmseg");
+            t2dWyrmHead = Content.Load<Texture2D>(@"Textures\wyrmHeadRed");
+            t2dWyrmSeg = Content.Load<Texture2D>(@"Textures\wyrmSegRed");
+            t2dWyrmTail = Content.Load<Texture2D>(@"Textures\wyrmTailRed");
 
+            //Add the wyrm head segment texture to the wyrm textures list
             List<Texture2D> wyrmTextures = new List<Texture2D>();
             wyrmTextures.Add(t2dWyrmHead);
-            
-            //for wyrmseg more segments....
-            for (int i = 0; i < WYRMSEGS; i++)
+  
+            //Add on the wyrm segment textures
+            //We want to subtract three from the total segments since the head and tail are not this texture
+            for (int i = 0; i < WYRMSEGS - 2; i++)
             {
                 wyrmTextures.Add(t2dWyrmSeg);
             }
 
+            //Lastly, add the wyrm tail texture
+            wyrmTextures.Add(t2dWyrmTail);
+
             thePlayer = new Player(0, wyrmTextures);
 
             MediaPlayer.IsRepeating = true;
-            MediaPlayer.Play(bgm);
+            MediaPlayer.Play(bgm2);
+            bgm2Playing = true;
         }
 
         /// <summary>
@@ -126,6 +136,28 @@ namespace DreadWyrm
             // If the Escape Key is pressed, exit the game.
             if (keystate.IsKeyDown(Keys.Escape))
                 this.Exit();
+
+            if (keystate.IsKeyDown(Keys.LeftShift) && canSwitchSongs)
+            {
+                if (bgm1Playing)
+                {
+                    MediaPlayer.Play(bgm2);
+                    bgm2Playing = true;
+                    bgm1Playing = false;
+                }
+                else if (bgm2Playing)
+                {
+                    MediaPlayer.Play(bgm);
+                    bgm1Playing = true;
+                    bgm2Playing = false;
+                }
+
+                canSwitchSongs = false;
+            }
+            else if (keystate.IsKeyUp(Keys.LeftShift) && !canSwitchSongs)
+            {
+                canSwitchSongs = true;
+            }
 
             // TODO: Add your update logic here
 
@@ -210,11 +242,10 @@ namespace DreadWyrm
                 #region Title Screen Mode (m_gameStarted == false)
 
                 spriteBatch.Draw(t2dTitleScreen, new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT), Color.White);
-                spriteBatch.DrawString(titleFont, "D R E A D   W Y R M", vStartTitleTextLoc, Color.Black);
 
                 if (gameTime.TotalGameTime.Milliseconds % 1000 < 700)
                 {
-                    spriteBatch.DrawString(title2Font, "Press Spacebar to BEGIN YOUR FEAST", vStartTitle2TextLoc, Color.Black);
+                    spriteBatch.DrawString(titleFont, "Press Spacebar to BEGIN YOUR FEAST", vStartTitleTextLoc, Color.OrangeRed);
                 }
 
                 #endregion
