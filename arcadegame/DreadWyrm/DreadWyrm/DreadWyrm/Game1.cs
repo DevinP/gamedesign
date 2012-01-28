@@ -28,6 +28,7 @@ namespace DreadWyrm
         Texture2D t2dmainBackground;                       //The main background for the game
         Song bgm;                                          //The background music for the game
         Song bgm2;
+        Song bgm3;
         bool m_gameStarted = false;                        //Whether or not we are at the title screen
         SpriteFont titleFont;                              //The font used in the game for the title screen
         Vector2 vStartTitleTextLoc = new Vector2(440, 440);//The location for the additional title screen text
@@ -44,6 +45,7 @@ namespace DreadWyrm
         bool canSwitchSongs = true;
         bool bgm1Playing = false;
         bool bgm2Playing = false;
+        bool bgm3Playing = false;
 
         public Game1()
         {
@@ -87,6 +89,7 @@ namespace DreadWyrm
 
             bgm = Content.Load<Song>(@"Sounds\bgm");
             bgm2 = Content.Load<Song>(@"Sounds\bgm2");
+            bgm3 = Content.Load<Song>(@"Sounds\bgm3");
 
             t2dWyrmHead = Content.Load<Texture2D>(@"Textures\wyrmHeadRed");
             t2dWyrmSeg = Content.Load<Texture2D>(@"Textures\wyrmSegRed");
@@ -142,14 +145,23 @@ namespace DreadWyrm
                 if (bgm1Playing)
                 {
                     MediaPlayer.Play(bgm2);
-                    bgm2Playing = true;
                     bgm1Playing = false;
+                    bgm2Playing = true;
+                    bgm3Playing = false;
                 }
                 else if (bgm2Playing)
+                {
+                    MediaPlayer.Play(bgm3);
+                    bgm1Playing = false;
+                    bgm2Playing = false;
+                    bgm3Playing = true;
+                }
+                else if (bgm3Playing)
                 {
                     MediaPlayer.Play(bgm);
                     bgm1Playing = true;
                     bgm2Playing = false;
+                    bgm3Playing = false;
                 }
 
                 canSwitchSongs = false;
