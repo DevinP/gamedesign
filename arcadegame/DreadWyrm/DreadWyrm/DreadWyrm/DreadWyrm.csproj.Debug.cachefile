@@ -1,9 +1,11 @@
-Content\Fonts\Title.xnb
 Content\Sounds\bgm.xnb
+Content\Sounds\bgm2.xnb
+Content\Sounds\bgm3.xnb
+Content\Fonts\Title.xnb
 Content\Sounds\Predator Roar.xnb
+Content\Textures\background_1280x720.xnb
 Content\Textures\wyrmhead_100x100.xnb
 Content\Textures\wyrmseg_100x100.xnb
-Content\Textures\background_1280x720.xnb
 Content\Textures\wyrmSegRed.xnb
 Content\Textures\wyrmTailRed.xnb
 Content\Textures\wyrmHeadRed.xnb
@@ -11,8 +13,6 @@ Content\Textures\background.xnb
 Content\Textures\rocks.xnb
 Content\Textures\titleScreen.xnb
 Content\Textures\titleScreenEnhanced.xnb
-Content\Sounds\bgm2.xnb
-Content\Sounds\bgm3.xnb
 Content\Sounds\bgm.wma
 Content\Sounds\bgm2.wma
 Content\Sounds\bgm3.wma
