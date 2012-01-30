@@ -16,12 +16,12 @@ namespace DreadWyrm
         const int HEAD = 0;
 
         //The width of the Wyrm sprites
-        const int SPRITEWIDTH_HEAD = 160; //The head is larger so it can have mandibles
-        const int SPRITEWIDTH = 100;
+        const int SPRITEWIDTH_HEAD = 80; //The head is larger so it can have mandibles
+        const int SPRITEWIDTH = 50;
 
         //The height of the Wyrm sprites
-        const int SPRITEHEIGHT_HEAD = 160;
-        const int SPRITEHEIGHT = 100;
+        const int SPRITEHEIGHT_HEAD = 80;
+        const int SPRITEHEIGHT = 50;
 
         //The number of frames in the head animation
         const int HEADFRAMES = 0;

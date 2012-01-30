@@ -17,8 +17,8 @@ namespace DreadWyrm
         WyrmSegment frontSeg;
 
         //The global magic number dimensions of the wyrm segments
-        static float f_width = 100f;
-        static float f_height = 100f;
+        static float f_width = 50f;
+        static float f_height = 50f;
 
         //a magic number float of the percentage from the center to the "chain" node.
         static float f_DISTORIGIN = 0.65f;
