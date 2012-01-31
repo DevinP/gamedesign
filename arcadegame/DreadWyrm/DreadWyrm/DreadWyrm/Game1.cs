@@ -25,12 +25,15 @@ namespace DreadWyrm
         SpriteBatch spriteBatch;
 
         Texture2D t2dTitleScreen;                          //The title screen for the game
-//        Texture2D t2dmainBackground;                       //The main background for the game
+        Texture2D t2dtransparentBlack;                     //A partially transparent texture to draw over the game
+        Texture2D t2dupgradeBox;                           //A box to put upgrade messages in
+        Texture2D t2dupgradeArrow;                         //Arrow to indicate which upgrade the player will select
         Song bgm;                                          //The background music for the game
         Song bgm2;
         Song bgm3;
         bool m_gameStarted = false;                        //Whether or not we are at the title screen
         SpriteFont titleFont;                              //The font used in the game for the title screen
+        SpriteFont upgradeFont;                            //The font used in the game for the upgrade screen
         Vector2 vStartTitleTextLoc = new Vector2(440, 440);//The location for the additional title screen text
         SoundEffect roar;
 
@@ -52,8 +55,9 @@ namespace DreadWyrm
         bool bgm2Playing = false;
         bool bgm3Playing = false;
 
-
-
+        bool upgradeMode = false;
+        bool upgradeModeCanSwitch = true;
+        float upgradeArrowDir = 0;
 
         public Game1()
         {
@@ -86,12 +90,13 @@ namespace DreadWyrm
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
             titleFont = Content.Load<SpriteFont>(@"Fonts\Title");
+            upgradeFont = Content.Load<SpriteFont>(@"Fonts\Upgrade");
 
             t2dTitleScreen = Content.Load<Texture2D>(@"Textures\titleScreen");
-
-            //t2dmainBackground = Content.Load<Texture2D>(@"Textures\background");
+            t2dtransparentBlack = Content.Load<Texture2D>(@"Textures\transparentBlack");
+            t2dupgradeBox = Content.Load<Texture2D>(@"Textures\wordbubble");
+            t2dupgradeArrow = Content.Load<Texture2D>(@"Textures\arrow");
 
             roar = Content.Load<SoundEffect>(@"Sounds\Predator Roar");
 
@@ -152,6 +157,8 @@ namespace DreadWyrm
             if (keystate.IsKeyDown(Keys.Escape))
                 this.Exit();
 
+            #region SongSwitching (Code to handle the switching of the song with left shift)
+
             if (keystate.IsKeyDown(Keys.LeftShift) && canSwitchSongs)
             {
                 if (bgm1Playing)
@@ -183,7 +190,7 @@ namespace DreadWyrm
                 canSwitchSongs = true;
             }
 
-            // TODO: Add your update logic here
+            #endregion
 
             // Get elapsed game time since last call to Update
             float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -192,47 +199,92 @@ namespace DreadWyrm
             {
                 #region GamePlay Mode (m_gameStarted == true)
 
-                
-                thePlayer.Update(gameTime, keystate);
+                if (keystate.IsKeyDown(Keys.U) && upgradeModeCanSwitch)
+                {
+                    //Toggle the upgrade mode
+                    if (upgradeMode)
+                        upgradeMode = false;
+                    else if (!upgradeMode)
+                        upgradeMode = true;
 
-                theBackground.Update((int) thePlayer.theWyrm.l_segments[0].X, (int) thePlayer.theWyrm.l_segments[0].Y);
+                    upgradeModeCanSwitch = false;
+                }
+                else if (keystate.IsKeyUp(Keys.U) && !upgradeModeCanSwitch)
+                {
+                    upgradeModeCanSwitch = true;
+                }
 
+                if (upgradeMode)
+                {
+                    #region Upgrade Mode (upgradeMode == true)
 
-                /* //For debugging whether the wyrm is in the ground or the air.
-                if (theBackground.wyrmGrounded)
-                    System.Diagnostics.Debug.WriteLine("grounded");
+                    if (keystate.IsKeyDown(Keys.Left))
+                    {
+                        upgradeArrowDir = (float)Math.PI;
+                    }
+                    else if (keystate.IsKeyDown(Keys.Down))
+                    {
+                        upgradeArrowDir = (float)(Math.PI / 2);
+                    }
+                    else if (keystate.IsKeyDown(Keys.Right))
+                    {
+                        upgradeArrowDir = 0;
+                    }
+                    else if (keystate.IsKeyDown(Keys.Up))
+                    {
+                        upgradeArrowDir = (float)((3 * Math.PI) / 2);
+                    }
+
+                    #endregion
+                }
                 else
-                    System.Diagnostics.Debug.WriteLine("airborne");
-                */
-
-
-                //Make it so the player can't move off the screen
-                for (int i = 0; i < WYRMSEGS; i++)
                 {
-                    if (thePlayer.theWyrm.l_segments[i].X < 50)
-                        thePlayer.theWyrm.l_segments[i].X = 50;
+                    #region Play Mode (upgradeMode == false)
 
-                    if (thePlayer.theWyrm.l_segments[i].X > SCREENWIDTH - 50)
-                        thePlayer.theWyrm.l_segments[i].X = (float)SCREENWIDTH - 50;
+                    thePlayer.Update(gameTime, keystate);
 
-                    if(thePlayer.theWyrm.l_segments[i].Y < 0)
-                        thePlayer.theWyrm.l_segments[i].Y = 0;
+                    theBackground.Update((int)thePlayer.theWyrm.l_segments[0].X, (int)thePlayer.theWyrm.l_segments[0].Y);
 
-                    if (thePlayer.theWyrm.l_segments[i].Y > SCREENHEIGHT - 100)
-                        thePlayer.theWyrm.l_segments[i].Y = (float)SCREENHEIGHT - 100;
-                }
 
-                if (keystate.IsKeyDown(Keys.LeftControl) && canRoar)
-                {
-                    roar.Play();
-                    canRoar = false;
-                }
-                else if (keystate.IsKeyUp(Keys.LeftControl) && !canRoar)
-                {
-                    canRoar = true;
+                     //For debugging whether the wyrm is in the ground or the air.
+                    if (theBackground.wyrmGrounded)
+                        System.Diagnostics.Debug.WriteLine("grounded");
+                    else
+                        System.Diagnostics.Debug.WriteLine("airborne");
+                    
+
+
+                    //Make it so the player can't move off the screen
+                    for (int i = 0; i < WYRMSEGS; i++)
+                    {
+                        if (thePlayer.theWyrm.l_segments[i].X < 25)
+                            thePlayer.theWyrm.l_segments[i].X = 25;
+
+                        if (thePlayer.theWyrm.l_segments[i].X > SCREENWIDTH - 25)
+                            thePlayer.theWyrm.l_segments[i].X = (float)SCREENWIDTH - 25;
+
+                        if (thePlayer.theWyrm.l_segments[i].Y < 0)
+                            thePlayer.theWyrm.l_segments[i].Y = 0;
+
+                        if (thePlayer.theWyrm.l_segments[i].Y > SCREENHEIGHT - 50)
+                            thePlayer.theWyrm.l_segments[i].Y = (float)SCREENHEIGHT - 50;
+                    }
+
+                    if (keystate.IsKeyDown(Keys.LeftControl) && canRoar)
+                    {
+                        roar.Play();
+                        canRoar = false;
+                    }
+                    else if (keystate.IsKeyUp(Keys.LeftControl) && !canRoar)
+                    {
+                        canRoar = true;
+                    }
+
+                    #endregion
                 }
 
                 #endregion
+
             }
             else
             {
@@ -270,6 +322,32 @@ namespace DreadWyrm
                 //spriteBatch.Draw(t2dmainBackground, new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT), Color.White);
                 theBackground.Draw(spriteBatch);
                 thePlayer.Draw(spriteBatch);
+
+                if (upgradeMode)
+                {
+                    //Draw the partly-transparent black layer over the screen to darken it
+                    spriteBatch.Draw(t2dtransparentBlack, new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT), Color.White);
+
+                    //Draw each upgrade box
+                    spriteBatch.Draw(t2dupgradeBox, new Rectangle(540, 110, 200, 100), Color.White);
+                    spriteBatch.DrawString(upgradeFont, "Metabolism Boost", new Vector2(560, 130), Color.Red);
+                    spriteBatch.DrawString(upgradeFont, "(Heal Over Time)", new Vector2(560, 155), Color.Red);
+
+                    spriteBatch.Draw(t2dupgradeBox, new Rectangle(540, 440, 200, 100), Color.White);
+                    spriteBatch.DrawString(upgradeFont, "Muscle Vibration", new Vector2(560, 460), Color.Red);
+                    spriteBatch.DrawString(upgradeFont, "(Dig Speed)", new Vector2(560, 485), Color.Red);
+
+                    spriteBatch.Draw(t2dupgradeBox, new Rectangle(755, 270, 200, 100), Color.White);
+                    spriteBatch.DrawString(upgradeFont, "Fat Tissue", new Vector2(775, 290), Color.Red);
+                    spriteBatch.DrawString(upgradeFont, "(Max Health)", new Vector2(775, 315), Color.Red);
+
+                    spriteBatch.Draw(t2dupgradeBox, new Rectangle(325, 270, 200, 100), Color.White);
+                    spriteBatch.DrawString(upgradeFont, "Muscle Coiling", new Vector2(345, 290), Color.Red);
+                    spriteBatch.DrawString(upgradeFont, "(Speed Burst)", new Vector2(345, 315), Color.Red);
+
+                    //Draw the arrow which points to the currently selected box
+                    spriteBatch.Draw(t2dupgradeArrow, new Rectangle(640, 325, 112, 51), null, Color.White, upgradeArrowDir, new Vector2(0, 25.5f), SpriteEffects.None, 0);
+                }
 
                 #endregion
             }

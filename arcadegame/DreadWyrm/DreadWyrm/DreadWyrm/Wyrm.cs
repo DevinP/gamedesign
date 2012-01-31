@@ -146,7 +146,7 @@ namespace DreadWyrm
 
         public Wyrm(float initialX, float initialY, List<Texture2D> textures, int segments)
         {
-            f_HeadSpeedMax = 8;
+            f_HeadSpeedMax = 5;
             f_HeadSpeedMin = 2;
             f_HeadRotationSpeedMax = 6;
             f_HeadRotationSpeedMin = -6;
