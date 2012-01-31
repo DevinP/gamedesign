@@ -25,7 +25,7 @@ namespace DreadWyrm
         SpriteBatch spriteBatch;
 
         Texture2D t2dTitleScreen;                          //The title screen for the game
-        Texture2D t2dmainBackground;                       //The main background for the game
+//        Texture2D t2dmainBackground;                       //The main background for the game
         Song bgm;                                          //The background music for the game
         Song bgm2;
         Song bgm3;
@@ -37,8 +37,13 @@ namespace DreadWyrm
         Texture2D t2dWyrmHead;                              //The sprite for the Wyrm head
         Texture2D t2dWyrmSeg;                               //The sprite for the Wyrm segments
         Texture2D t2dWyrmTail;                              //The sprite for the Wyrm tail
+        
+        Texture2D t2dbackground;                            //The background sprite
+        Texture2D t2dforeground;                            //The foreground sprite (part of the background)
 
         Player thePlayer;                                   //The player of the game
+
+        Background theBackground;
 
 
         bool canRoar = true;
@@ -46,6 +51,9 @@ namespace DreadWyrm
         bool bgm1Playing = false;
         bool bgm2Playing = false;
         bool bgm3Playing = false;
+
+
+
 
         public Game1()
         {
@@ -83,7 +91,7 @@ namespace DreadWyrm
 
             t2dTitleScreen = Content.Load<Texture2D>(@"Textures\titleScreen");
 
-            t2dmainBackground = Content.Load<Texture2D>(@"Textures\background");
+            //t2dmainBackground = Content.Load<Texture2D>(@"Textures\background");
 
             roar = Content.Load<SoundEffect>(@"Sounds\Predator Roar");
 
@@ -94,6 +102,9 @@ namespace DreadWyrm
             t2dWyrmHead = Content.Load<Texture2D>(@"Textures\wyrmHeadRed");
             t2dWyrmSeg = Content.Load<Texture2D>(@"Textures\wyrmSegRed");
             t2dWyrmTail = Content.Load<Texture2D>(@"Textures\wyrmTailRed");
+
+            t2dbackground = Content.Load<Texture2D>(@"Textures\background");
+            t2dforeground = Content.Load<Texture2D>(@"Textures\foreground");
 
             //Add the wyrm head segment texture to the wyrm textures list
             List<Texture2D> wyrmTextures = new List<Texture2D>();
@@ -109,6 +120,7 @@ namespace DreadWyrm
             //Lastly, add the wyrm tail texture
             wyrmTextures.Add(t2dWyrmTail);
 
+            theBackground = new Background(t2dbackground, t2dforeground);
             thePlayer = new Player(0, wyrmTextures);
 
             MediaPlayer.IsRepeating = true;
@@ -180,7 +192,19 @@ namespace DreadWyrm
             {
                 #region GamePlay Mode (m_gameStarted == true)
 
+                
                 thePlayer.Update(gameTime, keystate);
+
+                theBackground.Update((int) thePlayer.theWyrm.l_segments[0].X, (int) thePlayer.theWyrm.l_segments[0].Y);
+
+
+                /* //For debugging whether the wyrm is in the ground or the air.
+                if (theBackground.wyrmGrounded)
+                    System.Diagnostics.Debug.WriteLine("grounded");
+                else
+                    System.Diagnostics.Debug.WriteLine("airborne");
+                */
+
 
                 //Make it so the player can't move off the screen
                 for (int i = 0; i < WYRMSEGS; i++)
@@ -243,8 +267,8 @@ namespace DreadWyrm
             {
                 #region Game Play Mode (m_gameStarted == true)
 
-                spriteBatch.Draw(t2dmainBackground, new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT), Color.White);
-
+                //spriteBatch.Draw(t2dmainBackground, new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT), Color.White);
+                theBackground.Draw(spriteBatch);
                 thePlayer.Draw(spriteBatch);
 
                 #endregion
