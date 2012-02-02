@@ -26,8 +26,37 @@ namespace DreadWyrm
         //The number of frames in the head animation
         const int HEADFRAMES = 0;
 
+        //The acceleration caused by gravity
+        const float GRAVITY = 0.075f;
+
+        //The gravity multiplier fudge factor when going down.
+        //Makes wyrm driving more fun
+        const float GRAVITYMULTIPLIER = 1.7f;
+
+        //Magic fake gravities to make the wyrm driving more fun
+        const float XGRAV = 0.015f;
+
+        //A friction that applies to the wyrm when it goes above max speed to slow it down
+        const float FRICTION = 0.11f;
+
+        //A mulitplier to adjust the amount the player can rotate their head in midair
+        const float MIDAIRROTATION = 0.25f;
+
+        //How much faster the wyrm speeds toward the ground when diving
+        //const float DIVEMULTIPLIER = 1.025f;
+
+        //The amount of extra speed you get when you begin a dive
+        //const float DIVEBOOST = 0.06f;
+
+        //How long the dive boost occurs for
+        //const int DIVEBOOSTDURATION = 25;
+
         float f_WyrmMoveCount = 0.0f;
         float f_WyrmMoveDelay = 0.01f;
+
+        //Whether or not the wyrm is diving towards the ground
+        //bool b_dive = false;
+        //private int b_hasDiveBoosted = 0;
 
         //Body Parts
         
@@ -77,6 +106,12 @@ namespace DreadWyrm
             get{return l_t2d_SegmentTextures;}
             set{l_t2d_SegmentTextures = value;}
         }
+
+        //public bool isDiving
+       // {
+        //    get { return b_dive; }
+        //    set { b_dive = value; }
+       // }
 
         public float HeadSpeed
         {
@@ -146,7 +181,7 @@ namespace DreadWyrm
 
         public Wyrm(float initialX, float initialY, List<Texture2D> textures, int segments)
         {
-            f_HeadSpeedMax = 5;
+            f_HeadSpeedMax = 5.2f;
             f_HeadSpeedMin = 2;
             f_HeadRotationSpeedMax = 6;
             f_HeadRotationSpeedMin = -6;
@@ -198,21 +233,105 @@ namespace DreadWyrm
         public void Update(GameTime gametime)
         {
             f_WyrmMoveCount += (float)gametime.ElapsedGameTime.TotalSeconds;
+
             if(f_WyrmMoveCount > f_WyrmMoveDelay)
             {
-                //Update the velocity of the head (including the angle and magnitude)
-                if (f_HeadSpeed + f_HeadAcceleration > f_HeadSpeedMax)
-                    f_HeadSpeed = f_HeadSpeedMax;
-                else if (f_HeadSpeed + f_HeadAcceleration < f_HeadSpeedMin)
-                    f_HeadSpeed = f_HeadSpeedMin;
-                else
-                    f_HeadSpeed += f_HeadAcceleration;
+                if (!Background.b_wyrmGrounded)
+                {
+                    #region The wyrm is in the air (gravity effects)
 
-                f_HeadDirection = (f_HeadDirection + f_HeadRotationSpeed) % (float) (2*Math.PI);
+                    //Decompose the wyrm's polar speed into x and y velocities
+                    float xVel, yVel;
+
+                    xVel = f_HeadSpeed * (float) Math.Cos((double)f_HeadDirection);  
+                    yVel = f_HeadSpeed * (float) Math.Sin((double)f_HeadDirection);
+
+                    //Fudge the x velocity a little if going up. This make wyrm driving more fun!
+                    if (yVel <= 0)
+                    {
+                        if (xVel >= 0)
+                            xVel = xVel + XGRAV;
+                        else
+                            xVel = xVel - XGRAV;
+                    }
+
+                    if (yVel <= 0)
+                    {
+                        yVel = yVel + GRAVITY;
+                    }
+                    else
+                    {
+                        yVel = yVel + GRAVITY * GRAVITYMULTIPLIER;
+
+                        /*if (b_dive)
+                            yVel = yVel * DIVEMULTIPLIER;
+
+                        if (b_hasDiveBoosted < DIVEBOOSTDURATION && b_dive)
+                        {
+                            yVel = yVel + DIVEBOOST;
+                            b_hasDiveBoosted++;
+                        }*/
+                    }
+
+                    
+
+                    //Recompose the x and y velocities into a head direction and speed
+                    f_HeadSpeed = (float) Math.Sqrt((double) (xVel * xVel + yVel * yVel));
+
+                    //Change the calculation based on which quadrant we're in
+                    if (xVel > 0 && yVel > 0) //Quadrant 1 (0 degrees to 90 degrees)
+                    {
+                        f_HeadDirection = (float)Math.Atan(yVel / xVel);
+                    }
+                    else if (xVel < 0 && yVel > 0) //Quadrant 2 (90 degrees to 180 degrees)
+                    {
+                        f_HeadDirection = (float)(Math.PI + Math.Atan(yVel / xVel));
+                    }
+                    else if (xVel < 0 && yVel < 0) //Quadrant 3 (180 degrees to 270 degrees)
+                    {
+                        f_HeadDirection = (float)(Math.PI + Math.Atan(yVel / xVel));
+                    }
+                    else if (xVel > 0 && yVel < 0) //Quadrant 4 (270 degrees to 360 aka 0 degrees)
+                    {
+                        f_HeadDirection = (float)Math.Atan(yVel / xVel);
+                    }
+
+                    if (f_HeadSpeed + f_HeadAcceleration > f_HeadSpeedMax*2.5f)
+                    {
+                        f_HeadSpeed = f_HeadSpeedMax*2.5f;
+                    }
+
+                    f_HeadDirection = (f_HeadDirection + (f_HeadRotationSpeed * MIDAIRROTATION)) % (float)(2 * Math.PI);
+
+                    #endregion
+                }
+                else
+                {
+                    #region The wyrm is in the ground (no gravity effects)
+
+                    //Reset the dive boost boolean so we can dive in our next jump
+                    //b_hasDiveBoosted = 0;
+
+                    //Update the velocity of the head (including the angle and magnitude)
+                    if (f_HeadSpeed + f_HeadAcceleration > f_HeadSpeedMax)
+                    {
+                        f_HeadSpeed = f_HeadSpeed - FRICTION;
+                    }
+                    else if (f_HeadSpeed + f_HeadAcceleration < f_HeadSpeedMin)
+                    {
+                        f_HeadSpeed = f_HeadSpeedMin;
+                    }
+                    else
+                        f_HeadSpeed += f_HeadAcceleration;       
+
+                    f_HeadDirection = (f_HeadDirection + f_HeadRotationSpeed) % (float)(2 * Math.PI);
+
+                    #endregion
+                }            
 
                 if (f_HeadDirection < 0)
                 {
-                    f_HeadDirection = (float) (2*Math.PI);
+                    f_HeadDirection = (float) (2*Math.PI + f_HeadDirection);
                 }
 
                 l_segments[HEAD].Direction = f_HeadDirection;
@@ -225,10 +344,6 @@ namespace DreadWyrm
                     //are we on the head?
                     if (i == HEAD)
                     {
-                        //Update the X and Y positions of the head based on the magnitude and direction of the
-                        //velocity of the head
-                       // l_f_SegmentXPos[HEAD] += f_HeadSpeed * (float) Math.Cos(f_HeadDirection);
-                       // l_f_SegmentYPos[HEAD] += f_HeadSpeed * (float) Math.Sin(f_HeadDirection);
 
                         l_segments[HEAD].X = l_segments[HEAD].X + (f_HeadSpeed * (float)Math.Cos(f_HeadDirection));
                         l_segments[HEAD].Y = l_segments[HEAD].Y + (f_HeadSpeed * (float)Math.Sin(f_HeadDirection));
@@ -238,18 +353,11 @@ namespace DreadWyrm
                         //Update each Wyrm segment
                         l_segments[i].Update();
                     }
-                    //now copy the segment data into the location lists
-                    //l_f_SegmentXPos[i] = l_segments[i].X;
-                    //l_f_SegmentYPos[i] = l_segments[i].Y;
 
                     //Update the Wyrm sprites
                     asSprites[i].Update(gametime);
                 }
             }
-
-            
-
-            
 
         }
 

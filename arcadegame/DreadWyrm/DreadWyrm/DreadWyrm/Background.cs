@@ -16,7 +16,7 @@ namespace DreadWyrm
         Texture2D background;
         Texture2D foreground;
 
-        bool b_wyrmGrounded;
+        public static bool b_wyrmGrounded;
         
         //Array of pixels to store the pixel values of the foreground texture
         //Unfortunately must be one dimensional due to the way GetData works
@@ -61,9 +61,5 @@ namespace DreadWyrm
                 return false;
             }
         }
-
-
-
-
     }
 }

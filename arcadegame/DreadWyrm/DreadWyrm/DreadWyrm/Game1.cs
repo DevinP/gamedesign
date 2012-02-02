@@ -43,8 +43,7 @@ namespace DreadWyrm
         
         Texture2D t2dbackground;                            //The background sprite
         Texture2D t2dforeground;                            //The foreground sprite (part of the background)
-
-        Player thePlayer;                                   //The player of the game
+        Player thePlayer;                            //The player of the game
 
         Background theBackground;
 
@@ -159,7 +158,7 @@ namespace DreadWyrm
 
             #region SongSwitching (Code to handle the switching of the song with left shift)
 
-            if (keystate.IsKeyDown(Keys.LeftShift) && canSwitchSongs)
+            if (keystate.IsKeyDown(Keys.RightShift) && canSwitchSongs)
             {
                 if (bgm1Playing)
                 {
@@ -185,7 +184,7 @@ namespace DreadWyrm
 
                 canSwitchSongs = false;
             }
-            else if (keystate.IsKeyUp(Keys.LeftShift) && !canSwitchSongs)
+            else if (keystate.IsKeyUp(Keys.RightShift) && !canSwitchSongs)
             {
                 canSwitchSongs = true;
             }
@@ -247,10 +246,10 @@ namespace DreadWyrm
 
 
                      //For debugging whether the wyrm is in the ground or the air.
-                    if (theBackground.wyrmGrounded)
+                    /*if (theBackground.wyrmGrounded)
                         System.Diagnostics.Debug.WriteLine("grounded");
                     else
-                        System.Diagnostics.Debug.WriteLine("airborne");
+                        System.Diagnostics.Debug.WriteLine("airborne");*/
                     
 
 
@@ -263,8 +262,8 @@ namespace DreadWyrm
                         if (thePlayer.theWyrm.l_segments[i].X > SCREENWIDTH - 25)
                             thePlayer.theWyrm.l_segments[i].X = (float)SCREENWIDTH - 25;
 
-                        if (thePlayer.theWyrm.l_segments[i].Y < 0)
-                            thePlayer.theWyrm.l_segments[i].Y = 0;
+                       // if (thePlayer.theWyrm.l_segments[i].Y < 0)
+                        //    thePlayer.theWyrm.l_segments[i].Y = 0;
 
                         if (thePlayer.theWyrm.l_segments[i].Y > SCREENHEIGHT - 50)
                             thePlayer.theWyrm.l_segments[i].Y = (float)SCREENHEIGHT - 50;

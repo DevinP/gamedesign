@@ -43,28 +43,60 @@ namespace DreadWyrm
             i_playerID = ID;
 
             //Create a Wyrm
-            theWyrm = new Wyrm(500, 100, wyrmTextures, Game1.WYRMSEGS);
+            theWyrm = new Wyrm(500, -175, wyrmTextures, Game1.WYRMSEGS);
         }
 
         public void Update(GameTime gametime, KeyboardState keystate)
         {
+            if (Background.b_wyrmGrounded)
+            {
+                #region Wyrm is grounded (player has control)
 
-            if (keystate.IsKeyDown(Keys.Up))
-                theWyrm.HeadAcceleration = 0.3f;
-            else if (keystate.IsKeyUp(Keys.Up))
-                theWyrm.HeadAcceleration = -0.1f;
+                if (keystate.IsKeyDown(Keys.Up))
+                    theWyrm.HeadAcceleration = 0.3f;
+                else if (keystate.IsKeyUp(Keys.Up))
+                    theWyrm.HeadAcceleration = -0.1f;
 
-            if (keystate.IsKeyDown(Keys.Right))
-            {
-                theWyrm.HeadRotationSpeed = 0.05f;
+                if (keystate.IsKeyDown(Keys.Right))
+                {
+                    theWyrm.HeadRotationSpeed = 0.05f;
+                }
+                else if (keystate.IsKeyDown(Keys.Left))
+                {
+                    theWyrm.HeadRotationSpeed = -0.05f;
+                }
+                else if (keystate.IsKeyUp(Keys.Right) && keystate.IsKeyUp(Keys.Left))
+                {
+                    theWyrm.HeadRotationSpeed = 0;
+                }
+
+                //theWyrm.isDiving = false;
+
+                #endregion
             }
-            else if (keystate.IsKeyDown(Keys.Left))
+            else
             {
-                theWyrm.HeadRotationSpeed = -0.05f;
-            }
-            else if (keystate.IsKeyUp(Keys.Right) && keystate.IsKeyUp(Keys.Left))
-            {
-                theWyrm.HeadRotationSpeed = 0;
+                #region The wyrm is in the air (the player has no control)
+
+                //Stop the player from communicating with the wyrm while it is affected by gravity
+                theWyrm.HeadAcceleration = 0;
+                if (keystate.IsKeyDown(Keys.Right))
+                {
+                    theWyrm.HeadRotationSpeed = 0.05f;
+                }
+                else if (keystate.IsKeyDown(Keys.Left))
+                {
+                    theWyrm.HeadRotationSpeed = -0.05f;
+                }
+                else if (keystate.IsKeyUp(Keys.Right) && keystate.IsKeyUp(Keys.Left))
+                {
+                    theWyrm.HeadRotationSpeed = 0;
+                }
+
+                //if (keystate.IsKeyDown(Keys.LeftShift))
+                //    theWyrm.isDiving = true;
+
+                #endregion
             }
 
             theWyrm.Update(gametime);
