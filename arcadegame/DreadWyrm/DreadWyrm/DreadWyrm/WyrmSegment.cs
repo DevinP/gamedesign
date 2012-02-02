@@ -29,6 +29,8 @@ namespace DreadWyrm
 
         bool isHead;
 
+        bool isGrounded;
+
         //The physical parameters of this Wyrm segment
         float f_xPos;
         float f_yPos;
@@ -229,6 +231,75 @@ namespace DreadWyrm
                 f_YOFFS[i] = (float)Math.Sin(iRad) * ((f_height * f_DISTORIGIN) / 2);
                 f_XOFFS[i] = (float)Math.Cos(iRad) * ((f_width * f_DISTORIGIN) / 2);
             }
+        }
+
+        public void checkGrounded()
+        {
+            //firstly, lets figure out all the pixels we need to operate on
+
+            List<float> linePixels = new List<float>();
+
+            //lets find out the two directions we need to think about
+            int upDir = (int)(((Direction + (float)(Math.PI / 2)) + 2*Math.PI) % 2*Math.PI);
+            int downDir = (int)(((Direction - (float)(Math.PI / 2)) + 2 * Math.PI) % 2 * Math.PI);
+
+
+            //Now lets calculate the start and end points of the line segment
+            int startX = (int)(X + f_XOFFS[upDir]);
+            int startY = (int)(Y + f_YOFFS[upDir]);
+
+            int endX = (int)(X + f_XOFFS[downDir]);
+            int endY = (int)(Y + f_YOFFS[downDir]);
+
+
+
+
+
+
+
+            //calculate the slope between the two of these points
+            bool xGreater = false;
+            if (Math.Abs(startX - endX) > Math.Abs(startY - endY))
+            {
+                xGreater = true;
+            }
+
+            if (xGreater)
+            {
+                if (startX > endX)
+                {
+                    SWAP START AND END
+                }
+
+                int prevX = startX;
+
+
+                for(int i = startY; i < endY; i++)
+                {
+                    int tempX = calcx(i)
+                        if(prevX > 
+                }
+            }
+
+
+
+
+
+
+
+            //Ask the background if my points are grounded
+            for (; ; ) //for each perpendicular point...
+            {
+                if (true)
+                {
+                    //they are! add a bunch of trail objects to the background
+                }
+                else
+                {
+                    //just do nothing. absolutely nothing
+                }
+            }
+
         }
     }
 }

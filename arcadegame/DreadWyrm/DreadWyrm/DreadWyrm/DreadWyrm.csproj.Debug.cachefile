@@ -2,6 +2,7 @@ Content\Sounds\bgm.xnb
 Content\Sounds\bgm2.xnb
 Content\Sounds\bgm3.xnb
 Content\Fonts\Title.xnb
+Content\Fonts\Upgrade.xnb
 Content\Sounds\Predator Roar.xnb
 Content\Textures\background_1280x720.xnb
 Content\Textures\wyrmhead_100x100.xnb
@@ -14,7 +15,6 @@ Content\Textures\rocks.xnb
 Content\Textures\titleScreen.xnb
 Content\Textures\titleScreenEnhanced.xnb
 Content\Textures\foreground.xnb
-Content\Fonts\Upgrade.xnb
 Content\Textures\transparentBlack.xnb
 Content\Textures\arrow.xnb
 Content\Textures\wordbubble.xnb

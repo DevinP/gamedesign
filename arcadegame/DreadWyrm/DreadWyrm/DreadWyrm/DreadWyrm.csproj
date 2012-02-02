@@ -135,6 +135,7 @@
     <Compile Include="Game1.cs" />
     <Compile Include="Wyrm.cs" />
     <Compile Include="WyrmSegment.cs" />
+    <Compile Include="WyrmTrail.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
