@@ -37,10 +37,10 @@ namespace DreadWyrm
         const float XGRAV = 0.015f;
 
         //A friction that applies to the wyrm when it goes above max speed to slow it down
-        const float FRICTION = 0.11f;
+        const float FRICTION = 0.05f;
 
         //A mulitplier to adjust the amount the player can rotate their head in midair
-        const float MIDAIRROTATION = 0.25f;
+        const float MIDAIRROTATION = 0.22f;
 
         //How much faster the wyrm speeds toward the ground when diving
         //const float DIVEMULTIPLIER = 1.025f;
