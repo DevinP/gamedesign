@@ -43,12 +43,12 @@ namespace DreadWyrm
             i_playerID = ID;
 
             //Create a Wyrm
-            theWyrm = new Wyrm(500, -175, wyrmTextures, Game1.WYRMSEGS);
+            theWyrm = new Wyrm(500, -250, wyrmTextures, Game1.WYRMSEGS);
         }
 
         public void Update(GameTime gametime, KeyboardState keystate)
         {
-            if (Background.b_wyrmGrounded)
+            if (theWyrm.b_wyrmGrounded)
             {
                 #region Wyrm is grounded (player has control)
 

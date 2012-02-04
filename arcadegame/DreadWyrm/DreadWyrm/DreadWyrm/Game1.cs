@@ -47,6 +47,9 @@ namespace DreadWyrm
 
         Background theBackground;
 
+        //The game's random numbers
+        public static Random m_random;
+
 
         bool canRoar = true;
         bool canSwitchSongs = true;
@@ -62,6 +65,7 @@ namespace DreadWyrm
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            m_random = new Random();
         }
 
         /// <summary>
@@ -115,7 +119,8 @@ namespace DreadWyrm
             wyrmTextures.Add(t2dWyrmHead);
   
             //Add on the wyrm segment textures
-            //We want to subtract three from the total segments since the head and tail are not this texture
+            //We want to subtract two from the total segments since the head and tail are not this texture
+            //derp
             for (int i = 0; i < WYRMSEGS - 2; i++)
             {
                 wyrmTextures.Add(t2dWyrmSeg);
@@ -242,7 +247,8 @@ namespace DreadWyrm
 
                     thePlayer.Update(gameTime, keystate);
 
-                    theBackground.Update((int)thePlayer.theWyrm.l_segments[0].X, (int)thePlayer.theWyrm.l_segments[0].Y);
+                    theBackground.Update();
+                   // Console.WriteLine(Background.trails.Count);
 
 
                      //For debugging whether the wyrm is in the ground or the air.

@@ -42,14 +42,8 @@ namespace DreadWyrm
         //A mulitplier to adjust the amount the player can rotate their head in midair
         const float MIDAIRROTATION = 0.22f;
 
-        //How much faster the wyrm speeds toward the ground when diving
-        //const float DIVEMULTIPLIER = 1.025f;
-
-        //The amount of extra speed you get when you begin a dive
-        //const float DIVEBOOST = 0.06f;
-
-        //How long the dive boost occurs for
-        //const int DIVEBOOSTDURATION = 25;
+        //Is the worm grounded?
+        public bool b_wyrmGrounded;
 
         float f_WyrmMoveCount = 0.0f;
         float f_WyrmMoveDelay = 0.01f;
@@ -181,7 +175,7 @@ namespace DreadWyrm
 
         public Wyrm(float initialX, float initialY, List<Texture2D> textures, int segments)
         {
-            f_HeadSpeedMax = 5.2f;
+            f_HeadSpeedMax = 10.2f;
             f_HeadSpeedMin = 2;
             f_HeadRotationSpeedMax = 6;
             f_HeadRotationSpeedMin = -6;
@@ -202,7 +196,7 @@ namespace DreadWyrm
             numSegments = segments;
 
             //Add the rest of the Wyrm segments on and create sprites for them
-            for (int i = 1; i <= numSegments - 1; i++)
+            for (int i = 1; i <= numSegments - 2; i++)
             {
                 //Create a new segment and attach it to the one in front of it
                 l_segments.Add(new WyrmSegment(l_t2d_SegmentTextures[i], initialX, initialY, l_segments[i - 1]));
@@ -218,6 +212,7 @@ namespace DreadWyrm
             asSprites.Add(new AnimatedSprite(l_t2d_SegmentTextures[l_t2d_SegmentTextures.Count - 1], 0, 0, 
                                              l_t2d_SegmentTextures[l_t2d_SegmentTextures.Count - 1].Width, 
                                              l_t2d_SegmentTextures[l_t2d_SegmentTextures.Count - 1].Height, 0));
+            asSprites[asSprites.Count - 1].IsAnimating = false;
 
             //for other segments...
             for (int i = 0; i < numSegments; i++)
@@ -236,7 +231,8 @@ namespace DreadWyrm
 
             if(f_WyrmMoveCount > f_WyrmMoveDelay)
             {
-                if (!Background.b_wyrmGrounded)
+                #region Wyrm Movement
+                if (!b_wyrmGrounded)
                 {
                     #region The wyrm is in the air (gravity effects)
 
@@ -337,7 +333,9 @@ namespace DreadWyrm
                 l_segments[HEAD].Direction = f_HeadDirection;
 
                 f_WyrmMoveCount = 0f;
+                #endregion
 
+                #region Segment update/copy
                 //update all segments
                 for (int i = 0; i < numSegments; i++)
                 {
@@ -356,7 +354,61 @@ namespace DreadWyrm
 
                     //Update the Wyrm sprites
                     asSprites[i].Update(gametime);
+
+
+
                 }
+                #endregion
+
+                //*
+                #region Dealings with the Background class
+
+                //See if the head's position is grounded
+                b_wyrmGrounded = Background.checkIsGrounded((int)l_segments[HEAD].X, (int)l_segments[HEAD].Y);
+
+
+                #region Create dirt paths on background
+                //We need to run through each pixel of the tail
+
+                //the starting point of the tail texture
+                int tailStartX = (int)l_segments[l_segments.Count-1].X - SPRITEWIDTH/2;
+                int tailStartY = (int)l_segments[l_segments.Count - 1].Y;
+
+                //for each pixel in the X direction
+                for (int i = tailStartX; i < tailStartX + SPRITEWIDTH; i++)
+                {
+                    //for each pixel i nthe y direction
+                    for (int j = tailStartY; j < tailStartY + SPRITEHEIGHT; j++)
+                    {
+                        //the wyrm better be on the screen
+                        if (i > 0 && j > 0 && i < Background.SCREENWIDTH && j < Background.SCREENHEIGHT)
+                        {
+                            // is the background alpha already less than 100%?
+                            if (Background.pixels[j * Background.SCREENWIDTH + i].A < 255)
+                            {
+                                //actually, do nothing
+                            }
+                            else
+                            {
+                                //lets create a wyrmtrail object
+                                Background.createWyrmTrail(i, j);
+
+                                //actually, make alpha 0, and murder the screen
+                                //Background.pixels[j * Background.SCREENWIDTH + i].A = 0;
+                            }
+                        }
+                    }
+
+                }
+
+
+
+                #endregion
+
+                #endregion
+                  
+                 //*/
+
             }
 
         }
@@ -367,12 +419,7 @@ namespace DreadWyrm
             for (int i = 1; i <= numSegments; i++)
             {
                 //Do a special case for drawing the head since it's a bigger sprite
-                //RIGHT NOW: it's not actually different
-                if (i == numSegments)
-                    asSprites[numSegments - i].Draw(sb, (int)l_segments[numSegments - i].X, (int)l_segments[numSegments - i].Y + (SPRITEHEIGHT / 2),
-                                                l_segments[numSegments - i].Direction, false);
-                else
-                    asSprites[numSegments - i].Draw(sb, (int)l_segments[numSegments - i].X, (int)l_segments[numSegments - i].Y + (SPRITEHEIGHT / 2), 
+                asSprites[numSegments - i].Draw(sb, (int)l_segments[numSegments - i].X, (int)l_segments[numSegments - i].Y + (SPRITEHEIGHT / 2), 
                                                 l_segments[numSegments - i].Direction, false);
             }
         }
