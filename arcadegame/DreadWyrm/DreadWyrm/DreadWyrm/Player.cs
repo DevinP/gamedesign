@@ -70,15 +70,13 @@ namespace DreadWyrm
                     theWyrm.HeadRotationSpeed = 0;
                 }
 
-                //theWyrm.isDiving = false;
-
                 #endregion
             }
             else
             {
-                #region The wyrm is in the air (the player has no control)
+                #region The wyrm is in the air (the player has limited control)
 
-                //Stop the player from communicating with the wyrm while it is affected by gravity
+                //Stop the player from communicating with the wyrm while it is affected by gravity, save for turning at a reduced rate
                 theWyrm.HeadAcceleration = 0;
                 if (keystate.IsKeyDown(Keys.Right))
                 {
@@ -92,9 +90,6 @@ namespace DreadWyrm
                 {
                     theWyrm.HeadRotationSpeed = 0;
                 }
-
-                //if (keystate.IsKeyDown(Keys.LeftShift))
-                //    theWyrm.isDiving = true;
 
                 #endregion
             }

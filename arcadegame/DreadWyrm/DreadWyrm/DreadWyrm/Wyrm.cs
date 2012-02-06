@@ -48,10 +48,6 @@ namespace DreadWyrm
         float f_WyrmMoveCount = 0.0f;
         float f_WyrmMoveDelay = 0.01f;
 
-        //Whether or not the wyrm is diving towards the ground
-        //bool b_dive = false;
-        //private int b_hasDiveBoosted = 0;
-
         //Body Parts
         
         //the textures are contained in a list.
@@ -175,7 +171,7 @@ namespace DreadWyrm
 
         public Wyrm(float initialX, float initialY, List<Texture2D> textures, int segments)
         {
-            f_HeadSpeedMax = 10.2f;
+            f_HeadSpeedMax = 5.2f;
             f_HeadSpeedMin = 2;
             f_HeadRotationSpeedMax = 6;
             f_HeadRotationSpeedMin = -6;
@@ -231,6 +227,9 @@ namespace DreadWyrm
 
             if(f_WyrmMoveCount > f_WyrmMoveDelay)
             {
+
+                b_wyrmGrounded = Background.checkIsGrounded((int)l_segments[HEAD].X, (int)l_segments[HEAD].Y);
+
                 #region Wyrm Movement
                 if (!b_wyrmGrounded)
                 {
@@ -258,18 +257,7 @@ namespace DreadWyrm
                     else
                     {
                         yVel = yVel + GRAVITY * GRAVITYMULTIPLIER;
-
-                        /*if (b_dive)
-                            yVel = yVel * DIVEMULTIPLIER;
-
-                        if (b_hasDiveBoosted < DIVEBOOSTDURATION && b_dive)
-                        {
-                            yVel = yVel + DIVEBOOST;
-                            b_hasDiveBoosted++;
-                        }*/
                     }
-
-                    
 
                     //Recompose the x and y velocities into a head direction and speed
                     f_HeadSpeed = (float) Math.Sqrt((double) (xVel * xVel + yVel * yVel));
@@ -360,7 +348,7 @@ namespace DreadWyrm
                 }
                 #endregion
 
-                //*
+                /*
                 #region Dealings with the Background class
 
                 //See if the head's position is grounded
