@@ -147,13 +147,13 @@ namespace DreadWyrm
             //Add some giraffes...
             for (int i = 0; i < 3; i++)
             {
-                prey.Add(new Animal(i*100, 100, preyTextures[0], 4, 95, 102, 94, 30, thePlayer.theWyrm, false, 1191, 97));
+                prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[0], 4, 95, 102, 94, 30, thePlayer.theWyrm, false, 1191, 97));
             }
 
             //...and some elephants
             for (int i = 3; i < 5; i++)
             {
-                prey.Add(new Animal(i * 100, 100, preyTextures[1], 6, 71, 89, 70, 29, thePlayer.theWyrm, false, 4990, 73));
+                prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[1], 6, 71, 89, 70, 29, thePlayer.theWyrm, false, 4990, 73));
             }
 
             MediaPlayer.IsRepeating = true;

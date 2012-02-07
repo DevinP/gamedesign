@@ -54,7 +54,7 @@ namespace DreadWyrm
             i_playerID = ID;
 
             //Create a Wyrm
-            theWyrm = new Wyrm(100, 400/*-250*/, wyrmTextures, Game1.WYRMSEGS);
+            theWyrm = new Wyrm(100, 400, wyrmTextures, Game1.WYRMSEGS);
 
             scoreFont = font;
         }
@@ -132,7 +132,7 @@ namespace DreadWyrm
         {
             theWyrm.Draw(sb);
 
-            sb.DrawString(scoreFont, "Total Meat: " + totalMeat + " kg", new Vector2(SCOREX, SCOREY), Color.Red);
+            sb.DrawString(scoreFont, "Total Meat: " + totalMeat + " KG", new Vector2(SCOREX, SCOREY), Color.Red);
         }
 
     }

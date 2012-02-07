@@ -12,7 +12,7 @@ namespace DreadWyrm
     {
 
         float elapsedTime;                 //For counting for changing the animal's velocity
-        const float TIMETOCHANGE = 8;      //When to change velocity (in seconds)
+        const float TIMETOCHANGE = 11;     //When to change velocity (in seconds)
 
         int otherFacing;
 
