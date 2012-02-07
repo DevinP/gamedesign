@@ -7,11 +7,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace DreadWyrm
 {
-    class AnimatedSprite
+    public class AnimatedSprite
     {
         Texture2D t2dTexture;
 
-        float fFrameRate = 0.02f;
+        float fFrameRate = 0.15f;
         float fElapsed = 0.0f;
 
         int iFrameOffsetX = 0;
@@ -56,6 +56,12 @@ namespace DreadWyrm
         {
             get { return bAnimating; }
             set { bAnimating = value; }
+        }
+
+        public int frameOffsetY
+        {
+            get { return iFrameOffsetY; }
+            set { iFrameOffsetY = value; }
         }
 
         public AnimatedSprite(

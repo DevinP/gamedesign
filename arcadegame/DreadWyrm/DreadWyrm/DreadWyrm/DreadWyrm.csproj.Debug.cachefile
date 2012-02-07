@@ -18,6 +18,12 @@ Content\Textures\foreground.xnb
 Content\Textures\transparentBlack.xnb
 Content\Textures\arrow.xnb
 Content\Textures\wordbubble.xnb
+Content\Textures\giraffe.xnb
+Content\Sounds\aud_chomp.xnb
+Content\Fonts\scoreFont.xnb
+Content\Textures\elephant.xnb
+Content\Textures\soldier.xnb
+Content\Textures\unarmed.xnb
 Content\Sounds\bgm.wma
 Content\Sounds\bgm2.wma
 Content\Sounds\bgm3.wma

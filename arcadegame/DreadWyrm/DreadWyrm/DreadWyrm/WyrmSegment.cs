@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace DreadWyrm
 {
-    class WyrmSegment
+    public class WyrmSegment
     {
         //The texture of this Wyrm segment
         Texture2D t2d_segmentSprite;

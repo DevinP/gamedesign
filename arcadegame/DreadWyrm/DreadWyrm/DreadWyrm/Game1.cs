@@ -28,14 +28,17 @@ namespace DreadWyrm
         Texture2D t2dtransparentBlack;                     //A partially transparent texture to draw over the game
         Texture2D t2dupgradeBox;                           //A box to put upgrade messages in
         Texture2D t2dupgradeArrow;                         //Arrow to indicate which upgrade the player will select
+        List<Texture2D> preyTextures;                      //The textures used by the prey
         Song bgm;                                          //The background music for the game
         Song bgm2;
         Song bgm3;
         bool m_gameStarted = false;                        //Whether or not we are at the title screen
         SpriteFont titleFont;                              //The font used in the game for the title screen
         SpriteFont upgradeFont;                            //The font used in the game for the upgrade screen
+        SpriteFont scoreFont;                              //The font used to dispaly the meat score
         Vector2 vStartTitleTextLoc = new Vector2(440, 440);//The location for the additional title screen text
         SoundEffect roar;
+        SoundEffect chomp;
 
         Texture2D t2dWyrmHead;                              //The sprite for the Wyrm head
         Texture2D t2dWyrmSeg;                               //The sprite for the Wyrm segments
@@ -43,7 +46,8 @@ namespace DreadWyrm
         
         Texture2D t2dbackground;                            //The background sprite
         Texture2D t2dforeground;                            //The foreground sprite (part of the background)
-        Player thePlayer;                            //The player of the game
+        Player thePlayer;                                   //The player of the game
+        List<Prey> prey;                                    //The edible animals on screen
 
         Background theBackground;
 
@@ -95,6 +99,7 @@ namespace DreadWyrm
 
             titleFont = Content.Load<SpriteFont>(@"Fonts\Title");
             upgradeFont = Content.Load<SpriteFont>(@"Fonts\Upgrade");
+            scoreFont = Content.Load<SpriteFont>(@"Fonts\scoreFont");
 
             t2dTitleScreen = Content.Load<Texture2D>(@"Textures\titleScreen");
             t2dtransparentBlack = Content.Load<Texture2D>(@"Textures\transparentBlack");
@@ -102,6 +107,7 @@ namespace DreadWyrm
             t2dupgradeArrow = Content.Load<Texture2D>(@"Textures\arrow");
 
             roar = Content.Load<SoundEffect>(@"Sounds\Predator Roar");
+            chomp = Content.Load<SoundEffect>(@"Sounds\aud_chomp");
 
             bgm = Content.Load<Song>(@"Sounds\bgm");
             bgm2 = Content.Load<Song>(@"Sounds\bgm2");
@@ -113,6 +119,10 @@ namespace DreadWyrm
 
             t2dbackground = Content.Load<Texture2D>(@"Textures\background");
             t2dforeground = Content.Load<Texture2D>(@"Textures\foreground");
+
+            preyTextures = new List<Texture2D>();
+            preyTextures.Add(Content.Load<Texture2D>(@"Textures\giraffe"));
+            preyTextures.Add(Content.Load<Texture2D>(@"Textures\elephant"));
 
             //Add the wyrm head segment texture to the wyrm textures list
             List<Texture2D> wyrmTextures = new List<Texture2D>();
@@ -130,7 +140,21 @@ namespace DreadWyrm
             wyrmTextures.Add(t2dWyrmTail);
 
             theBackground = new Background(t2dbackground, t2dforeground);
-            thePlayer = new Player(0, wyrmTextures);
+            thePlayer = new Player(0, wyrmTextures, scoreFont);
+
+            prey = new List<Prey>();
+
+            //Add some giraffes...
+            for (int i = 0; i < 3; i++)
+            {
+                prey.Add(new Animal(i*100, 100, preyTextures[0], 4, 95, 102, 94, 30, thePlayer.theWyrm, false, 1191, 97));
+            }
+
+            //...and some elephants
+            for (int i = 3; i < 5; i++)
+            {
+                prey.Add(new Animal(i * 100, 100, preyTextures[1], 6, 71, 89, 70, 29, thePlayer.theWyrm, false, 4990, 73));
+            }
 
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(bgm2);
@@ -245,19 +269,16 @@ namespace DreadWyrm
                 {
                     #region Play Mode (upgradeMode == false)
 
+                    for (int i = 0; i < prey.Count; i++)
+                    {
+                        prey[i].Update(gameTime);
+                    }
+
                     thePlayer.Update(gameTime, keystate);
 
                     theBackground.Update();
-                   // Console.WriteLine(Background.trails.Count);
 
-
-                     //For debugging whether the wyrm is in the ground or the air.
-                    /*if (theBackground.wyrmGrounded)
-                        System.Diagnostics.Debug.WriteLine("grounded");
-                    else
-                        System.Diagnostics.Debug.WriteLine("airborne");*/
-                    
-
+                    checkEat();
 
                     //Make it so the player can't move off the screen
                     for (int i = 0; i < WYRMSEGS; i++)
@@ -326,6 +347,12 @@ namespace DreadWyrm
 
                 //spriteBatch.Draw(t2dmainBackground, new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT), Color.White);
                 theBackground.Draw(spriteBatch);
+
+                for (int i = 0; i < prey.Count; i++)
+                {
+                    prey[i].Draw(spriteBatch);
+                }
+
                 thePlayer.Draw(spriteBatch);
 
                 if (upgradeMode)
@@ -379,5 +406,29 @@ namespace DreadWyrm
         {
             m_gameStarted = true;
         }
+
+        bool isColliding(int x1, int y1, float r1, int x2, int y2, float r2)
+        {
+            return(Math.Pow((r1 + r2), 2) >= Math.Pow((x1 - x2), 2) + Math.Pow((y1 - y2),2));
+        }
+
+        void checkEat()
+        {
+            for (int i = 0; i < prey.Count; i++)
+            {
+                if (isColliding((int)thePlayer.theWyrm.l_segments[0].X, (int)thePlayer.theWyrm.l_segments[0].Y, thePlayer.theWyrm.boundingRadius,
+                    (int)prey[i].xPosistion, prey[i].yPosition, prey[i].boundingradius))
+                {
+                    thePlayer.Meat = thePlayer.Meat + prey[i].meatReward;
+                    prey.RemoveAt(i);
+                    chomp.Play();
+                }
+            }
+        }
+
+
+            
+
+
     }
 }

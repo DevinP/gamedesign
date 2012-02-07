@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace DreadWyrm
 {
-    class Wyrm
+    public class Wyrm
     {
         //The minimum speed a Wyrm may travel at
         const float HEADSPEEDMIN = 0.0f;
@@ -40,7 +40,10 @@ namespace DreadWyrm
         const float FRICTION = 0.05f;
 
         //A mulitplier to adjust the amount the player can rotate their head in midair
-        const float MIDAIRROTATION = 0.22f;
+        const float MIDAIRROTATION = 0.45f;
+
+        //The radius in number the pixels of the wyrm head's bounding circle
+        public int boundingRadius = 15;
 
         //Is the worm grounded?
         public bool b_wyrmGrounded;
@@ -64,7 +67,7 @@ namespace DreadWyrm
         //How many segments the Wyrm has
         int i_numSegments;
 
-        //All segments are designed to simply "follow" the segment in front of it
+        //All segments are designed to simply follow the segment in front of it
 
         //The head has a velocity, etc.
 
@@ -96,12 +99,6 @@ namespace DreadWyrm
             get{return l_t2d_SegmentTextures;}
             set{l_t2d_SegmentTextures = value;}
         }
-
-        //public bool isDiving
-       // {
-        //    get { return b_dive; }
-        //    set { b_dive = value; }
-       // }
 
         public float HeadSpeed
         {

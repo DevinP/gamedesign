@@ -7,25 +7,30 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace DreadWyrm
 {
-    class Prey
+    public abstract class Prey
     {
-        Texture2D preyTexture;      //The texture of this prey
-        AnimatedSprite asprite;    //The animated sprite belonging to this prey
-        int animationFrames;        //The frames of animation in this prey
+        protected Texture2D preyTexture;                //The texture of this prey
+        protected AnimatedSprite asprite;               //The animated sprite belonging to this prey
+        protected int animationFrames;                  //The frames of animation in this prey
 
-        float xPos;                 //The x position of the prey, measured in the center
-        float yPos;                 //The y position of the prey, measured in the center
+        protected int xPos;                             //The x position of the prey, measured in the center
+        protected int yPos;                             //The y position of the prey, measured in the center
 
-        Vector2 basepoint;          //The point at the bottom edge of the prey
-        Vector2 footpoint;          //The point which is slightly above the bottom edge of the prey
+        protected Vector2 basepoint;                    //The point at the bottom edge of the prey
+        protected Vector2 footpoint;                    //The point which is slightly above the bottom edge of the prey
 
-        float xVel;                 //The x velocity of the prey
+        protected float xVel;                           //The x velocity of the prey
 
-        int spriteheight;           //The height of the prey sprite
-        int spritewidth;            //The width of the prey sprite
+        protected int spriteheight;                     //The height of the prey sprite
+        protected int spritewidth;                      //The width of the prey sprite
 
-        int boundingheight;         //The height of the prey's bounding box
-        int boundingwidth;          //The width of the prey's bounding box
+        protected int preyheight;                       //The height of the prey's bounding box
+
+        public float boundingradius;                    //The radius of the bounding circle for the prey
+
+        protected Wyrm theWyrm;
+
+        public int meatReward;                          //The meat granted from eating this prey
 
 
         public AnimatedSprite asSprite
@@ -34,14 +39,14 @@ namespace DreadWyrm
             set { asprite = value; }
         }
 
-        public float xPosistion
+        public int xPosistion
         {
             get { return xPos; }
             set { xPos = value; }
         }
 
         
-        public float yPosition
+        public int yPosition
         {
             get { return yPos; }
             set { yPos = value; }
@@ -65,39 +70,27 @@ namespace DreadWyrm
             set { xVel = value; }
         }
 
-        /*
-        public float yVelocity
-        {
-            get { return yVel; }
-            set { yVel = value; }
-        }
-        */
 
-        int spriteHeight
+        public int spriteHeight
         {
             get { return spriteheight; }
             set { spriteheight = value; }
         }
 
-        int spriteWidth
+        public int spriteWidth
         {
             get { return spritewidth; }
             set { spritewidth = value; }
         }
 
-        public int boundingHeight
+        public int preyHeight
         {
-            get { return boundingheight; }
-            set { boundingheight = value; }
+            get { return preyheight; }
+            set { preyheight = value; }
         }
 
-        public int boundingWidth
-        {
-            get { return boundingwidth; }
-            set { boundingwidth = value; }
-        }
-
-        public Prey(float initialX, float initialY, Texture2D texture, int frames)
+        public Prey(int initialX, int initialY, Texture2D texture, int frames, int spriteHeight, int spriteWidth, int preyHeight, 
+                    float boundingRadius, Wyrm predator, int meat)
         {
             xPos = initialX;
             yPos = initialY;
@@ -105,12 +98,21 @@ namespace DreadWyrm
             preyTexture = texture;
             animationFrames = frames;
 
+            spriteheight = spriteHeight;
+            spritewidth = spriteWidth;
+            preyheight = preyHeight;
+            boundingradius = boundingRadius;
+
+            theWyrm = predator;
+
+            meatReward = meat;
+
             basepoint = new Vector2(initialX, initialY + spriteheight / 2);
-            footpoint = new Vector2(initialX, initialY + boundingheight / 2);
+            footpoint = new Vector2(initialX, initialY + preyheight / 2);
         }
 
         //A helper function which keeps the prey near the current ground level
-        void footToGround()
+        protected void footToGround()
         {
             while (!Background.checkIsGrounded((int)basepoint.X, (int)basepoint.Y))
             {
@@ -127,23 +129,16 @@ namespace DreadWyrm
             }
         }
 
-        void recalcPositions()
+        protected void recalcPositions()
         {
             basepoint.X = xPos;
             basepoint.Y = yPos + spriteheight / 2;
             footpoint.X = xPos;
-            footpoint.Y = yPos + boundingheight / 2;
+            footpoint.Y = yPos + preyheight / 2;
         }
 
-        void Update(GameTime gametime)
-        {
-            xPos = xPos + xVel;
-            footToGround();
-        }
+        public abstract void Update(GameTime gametime);
 
-        void Draw(SpriteBatch sb)
-        {
-            asSprite.Draw(sb, (int)xPos, (int)yPos);
-        }
+        public abstract void Draw(SpriteBatch sb);
     }
 }

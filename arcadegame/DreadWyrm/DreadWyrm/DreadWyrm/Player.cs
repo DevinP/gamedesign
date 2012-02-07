@@ -13,10 +13,15 @@ namespace DreadWyrm
         //game variables
         int i_playerID;
         public Wyrm theWyrm;
+        int totalMeat;
+        SpriteFont scoreFont;
 
         //health
         int i_Health = 0;
         int i_HealthMax = 0;
+
+        const int SCOREX = 950;
+        const int SCOREY = 650;
 
         public int playerID
         {
@@ -36,14 +41,22 @@ namespace DreadWyrm
             set { i_HealthMax = value; }
         }
 
+        public int Meat
+        {
+            get { return totalMeat; }
+            set { totalMeat = value; }
+        }
+
 
         //Constructor
-        public Player(int ID, List<Texture2D> wyrmTextures)
+        public Player(int ID, List<Texture2D> wyrmTextures, SpriteFont font)
         {
             i_playerID = ID;
 
             //Create a Wyrm
-            theWyrm = new Wyrm(500, -250, wyrmTextures, Game1.WYRMSEGS);
+            theWyrm = new Wyrm(100, 400/*-250*/, wyrmTextures, Game1.WYRMSEGS);
+
+            scoreFont = font;
         }
 
         public void Update(GameTime gametime, KeyboardState keystate)
@@ -78,15 +91,33 @@ namespace DreadWyrm
 
                 //Stop the player from communicating with the wyrm while it is affected by gravity, save for turning at a reduced rate
                 theWyrm.HeadAcceleration = 0;
-                if (keystate.IsKeyDown(Keys.Right))
+
+                float wyrmDir = theWyrm.HeadDirection;
+
+                if (wyrmDir < Math.PI / 2 || wyrmDir > (3 * Math.PI) / 2)
                 {
-                    theWyrm.HeadRotationSpeed = 0.05f;
+                    if (keystate.IsKeyDown(Keys.Right))
+                    {
+                        theWyrm.HeadRotationSpeed = 0.05f;
+                    }
+                    else
+                    {
+                        theWyrm.HeadRotationSpeed = 0;
+                    }
                 }
-                else if (keystate.IsKeyDown(Keys.Left))
+                else if(wyrmDir > Math.PI / 2 && wyrmDir < (3*Math.PI) / 2)
                 {
-                    theWyrm.HeadRotationSpeed = -0.05f;
+                    if (keystate.IsKeyDown(Keys.Left))
+                    {
+                        theWyrm.HeadRotationSpeed = -0.05f;
+                    }
+                    else
+                    {
+                        theWyrm.HeadRotationSpeed = 0;
+                    }
                 }
-                else if (keystate.IsKeyUp(Keys.Right) && keystate.IsKeyUp(Keys.Left))
+                
+                if (keystate.IsKeyUp(Keys.Right) && keystate.IsKeyUp(Keys.Left))
                 {
                     theWyrm.HeadRotationSpeed = 0;
                 }
@@ -100,8 +131,9 @@ namespace DreadWyrm
         public void Draw(SpriteBatch sb)
         {
             theWyrm.Draw(sb);
-        }
 
+            sb.DrawString(scoreFont, "Total Meat: " + totalMeat + " kg", new Vector2(SCOREX, SCOREY), Color.Red);
+        }
 
     }
 }
