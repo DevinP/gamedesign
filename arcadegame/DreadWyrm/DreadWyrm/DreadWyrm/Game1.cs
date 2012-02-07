@@ -123,6 +123,7 @@ namespace DreadWyrm
             preyTextures = new List<Texture2D>();
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\giraffe"));
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\elephant"));
+            preyTextures.Add(Content.Load<Texture2D>(@"Textures\unarmed"));
 
             //Add the wyrm head segment texture to the wyrm textures list
             List<Texture2D> wyrmTextures = new List<Texture2D>();
@@ -154,6 +155,12 @@ namespace DreadWyrm
             for (int i = 3; i < 5; i++)
             {
                 prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[1], 6, 71, 89, 70, 29, thePlayer.theWyrm, false, 4990, 73));
+            }
+
+            //...and humans!
+            for (int i = 5; i < 8; i++)
+            {
+                prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[2], 4, 24, 21, 23, 6, thePlayer.theWyrm, true, 80, 25));
             }
 
             MediaPlayer.IsRepeating = true;
