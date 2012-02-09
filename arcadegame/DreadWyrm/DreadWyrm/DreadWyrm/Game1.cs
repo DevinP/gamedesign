@@ -314,7 +314,7 @@ namespace DreadWyrm
 
                     thePlayer.Update(gameTime, keystate);
 
-                    //checkBullets();
+                    checkBullets();
 
                     //Make it so the player can't move off the screen
                     for (int i = 0; i < WYRMSEGS; i++)
@@ -477,6 +477,12 @@ namespace DreadWyrm
         {
             for (int i = 0; i < bullets.Count; i++)
             {
+                if (bullets[i].xPosistion >= Background.SCREENWIDTH || bullets[i].xPosistion <= 0 || bullets[i].yPosition <= 0)
+                {
+                    bullets.RemoveAt(i);
+                    continue;
+                }
+
                 if (Background.checkIsGrounded(bullets[i].xPosistion, bullets[i].yPosition))
                 {
                     bullets.RemoveAt(i);
