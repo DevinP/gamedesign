@@ -17,11 +17,13 @@ namespace DreadWyrm
         SpriteFont scoreFont;
 
         //health
-        int i_Health = 0;
-        int i_HealthMax = 0;
+        int i_Health = 100;
+        int i_HealthMax = 100;
+        Texture2D hb_base;
+        Texture2D healthBar;
 
-        const int SCOREX = 950;
-        const int SCOREY = 650;
+        const int SCOREX = 920;
+        const int SCOREY = 600;
 
         public int playerID
         {
@@ -57,6 +59,9 @@ namespace DreadWyrm
             theWyrm = new Wyrm(100, 400, wyrmTextures, Game1.WYRMSEGS);
 
             scoreFont = font;
+
+            hb_base = healthBase;
+            healthBar = health;
         }
 
         public void Update(GameTime gametime, KeyboardState keystate)
@@ -133,6 +138,10 @@ namespace DreadWyrm
             theWyrm.Draw(sb);
 
             sb.DrawString(scoreFont, "Total Meat: " + totalMeat + " KG", new Vector2(SCOREX, SCOREY), Color.Red);
+
+            //Draw the health bars
+            sb.Draw(hb_base, new Rectangle(50, 680, i_HealthMax, 25), Color.White);
+            sb.Draw(healthBar, new Rectangle(50, 680, i_Health, 25), Color.White);
         }
 
     }

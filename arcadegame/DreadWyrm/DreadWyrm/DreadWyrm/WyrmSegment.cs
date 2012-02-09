@@ -161,9 +161,9 @@ namespace DreadWyrm
             frontSeg = front;
 
             //Set the bounding radius of the segments
-            boundingRadius = 50;
-            boundingCenterX = X + 25;
-            boundingCenterY = Y + 25;
+            //boundingRadius = 50;
+            //boundingCenterX = X + 25;
+            //boundingCenterY = Y + 25;
         }
 
         public void Update()
@@ -171,8 +171,6 @@ namespace DreadWyrm
 
             //Now is an appropriate time to follow the node ahead of us
             Follow();
-
-            //Update the bounding circle so that bullets can hit us
 
         }
 
@@ -240,7 +238,6 @@ namespace DreadWyrm
 
             #endregion
 
-            //In theory, everything is done
         }
 
         public static void calcOffsets()
@@ -260,11 +257,6 @@ namespace DreadWyrm
                 f_YOFFS[i] = (float)Math.Sin(iRad) * ((f_height * f_DISTORIGIN) / 2);
                 f_XOFFS[i] = (float)Math.Cos(iRad) * ((f_width * f_DISTORIGIN) / 2);
             }
-        }
-
-        public void checkGrounded()
-        {
-
         }
     }
 }

@@ -44,6 +44,9 @@ namespace DreadWyrm
         Texture2D t2dWyrmHead;                              //The sprite for the Wyrm head
         Texture2D t2dWyrmSeg;                               //The sprite for the Wyrm segments
         Texture2D t2dWyrmTail;                              //The sprite for the Wyrm tail
+        Texture2D healthBase;                               //The sprite for the health base base
+        Texture2D health;                                   //The sprite for the health bar
+
         Texture2D bulletTexture;                            //The sprite for the bullets used by enemies
 
         Texture2D t2dbackground;                            //The background sprite
@@ -75,6 +78,8 @@ namespace DreadWyrm
         const int UNARMEDHUMAN = 2;
         const int SOLDIER = 3;
 
+        //DEBUG THINGS
+        Texture2D debugTex;
 
         public Game1()
         {
@@ -120,7 +125,6 @@ namespace DreadWyrm
 
             roar = Content.Load<SoundEffect>(@"Sounds\Predator Roar");
             chomp = Content.Load<SoundEffect>(@"Sounds\aud_chomp");
-            //playerHit = Content.Load<SoundEffect>(@"Sounds\asdfsdf");
 
             bgm = Content.Load<Song>(@"Sounds\bgm");
             bgm2 = Content.Load<Song>(@"Sounds\bgm2");
@@ -129,6 +133,9 @@ namespace DreadWyrm
             t2dWyrmHead = Content.Load<Texture2D>(@"Textures\wyrmHeadRed");
             t2dWyrmSeg = Content.Load<Texture2D>(@"Textures\wyrmSegRed");
             t2dWyrmTail = Content.Load<Texture2D>(@"Textures\wyrmTailRed");
+
+            healthBase = Content.Load<Texture2D>(@"Textures\hb_red");
+            health = Content.Load<Texture2D>(@"Textures\hb_green");
 
             bulletTexture = Content.Load<Texture2D>(@"Textures\bullet");
 
@@ -140,6 +147,8 @@ namespace DreadWyrm
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\elephant"));
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\unarmed"));
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\soldier"));
+
+            debugTex = Content.Load<Texture2D>(@"Textures\testcircle");
 
             //Add the wyrm head segment texture to the wyrm textures list
             List<Texture2D> wyrmTextures = new List<Texture2D>();
@@ -157,30 +166,30 @@ namespace DreadWyrm
             wyrmTextures.Add(t2dWyrmTail);
 
             theBackground = new Background(t2dbackground, t2dforeground);
-            thePlayer = new Player(0, wyrmTextures, scoreFont, null, null);
+            thePlayer = new Player(0, wyrmTextures, scoreFont, healthBase, health);
 
             prey = new List<Prey>();
 
             //Add some giraffes...
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 0; i++)
             {
                 prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[GIRAFFE], 4, 95, 102, 94, 30, thePlayer.theWyrm, false, 1191, 97));
             }
 
             //...and some elephants
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 0; i++)
             {
                 prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[ELEPHANT], 6, 71, 93, 70, 29, thePlayer.theWyrm, false, 4990, 73));
             }
 
             //...and humans!
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 0; i++)
             {
                 prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[UNARMEDHUMAN], 4, 24, 21, 23, 6, thePlayer.theWyrm, true, 80, 25));
             }
 
             //...and MORE humans (always so many humans). These are armed
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 10000; i++)
             {
                 prey.Add(new SoldierHuman(m_random.Next(20, 1050), 100, preyTextures[SOLDIER], 6, 25, 20, 24, 7, thePlayer.theWyrm, 80, 26, 52, 78, bulletTexture));
             }
@@ -396,6 +405,17 @@ namespace DreadWyrm
 
                 thePlayer.Draw(spriteBatch);
 
+
+
+                /*spriteBatch.Draw(debugTex, new Vector2((float)(45.5 * Math.Sin(thePlayer.theWyrm.HeadDirection - .581893) + thePlayer.theWyrm.l_segments[0].X),
+                    (float)(45.5 * Math.Cos(thePlayer.theWyrm.HeadDirection - .581893) + thePlayer.theWyrm.l_segments[0].Y)), Color.White);
+
+                Console.WriteLine("X: " + (45.5 * Math.Sin(thePlayer.theWyrm.HeadDirection - .581893) + thePlayer.theWyrm.l_segments[0].X) +
+                    " Y: " + (45.5 * Math.Cos(thePlayer.theWyrm.HeadDirection - .581893) + thePlayer.theWyrm.l_segments[0].Y));*/
+                //spriteBatch.Draw(debugTex, new Vector2(thePlayer.theWyrm.l_segments[0].X, thePlayer.theWyrm.l_segments[0].Y + 20), Color.White);
+                spriteBatch.Draw(debugTex, new Vector2((float)(thePlayer.theWyrm.l_segments[0].X -25*Math.Cos(thePlayer.theWyrm.HeadDirection)), 
+                    (float)(thePlayer.theWyrm.l_segments[0].Y + 20 - 25*Math.Sin(thePlayer.theWyrm.HeadDirection))), Color.White);
+
                 if (prey.Count == 0)
                 {
                     spriteBatch.DrawString(titleFont, "YOU ATE ALL THE THINGS", new Vector2(500, 150), Color.Red);
@@ -462,7 +482,8 @@ namespace DreadWyrm
         {
             for (int i = 0; i < prey.Count; i++)
             {
-                if (isColliding((int)thePlayer.theWyrm.l_segments[0].X, (int)thePlayer.theWyrm.l_segments[0].Y, thePlayer.theWyrm.eatRadius,
+                //Do circular collision detection
+                if (isColliding((int)thePlayer.theWyrm.l_segments[0].X, (int)thePlayer.theWyrm.l_segments[0].Y + 20, thePlayer.theWyrm.eatRadius,
                     (int)prey[i].xPosistion, prey[i].yPosition, prey[i].boundingradius))
                 {
                     thePlayer.Meat = thePlayer.Meat + prey[i].meatReward;
@@ -489,19 +510,8 @@ namespace DreadWyrm
                     continue;
                 }
 
-                //Check to see if any of the wyrm segments are hit by the bullet
-                foreach (WyrmSegment ws in thePlayer.theWyrm.l_segments)
-                {
-                    
-                }
-
-                /*if(isColliding((int)thePlayer.theWyrm.l_segments[0].X, (int)thePlayer.theWyrm.l_segments[0].Y, thePlayer.theWyrm.boundingRadius,
-                    (int)bullets[i].xPosistion, bullets[i].yPosition, bullets[i].boundingRadius))
-                {
-                    thePlayer.Health -= bullets[i].DamageDealt;
-                    bullets.RemoveAt(i);
-                    playerHit.Play();
-                }*/
+                //Check to see if the bullet is colliding with the head of the wyrm (discounting the mandibles)
+                //if (isColliding(
             }
         }
     }

@@ -400,10 +400,9 @@ namespace DreadWyrm
 
         public void Draw(SpriteBatch sb)
         {
-            //Draw the rest of the segments
+            //Draw all the of the segments
             for (int i = 1; i <= numSegments; i++)
             {
-                //Do a special case for drawing the head since it's a bigger sprite
                 asSprites[numSegments - i].Draw(sb, (int)l_segments[numSegments - i].X, (int)l_segments[numSegments - i].Y + (SPRITEHEIGHT / 2), 
                                                 l_segments[numSegments - i].Direction, false);
             }
