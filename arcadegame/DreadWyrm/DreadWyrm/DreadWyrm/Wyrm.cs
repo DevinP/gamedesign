@@ -42,8 +42,8 @@ namespace DreadWyrm
         //A mulitplier to adjust the amount the player can rotate their head in midair
         const float MIDAIRROTATION = 0.45f;
 
-        //The radius in number the pixels of the wyrm head's bounding circle
-        public int boundingRadius = 15;
+        //The radius in number the pixels of the wyrm head's eating radius
+        public int eatRadius = 20;
 
         //Is the worm grounded?
         public bool b_wyrmGrounded;

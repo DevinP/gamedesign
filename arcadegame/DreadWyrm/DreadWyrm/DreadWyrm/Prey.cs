@@ -32,6 +32,8 @@ namespace DreadWyrm
 
         public int meatReward;                          //The meat granted from eating this prey
 
+        protected int otherFacing;                      //The y position in the sprite sheet of the reverse facing
+
 
         public AnimatedSprite asSprite
         {
@@ -89,8 +91,8 @@ namespace DreadWyrm
             set { preyheight = value; }
         }
 
-        public Prey(int initialX, int initialY, Texture2D texture, int frames, int spriteHeight, int spriteWidth, int preyHeight, 
-                    float boundingRadius, Wyrm predator, int meat)
+        public Prey(int initialX, int initialY, Texture2D texture, int frames, int spriteHeight, int spriteWidth, int preyHeight,
+                    float boundingRadius, Wyrm predator, int meat, int facingY)
         {
             xPos = initialX;
             yPos = initialY;

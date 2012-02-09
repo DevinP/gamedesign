@@ -20,6 +20,11 @@ namespace DreadWyrm
         static float f_width = 50f;
         static float f_height = 50f;
 
+        //The circle defining the part of the segment which can be shot by bullets
+        public int boundingRadius;
+        public float boundingCenterX;
+        public float boundingCenterY;
+
         //a magic number float of the percentage from the center to the "chain" node.
         static float f_DISTORIGIN = 0.65f;
         
@@ -130,12 +135,35 @@ namespace DreadWyrm
             set { frontSeg = value; }
         }
 
+        public int boundingRad
+        {
+            get { return boundingRadius; }
+            set { boundingRadius = value; }
+        }
+
+        public float boundingCircleX
+        {
+            get { return boundingCenterX; }
+            set { boundingCenterX = value; }
+        }
+
+        public float boundingCircleY
+        {
+            get { return boundingCenterY; }
+            set { boundingCenterY = value; }
+        }
+
         public WyrmSegment(Texture2D texture, float X, float Y, WyrmSegment front)
         {
             t2d_segmentSprite = texture;
             f_xPos = X;
             f_yPos = Y;
             frontSeg = front;
+
+            //Set the bounding radius of the segments
+            boundingRadius = 50;
+            boundingCenterX = X + 25;
+            boundingCenterY = Y + 25;
         }
 
         public void Update()
@@ -144,6 +172,7 @@ namespace DreadWyrm
             //Now is an appropriate time to follow the node ahead of us
             Follow();
 
+            //Update the bounding circle so that bullets can hit us
 
         }
 

@@ -11,7 +11,7 @@ namespace DreadWyrm
     {
         Texture2D t2dTexture;
 
-        float fFrameRate = 0.15f;
+        public float fFrameRate = 0.15f;
         float fElapsed = 0.0f;
 
         int iFrameOffsetX = 0;

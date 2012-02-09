@@ -49,7 +49,7 @@ namespace DreadWyrm
 
 
         //Constructor
-        public Player(int ID, List<Texture2D> wyrmTextures, SpriteFont font)
+        public Player(int ID, List<Texture2D> wyrmTextures, SpriteFont font, Texture2D healthBase, Texture2D health)
         {
             i_playerID = ID;
 

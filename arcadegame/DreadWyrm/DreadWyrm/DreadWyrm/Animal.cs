@@ -14,14 +14,12 @@ namespace DreadWyrm
         float elapsedTime;                 //For counting for changing the animal's velocity
         const float TIMETOCHANGE = 11;     //When to change velocity (in seconds)
 
-        int otherFacing;
-
         bool human;
         bool framesFast;
 
-        public Animal(int initialX, int initialY, Texture2D texture, int frames, int spriteHeight, int spriteWidth, int preyHeight, 
+        public Animal(int initialX, int initialY, Texture2D texture, int frames, int spriteHeight, int spriteWidth, int preyHeight,
                       float boundingRadius, Wyrm predator, bool isHuman, int meat, int facingY) 
-            : base(initialX, initialY, texture, frames, spriteHeight, spriteWidth, preyHeight, boundingRadius, predator, meat)
+            : base(initialX, initialY, texture, frames, spriteHeight, spriteWidth, preyHeight, boundingRadius, predator, meat, facingY)
         {
             asSprite = new AnimatedSprite(preyTexture, 0, 0, spritewidth, spriteheight, animationFrames);
             asSprite.IsAnimating = true;
@@ -60,11 +58,14 @@ namespace DreadWyrm
             }
             else 
             {
+                //We don't see the wyrm, so don't panic
                 framesFast = false;
 
+                //If we were running very fast, slow down to normal speed
                 if (xVel < -1 || xVel > 1)
                     xVel = xVel * 0.5f;
 
+                //Change direction every once in a while
                 if (elapsedTime > TIMETOCHANGE)
                 {
                     xVel = -1 * xVel;
@@ -72,6 +73,7 @@ namespace DreadWyrm
                 }
             }
 
+            //Animated the running faster if it is moving faster
             if (!framesFast)
                 asSprite.FrameLength = 0.2f;
             else
@@ -79,11 +81,13 @@ namespace DreadWyrm
 
             xPos = (int) (xPos + xVel);
 
+            //Change the direction the sprite is facing to match the direction of movement
             if (xVel < 0)
                 asSprite.frameOffsetY = otherFacing;
             else
                 asSprite.frameOffsetY = 0;
 
+            //Keep the animal on screen
             if (xPos < 10)
             {
                 xPos = 10;
@@ -95,6 +99,7 @@ namespace DreadWyrm
                 xVel = -1 * xVel;
             }
 
+            //Keep the animal on the surface of the ground
             recalcPositions();
             footToGround();
 

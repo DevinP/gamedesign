@@ -39,11 +39,13 @@ namespace DreadWyrm
         Vector2 vStartTitleTextLoc = new Vector2(440, 440);//The location for the additional title screen text
         SoundEffect roar;
         SoundEffect chomp;
+        SoundEffect playerHit;
 
         Texture2D t2dWyrmHead;                              //The sprite for the Wyrm head
         Texture2D t2dWyrmSeg;                               //The sprite for the Wyrm segments
         Texture2D t2dWyrmTail;                              //The sprite for the Wyrm tail
-        
+        Texture2D bulletTexture;                            //The sprite for the bullets used by enemies
+
         Texture2D t2dbackground;                            //The background sprite
         Texture2D t2dforeground;                            //The foreground sprite (part of the background)
         Player thePlayer;                                   //The player of the game
@@ -54,6 +56,8 @@ namespace DreadWyrm
         //The game's random numbers
         public static Random m_random;
 
+        //A static list of bullets being fired by enemies in-game
+        public static List<Bullet> bullets;
 
         bool canRoar = true;
         bool canSwitchSongs = true;
@@ -65,11 +69,19 @@ namespace DreadWyrm
         bool upgradeModeCanSwitch = true;
         float upgradeArrowDir = 0;
 
+        //Constant ints to access the prey texture list
+        const int GIRAFFE = 0;
+        const int ELEPHANT = 1;
+        const int UNARMEDHUMAN = 2;
+        const int SOLDIER = 3;
+
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             m_random = new Random();
+            bullets = new List<Bullet>();
         }
 
         /// <summary>
@@ -108,6 +120,7 @@ namespace DreadWyrm
 
             roar = Content.Load<SoundEffect>(@"Sounds\Predator Roar");
             chomp = Content.Load<SoundEffect>(@"Sounds\aud_chomp");
+            //playerHit = Content.Load<SoundEffect>(@"Sounds\asdfsdf");
 
             bgm = Content.Load<Song>(@"Sounds\bgm");
             bgm2 = Content.Load<Song>(@"Sounds\bgm2");
@@ -117,6 +130,8 @@ namespace DreadWyrm
             t2dWyrmSeg = Content.Load<Texture2D>(@"Textures\wyrmSegRed");
             t2dWyrmTail = Content.Load<Texture2D>(@"Textures\wyrmTailRed");
 
+            bulletTexture = Content.Load<Texture2D>(@"Textures\bullet");
+
             t2dbackground = Content.Load<Texture2D>(@"Textures\background");
             t2dforeground = Content.Load<Texture2D>(@"Textures\foreground");
 
@@ -124,6 +139,7 @@ namespace DreadWyrm
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\giraffe"));
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\elephant"));
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\unarmed"));
+            preyTextures.Add(Content.Load<Texture2D>(@"Textures\soldier"));
 
             //Add the wyrm head segment texture to the wyrm textures list
             List<Texture2D> wyrmTextures = new List<Texture2D>();
@@ -141,26 +157,32 @@ namespace DreadWyrm
             wyrmTextures.Add(t2dWyrmTail);
 
             theBackground = new Background(t2dbackground, t2dforeground);
-            thePlayer = new Player(0, wyrmTextures, scoreFont);
+            thePlayer = new Player(0, wyrmTextures, scoreFont, null, null);
 
             prey = new List<Prey>();
 
             //Add some giraffes...
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 100; i++)
             {
-                prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[0], 4, 95, 102, 94, 30, thePlayer.theWyrm, false, 1191, 97));
+                prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[GIRAFFE], 4, 95, 102, 94, 30, thePlayer.theWyrm, false, 1191, 97));
             }
 
             //...and some elephants
-            for (int i = 3; i < 5; i++)
+            for (int i = 0; i < 100; i++)
             {
-                prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[1], 6, 71, 89, 70, 29, thePlayer.theWyrm, false, 4990, 73));
+                prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[ELEPHANT], 6, 71, 93, 70, 29, thePlayer.theWyrm, false, 4990, 73));
             }
 
             //...and humans!
-            for (int i = 5; i < 8; i++)
+            for (int i = 0; i < 100; i++)
             {
-                prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[2], 4, 24, 21, 23, 6, thePlayer.theWyrm, true, 80, 25));
+                prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[UNARMEDHUMAN], 4, 24, 21, 23, 6, thePlayer.theWyrm, true, 80, 25));
+            }
+
+            //...and MORE humans (always so many humans). These are armed
+            for (int i = 0; i < 100; i++)
+            {
+                prey.Add(new SoldierHuman(m_random.Next(20, 1050), 100, preyTextures[SOLDIER], 6, 25, 20, 24, 7, thePlayer.theWyrm, 80, 26, 52, 78, bulletTexture));
             }
 
             MediaPlayer.IsRepeating = true;
@@ -276,16 +298,23 @@ namespace DreadWyrm
                 {
                     #region Play Mode (upgradeMode == false)
 
+                    theBackground.Update();
+
+                    checkEat();
+
                     for (int i = 0; i < prey.Count; i++)
                     {
                         prey[i].Update(gameTime);
                     }
 
+                    for (int i = 0; i < bullets.Count; i++)
+                    {
+                        bullets[i].Update(gameTime);
+                    }
+
                     thePlayer.Update(gameTime, keystate);
 
-                    theBackground.Update();
-
-                    checkEat();
+                    //checkBullets();
 
                     //Make it so the player can't move off the screen
                     for (int i = 0; i < WYRMSEGS; i++)
@@ -360,7 +389,17 @@ namespace DreadWyrm
                     prey[i].Draw(spriteBatch);
                 }
 
+                for (int i = 0; i < bullets.Count; i++)
+                {
+                    bullets[i].Draw(spriteBatch);
+                }
+
                 thePlayer.Draw(spriteBatch);
+
+                if (prey.Count == 0)
+                {
+                    spriteBatch.DrawString(titleFont, "YOU ATE ALL THE THINGS", new Vector2(500, 150), Color.Red);
+                }
 
                 if (upgradeMode)
                 {
@@ -423,7 +462,7 @@ namespace DreadWyrm
         {
             for (int i = 0; i < prey.Count; i++)
             {
-                if (isColliding((int)thePlayer.theWyrm.l_segments[0].X, (int)thePlayer.theWyrm.l_segments[0].Y, thePlayer.theWyrm.boundingRadius,
+                if (isColliding((int)thePlayer.theWyrm.l_segments[0].X, (int)thePlayer.theWyrm.l_segments[0].Y, thePlayer.theWyrm.eatRadius,
                     (int)prey[i].xPosistion, prey[i].yPosition, prey[i].boundingradius))
                 {
                     thePlayer.Meat = thePlayer.Meat + prey[i].meatReward;
@@ -431,11 +470,33 @@ namespace DreadWyrm
                     chomp.Play();
                 }
             }
+            
         }
 
+        void checkBullets()
+        {
+            for (int i = 0; i < bullets.Count; i++)
+            {
+                if (Background.checkIsGrounded(bullets[i].xPosistion, bullets[i].yPosition))
+                {
+                    bullets.RemoveAt(i);
+                    continue;
+                }
 
-            
+                //Check to see if any of the wyrm segments are hit by the bullet
+                foreach (WyrmSegment ws in thePlayer.theWyrm.l_segments)
+                {
+                    
+                }
 
-
+                /*if(isColliding((int)thePlayer.theWyrm.l_segments[0].X, (int)thePlayer.theWyrm.l_segments[0].Y, thePlayer.theWyrm.boundingRadius,
+                    (int)bullets[i].xPosistion, bullets[i].yPosition, bullets[i].boundingRadius))
+                {
+                    thePlayer.Health -= bullets[i].DamageDealt;
+                    bullets.RemoveAt(i);
+                    playerHit.Play();
+                }*/
+            }
+        }
     }
 }
