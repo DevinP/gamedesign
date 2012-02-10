@@ -73,18 +73,20 @@ namespace DreadWyrm
         bool upgradeModeCanSwitch = true;
         bool upgraded = false;
         float upgradeArrowDir = 0;
-        int healCost = 1;
         int maxHealthCost = 1;
         int digSpeedCost = 1;
         int speedBurstCost = 1;
+        int regenCost = 1;
         const int HEALTHMAX_MAX = 1000;
         const int SPEEDMAX = 10;
+        const int STAMINA_MAX = 1000;
         const float DIGSPEED_UPGRADE_INCR = 0.1f;
         const int MAXHEALTH_UPGRADE_INCR = 10;
-        const int SPEEDBURST_UPGRADE_INCR = 1;
+        const int STAMINA_UPGRADE_INCR = 250;
         const int DIGSPEED_COST_INCR = 1;
         const int MAXHEALTH_COST_INCR = 1;
-        const int SPEEDBURST_COST_INCR = 1;
+        const int STAMINA_COST_INCR = 1;
+        const int REGEN_COST_INCR = 1;
         
         //Implementing speed boost
         const float WYRM_BOOST_FACTOR = 2; //Multiplies the max speed of the wyrm when boosting
@@ -240,7 +242,7 @@ namespace DreadWyrm
             if (keystate.IsKeyDown(Keys.Escape))
                 this.Exit();
 
-            #region SongSwitching (Code to handle the switching of the song with left shift)
+            #region SongSwitching (Code to handle the switching of the song with right shift)
 
             if (keystate.IsKeyDown(Keys.RightShift) && canSwitchSongs)
             {
@@ -328,9 +330,16 @@ namespace DreadWyrm
                         {
                             if (!(thePlayer.Meat < speedBurstCost))
                             {
-                                thePlayer.MaxStamina += SPEEDBURST_UPGRADE_INCR;
-                                thePlayer.Meat -= speedBurstCost;
-                                speedBurstCost += SPEEDBURST_COST_INCR;
+                                if ((thePlayer.MaxStamina + STAMINA_UPGRADE_INCR) >= STAMINA_MAX)
+                                {
+                                    thePlayer.MaxStamina = STAMINA_MAX;
+                                }
+                                else
+                                {
+                                    thePlayer.MaxStamina += STAMINA_UPGRADE_INCR;
+                                    thePlayer.Meat -= speedBurstCost;
+                                    speedBurstCost += STAMINA_COST_INCR;
+                                }
                             }
                         }
 
@@ -360,12 +369,17 @@ namespace DreadWyrm
                                 thePlayer.HealthMax += MAXHEALTH_UPGRADE_INCR;
                                 thePlayer.Meat -= maxHealthCost;
                                 maxHealthCost += MAXHEALTH_COST_INCR;
+                                regenCost += REGEN_COST_INCR;
                             }
 
                         }
                         else if (upgradeArrowDir == (float)((3 * Math.PI) / 2)) //Health Regen
                         {
-
+                            if(!(thePlayer.Meat < regenCost) && (thePlayer.Health < thePlayer.HealthMax) && !(thePlayer.regen))
+                            {
+                                thePlayer.regen = true;
+                                thePlayer.Meat -= regenCost;
+                            }
                         }
                     }
                     else if (keystate.IsKeyUp(Keys.Enter))
@@ -489,7 +503,14 @@ namespace DreadWyrm
                     spriteBatch.Draw(t2dupgradeBox, new Rectangle(540, 110, 200, 100), Color.White);
                     spriteBatch.DrawString(upgradeFont, "Metabolism Boost", new Vector2(560, 130), Color.Red);
                     spriteBatch.DrawString(upgradeFont, "(Heal Over Time)", new Vector2(560, 155), Color.Red);
-                    spriteBatch.DrawString(upgradeFont, "Cost: " + healCost + " KG", new Vector2(590, 90), Color.Red);
+                    if (thePlayer.regen)
+                    {
+                        spriteBatch.DrawString(upgradeFont, "Already Regenerating", new Vector2(542, 90), Color.Red);
+                    }
+                    else
+                    {
+                        spriteBatch.DrawString(upgradeFont, "Cost: " + regenCost + " KG", new Vector2(590, 90), Color.Red);
+                    }
 
                     spriteBatch.Draw(t2dupgradeBox, new Rectangle(540, 440, 200, 100), Color.White);
                     spriteBatch.DrawString(upgradeFont, "Muscle Vibration", new Vector2(560, 460), Color.Red);
@@ -516,7 +537,14 @@ namespace DreadWyrm
                     spriteBatch.Draw(t2dupgradeBox, new Rectangle(325, 270, 200, 100), Color.White);
                     spriteBatch.DrawString(upgradeFont, "Muscle Coiling", new Vector2(345, 290), Color.Red);
                     spriteBatch.DrawString(upgradeFont, "(Speed Burst)", new Vector2(345, 315), Color.Red);
-                    spriteBatch.DrawString(upgradeFont, "Cost: " + speedBurstCost + " KG", new Vector2(375, 250), Color.Red);
+                    if (thePlayer.MaxStamina >= STAMINA_MAX)
+                    {
+                        spriteBatch.DrawString(upgradeFont, "Maximum Upgrade Reached", new Vector2(305, 250), Color.Red);
+                    }
+                    else
+                    {
+                        spriteBatch.DrawString(upgradeFont, "Cost: " + speedBurstCost + " KG", new Vector2(375, 250), Color.Red);
+                    }
 
                     //Draw the arrow which points to the currently selected box
                     spriteBatch.Draw(t2dupgradeArrow, new Rectangle(640, 325, 112, 51), null, Color.White, upgradeArrowDir, new Vector2(0, 25.5f), SpriteEffects.None, 0);
