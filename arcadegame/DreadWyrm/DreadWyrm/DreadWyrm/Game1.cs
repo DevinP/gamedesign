@@ -46,6 +46,7 @@ namespace DreadWyrm
         Texture2D healthBase;                               //The sprite for the health base base
         Texture2D health;                                   //The sprite for the health bar
         Texture2D stamina;                                  //The sprite for the stamina bar
+        Texture2D regenBar;                                 //The sprite to indicate the amount of health being regened
 
         Texture2D bulletTexture;                            //The sprite for the bullets used by enemies
 
@@ -157,6 +158,7 @@ namespace DreadWyrm
             healthBase = Content.Load<Texture2D>(@"Textures\hb_red");
             health = Content.Load<Texture2D>(@"Textures\hb_green");
             stamina = Content.Load<Texture2D>(@"Textures\hb_yellow");
+            regenBar = Content.Load<Texture2D>(@"Textures\hb_orange");
 
             bulletTexture = Content.Load<Texture2D>(@"Textures\bullet");
 
@@ -185,7 +187,7 @@ namespace DreadWyrm
             wyrmTextures.Add(t2dWyrmTail);
 
             theBackground = new Background(t2dbackground, t2dforeground);
-            thePlayer = new Player(0, wyrmTextures, scoreFont, healthBase, health, stamina);
+            thePlayer = new Player(0, wyrmTextures, scoreFont, healthBase, health, stamina, regenBar);
 
             prey = new List<Prey>();
 
@@ -299,6 +301,7 @@ namespace DreadWyrm
                     upgradeModeCanSwitch = true;
                 }
 
+
                 if (upgradeMode)
                 {
                     #region Upgrade Mode (upgradeMode == true)
@@ -370,15 +373,27 @@ namespace DreadWyrm
                                 thePlayer.Meat -= maxHealthCost;
                                 maxHealthCost += MAXHEALTH_COST_INCR;
                                 regenCost += REGEN_COST_INCR;
+
+                                thePlayer.healthPerMS = (float)((thePlayer.REGEN_FACTOR * thePlayer.HealthMax) / (thePlayer.REGEN_DURATION));
+                                thePlayer.healthAfterRegen =
+                                    thePlayer.Health + ((thePlayer.REGEN_DURATION - thePlayer.elapsedTimeTotalRegen) * thePlayer.healthPerMS) 
+                                    + (thePlayer.REGEN_DURATION * thePlayer.healthPerMS * (thePlayer.regen - 1));
                             }
 
                         }
                         else if (upgradeArrowDir == (float)((3 * Math.PI) / 2)) //Health Regen
                         {
-                            if(!(thePlayer.Meat < regenCost) && (thePlayer.Health < thePlayer.HealthMax) && !(thePlayer.regen))
+                            //Make sure the player has enough meat and is missing health
+                            if(!(thePlayer.Meat < regenCost) && (thePlayer.Health < thePlayer.HealthMax))
                             {
-                                thePlayer.regen = true;
-                                thePlayer.Meat -= regenCost;
+                                thePlayer.healthPerMS = (float)((thePlayer.REGEN_FACTOR * thePlayer.HealthMax) / (thePlayer.REGEN_DURATION));
+                                thePlayer.healthAfterRegen += thePlayer.REGEN_DURATION * thePlayer.healthPerMS;
+
+                                if (thePlayer.healthAfterRegen < thePlayer.HealthMax * 1.24)
+                                {
+                                    thePlayer.regen++;
+                                    thePlayer.Meat -= regenCost;
+                                }
                             }
                         }
                     }
@@ -503,9 +518,9 @@ namespace DreadWyrm
                     spriteBatch.Draw(t2dupgradeBox, new Rectangle(540, 110, 200, 100), Color.White);
                     spriteBatch.DrawString(upgradeFont, "Metabolism Boost", new Vector2(560, 130), Color.Red);
                     spriteBatch.DrawString(upgradeFont, "(Heal Over Time)", new Vector2(560, 155), Color.Red);
-                    if (thePlayer.regen)
+                    if (thePlayer.Health >= thePlayer.HealthMax)
                     {
-                        spriteBatch.DrawString(upgradeFont, "Already Regenerating", new Vector2(542, 90), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "Already At Max Health", new Vector2(535, 90), Color.Red);
                     }
                     else
                     {

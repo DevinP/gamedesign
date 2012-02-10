@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace DreadWyrm
 {
-    class Player
+    public class Player
     {
         //game variables
         int i_playerID;
@@ -17,24 +17,27 @@ namespace DreadWyrm
         SpriteFont scoreFont;
 
         //health
-        float i_Health = 75;
-        int i_HealthMax = 100;
-        Texture2D hb_base;
-        Texture2D healthBar;
-        public bool regen = false;
-        const int REGEN_DURATION = 5000;      //Number of milliseconds health regen lasts for
-        public float REGEN_FACTOR = 0.25f;    //The percent of max health regenerated over the course of the health regen
-        float elapsedTimeTotal = 0;
-        float elapsedTime = 0;
+        public float i_Health = 75;
+        public int i_HealthMax = 100;
+        public Texture2D hb_base;
+        public Texture2D healthBar;
+        public Texture2D regenBar;
+        public int regen = 0;
+        public int REGEN_DURATION = 5000;      //Number of milliseconds health regen lasts for
+        public float REGEN_FACTOR = 0.25f;     //The percent of max health regenerated over the course of the health regen
+        public float elapsedTimeTotalRegen = 0;
+        public float elapsedTime = 0;
+        public float healthPerMS;
+        public float healthAfterRegen;
 
         //Speed bursting
         bool canBurst = true;
         bool burst = false;
         const int STAMINA_DEPLETIONRATE = 2; //A point of stamina is two milliseconds of speed bursting
-        const int STAMINA_RECHARGERATE = 5;  //One point of stamina regenerates every 5 milliseconds
-        float stamina = 0;
-        int staminaMax = 250;
-        Texture2D staminaBar;
+        const int STAMINA_RECHARGERATE = 10;  //One point of stamina regenerates every 5 milliseconds
+        public float stamina = 0;
+        public int staminaMax = 250;
+        public Texture2D staminaBar;
 
         const int SCOREX = 920;
         const int SCOREY = 600;
@@ -71,7 +74,7 @@ namespace DreadWyrm
 
 
         //Constructor
-        public Player(int ID, List<Texture2D> wyrmTextures, SpriteFont font, Texture2D healthBase, Texture2D health, Texture2D stam)
+        public Player(int ID, List<Texture2D> wyrmTextures, SpriteFont font, Texture2D healthBase, Texture2D health, Texture2D stam, Texture2D regBar)
         {
             i_playerID = ID;
 
@@ -84,6 +87,7 @@ namespace DreadWyrm
             healthBar = health;
             staminaBar = stam;
             stamina = staminaMax;
+            regenBar = regBar;
         }
 
         public void Update(GameTime gametime, KeyboardState keystate)
@@ -197,28 +201,35 @@ namespace DreadWyrm
 
             }
 
-            if (regen)
+            //If at any time we reach max health, we will stop regen
+            if (i_Health >= i_HealthMax)
+                regen = 0;
+
+            if (regen > 0)
             {
                 //A health regen upgrade has been purchased
                 //Regenerate some health every millisecond for REGEN_DURATION seconds
                 //The amount of health regenerated is REGEN_FACTOR * max health
 
                 //First, accumulate time
-                elapsedTimeTotal += (float)gametime.ElapsedGameTime.TotalMilliseconds;
-                elapsedTime += (float)gametime.ElapsedGameTime.TotalMilliseconds;
+                elapsedTimeTotalRegen += (float)gametime.ElapsedGameTime.TotalMilliseconds;
+                elapsedTime = (float)gametime.ElapsedGameTime.TotalMilliseconds;
+
+                //First, calculate the amount of health healed per millisecond
+                //This will be (Total Health Regenerated) / (Duration of Regen)
+                healthPerMS = (REGEN_FACTOR * i_HealthMax) / (REGEN_DURATION);
 
                 //Stop regen if the duration is complete
-                if (elapsedTimeTotal >= REGEN_DURATION)
+                if (elapsedTimeTotalRegen >= REGEN_DURATION)
                 {
-                    regen = false;
+                    regen--;
+                    if (regen <= 0)
+                        regen = 0;
+
+                    elapsedTimeTotalRegen = 0;
                 }
                 else
                 {
-                    //First, calculate the amount of health healed per millisecond
-                    //This will be (Total Health Regenerated) / (Duration of Regen)
-                    float healthPerMS = (REGEN_FACTOR * i_HealthMax) / (REGEN_DURATION);
-                    Console.WriteLine("Health regernerated per MS: " + healthPerMS);
-
                     //For every millisecond that passes, add on one health per millisecond
                     for (int i = 0; i < elapsedTime; i++)
                     {
@@ -229,10 +240,9 @@ namespace DreadWyrm
                 }
             }
             else //We are not regenerating, so the total time should be reset
-                elapsedTimeTotal = 0;
+                elapsedTimeTotalRegen = 0;
 
-            //Reset the elapsed time
-            elapsedTime = 0;
+            healthAfterRegen = i_Health + ((REGEN_DURATION - elapsedTimeTotalRegen) * healthPerMS) + (REGEN_DURATION * healthPerMS * (regen - 1));
 
             theWyrm.Update(gametime);
         }
@@ -243,14 +253,17 @@ namespace DreadWyrm
 
             sb.DrawString(scoreFont, "Total Meat: " + totalMeat + " KG", new Vector2(SCOREX, SCOREY), Color.Red);
 
+            if (healthAfterRegen >= i_HealthMax)
+                healthAfterRegen = i_HealthMax;
+
             //Draw the health bars
             sb.Draw(hb_base, new Rectangle(50, 650, i_HealthMax, 25), Color.White);
+            sb.Draw(regenBar, new Rectangle(50, 650, (int)healthAfterRegen, 25), Color.White);
             sb.Draw(healthBar, new Rectangle(50, 650, (int)i_Health, 25), Color.White);
 
             //Draw the stamina bars
             sb.Draw(hb_base, new Rectangle(50, 680, staminaMax, 25), Color.White);
             sb.Draw(staminaBar, new Rectangle(50, 680, (int)stamina, 25), Color.White);
         }
-
     }
 }
