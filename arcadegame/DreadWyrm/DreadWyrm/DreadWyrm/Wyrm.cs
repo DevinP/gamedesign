@@ -37,7 +37,7 @@ namespace DreadWyrm
         const float XGRAV = 0.015f;
 
         //A friction that applies to the wyrm when it goes above max speed to slow it down
-        const float FRICTION = 0.05f;
+        const float FRICTION = 0.15f;
 
         //A mulitplier to adjust the amount the player can rotate their head in midair
         const float MIDAIRROTATION = 0.45f;
@@ -48,11 +48,9 @@ namespace DreadWyrm
         //Is the worm grounded?
         public bool b_wyrmGrounded;
 
+        //For animating
         float f_WyrmMoveCount = 0.0f;
         float f_WyrmMoveDelay = 0.01f;
-        
-        
-        public int speedBurstMax = 20;
 
         //Body Parts
         
@@ -77,6 +75,8 @@ namespace DreadWyrm
         float f_HeadSpeed;
         float f_HeadSpeedMax;
         float f_HeadSpeedMin;
+        float f_HeadSpeedBoostMax;
+        float f_HeadSpeedNormalMax;
 
         float f_HeadDirection;
 
@@ -113,6 +113,18 @@ namespace DreadWyrm
         {
             get { return f_HeadSpeedMax; }
             set { f_HeadSpeedMax = value; }
+        }
+
+        public float HeadSpeedBoostMax
+        {
+            get { return f_HeadSpeedBoostMax; }
+            set { f_HeadSpeedBoostMax = value; }
+        }
+
+        public float HeadSpeedNormalMax
+        {
+            get { return f_HeadSpeedNormalMax; }
+            set { f_HeadSpeedNormalMax = value; }
         }
 
         public float HeadSpeedMin
@@ -173,6 +185,9 @@ namespace DreadWyrm
         {
             f_HeadSpeedMax = 5.2f;
             f_HeadSpeedMin = 2;
+            f_HeadSpeedBoostMax = 2 * f_HeadSpeedMax;
+            f_HeadSpeedNormalMax = f_HeadSpeedMax;
+
             f_HeadRotationSpeedMax = 6;
             f_HeadRotationSpeedMin = -6;
 

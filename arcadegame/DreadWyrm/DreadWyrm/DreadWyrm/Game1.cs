@@ -19,7 +19,7 @@ namespace DreadWyrm
 
         static int SCREENWIDTH = 1280;
         static int SCREENHEIGHT = 720;
-        public static int WYRMSEGS = 15;
+        public static int WYRMSEGS = 10 ;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -45,6 +45,7 @@ namespace DreadWyrm
         Texture2D t2dWyrmTail;                              //The sprite for the Wyrm tail
         Texture2D healthBase;                               //The sprite for the health base base
         Texture2D health;                                   //The sprite for the health bar
+        Texture2D stamina;                                  //The sprite for the stamina bar
 
         Texture2D bulletTexture;                            //The sprite for the bullets used by enemies
 
@@ -84,6 +85,9 @@ namespace DreadWyrm
         const int DIGSPEED_COST_INCR = 1;
         const int MAXHEALTH_COST_INCR = 1;
         const int SPEEDBURST_COST_INCR = 1;
+        
+        //Implementing speed boost
+        const float WYRM_BOOST_FACTOR = 2; //Multiplies the max speed of the wyrm when boosting
 
         //Constant ints to access the prey texture list
         const int GIRAFFE = 0;
@@ -94,9 +98,6 @@ namespace DreadWyrm
         //Magical constants
         const int WYRMHEAD_CENTER_NUMBER = 10; //This number is a magic number
         const int QUARTER_OF_WYRMHEAD_SPRITEHEIGHT = 20;
-
-        //DEBUG THINGS
-        Texture2D debugTex;
 
         public Game1()
         {
@@ -153,6 +154,7 @@ namespace DreadWyrm
 
             healthBase = Content.Load<Texture2D>(@"Textures\hb_red");
             health = Content.Load<Texture2D>(@"Textures\hb_green");
+            stamina = Content.Load<Texture2D>(@"Textures\hb_yellow");
 
             bulletTexture = Content.Load<Texture2D>(@"Textures\bullet");
 
@@ -164,8 +166,6 @@ namespace DreadWyrm
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\elephant"));
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\unarmed"));
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\soldier"));
-
-            debugTex = Content.Load<Texture2D>(@"Textures\testcircle");
 
             //Add the wyrm head segment texture to the wyrm textures list
             List<Texture2D> wyrmTextures = new List<Texture2D>();
@@ -183,7 +183,7 @@ namespace DreadWyrm
             wyrmTextures.Add(t2dWyrmTail);
 
             theBackground = new Background(t2dbackground, t2dforeground);
-            thePlayer = new Player(0, wyrmTextures, scoreFont, healthBase, health);
+            thePlayer = new Player(0, wyrmTextures, scoreFont, healthBase, health, stamina);
 
             prey = new List<Prey>();
 
@@ -326,9 +326,12 @@ namespace DreadWyrm
 
                         if (upgradeArrowDir == (float)Math.PI) //Speed burst
                         {
-                            thePlayer.burstLevel++;
-                            thePlayer.Meat -= speedBurstCost;
-                            speedBurstCost += SPEEDBURST_COST_INCR;
+                            if (!(thePlayer.Meat < speedBurstCost))
+                            {
+                                thePlayer.MaxStamina += SPEEDBURST_UPGRADE_INCR;
+                                thePlayer.Meat -= speedBurstCost;
+                                speedBurstCost += SPEEDBURST_COST_INCR;
+                            }
                         }
 
                         else if (upgradeArrowDir == (float)(Math.PI / 2)) //Dig Speed
@@ -342,9 +345,11 @@ namespace DreadWyrm
                                 else
                                 {
                                     thePlayer.theWyrm.HeadSpeedMax += DIGSPEED_UPGRADE_INCR;
+                                    thePlayer.theWyrm.HeadSpeedNormalMax += DIGSPEED_UPGRADE_INCR;
+                                    thePlayer.theWyrm.HeadSpeedBoostMax += DIGSPEED_UPGRADE_INCR * WYRM_BOOST_FACTOR;
+                                    thePlayer.Meat -= digSpeedCost;
+                                    digSpeedCost += DIGSPEED_COST_INCR;
                                 }
-                                thePlayer.Meat -= digSpeedCost;
-                                digSpeedCost += DIGSPEED_COST_INCR;
                             }
 
                         }

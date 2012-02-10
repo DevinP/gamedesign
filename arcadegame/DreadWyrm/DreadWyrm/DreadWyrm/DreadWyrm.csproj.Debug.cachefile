@@ -2,10 +2,7 @@ Content\Sounds\bgm.xnb
 Content\Sounds\bgm2.xnb
 Content\Sounds\bgm3.xnb
 Content\Fonts\Title.xnb
-Content\Fonts\Upgrade.xnb
-Content\Fonts\scoreFont.xnb
 Content\Sounds\Predator Roar.xnb
-Content\Sounds\aud_chomp.xnb
 Content\Textures\background_1280x720.xnb
 Content\Textures\wyrmhead_100x100.xnb
 Content\Textures\wyrmseg_100x100.xnb
@@ -17,18 +14,21 @@ Content\Textures\rocks.xnb
 Content\Textures\titleScreen.xnb
 Content\Textures\titleScreenEnhanced.xnb
 Content\Textures\foreground.xnb
+Content\Fonts\Upgrade.xnb
 Content\Textures\transparentBlack.xnb
 Content\Textures\arrow.xnb
 Content\Textures\wordbubble.xnb
+Content\Fonts\scoreFont.xnb
+Content\Sounds\aud_chomp.xnb
 Content\Textures\giraffe.xnb
 Content\Textures\elephant.xnb
 Content\Textures\soldier.xnb
 Content\Textures\unarmed.xnb
 Content\Textures\bullet.xnb
-Content\Textures\hb_back.xnb
 Content\Textures\hb_green.xnb
 Content\Textures\hb_red.xnb
 Content\Textures\testcircle.xnb
+Content\Textures\hb_yellow.xnb
 Content\Sounds\bgm.wma
 Content\Sounds\bgm2.wma
 Content\Sounds\bgm3.wma

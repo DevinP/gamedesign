@@ -229,8 +229,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\hb_back.png">
-      <Name>hb_back</Name>
+    <Compile Include="Textures\hb_yellow.png">
+      <Name>hb_yellow</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
