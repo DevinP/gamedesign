@@ -12,8 +12,10 @@ namespace DreadWyrm
         float elapsedTimeVel;                 //For counting for changing the animal's velocity
         const float TIMETOCHANGEVEL = 11;     //When to change velocity (in seconds)
 
-        float elapsedTimeShoot = 0.45f;               //For counting for when another bullet can be shot
+        float elapsedTimeShoot = 0.45f;       //For counting for when another bullet can be shot
         const float TIMETOSHOOT = 0.9f;       //How long between shots (in seconds)
+
+        const int BULLETDAMAGE = 10;           //The damage done by this unit
 
         bool isShooting = false;
         bool firstShot = true;
@@ -121,10 +123,8 @@ namespace DreadWyrm
                     float unitMultiplier = (float)(1 / (Math.Sqrt(Math.Pow(diffX, 2) + Math.Pow(diffY, 2))));
                     Vector2 velVec = new Vector2(diffX * unitMultiplier, diffY * unitMultiplier);
 
-                    //velVec = new Vector2(1, 1);
-
                     //Create a bullet using that unit vector
-                    Game1.bullets.Add(new Bullet(xPos, yPos, velVec * 5, bulletTexture, 4, 10, 8, 9, 10));
+                    Game1.bullets.Add(new Bullet(xPos, yPos, velVec * 5, bulletTexture, 4, 10, 8, 9, BULLETDAMAGE));
 
                     elapsedTimeShoot = 0;
                 }

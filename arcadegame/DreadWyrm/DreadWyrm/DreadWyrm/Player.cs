@@ -19,11 +19,18 @@ namespace DreadWyrm
         //health
         int i_Health = 100;
         int i_HealthMax = 100;
+
+        //Speed bursting
+        public int burstLevel = 0;
+        bool foo foo = false;
+        
         Texture2D hb_base;
         Texture2D healthBar;
 
         const int SCOREX = 920;
         const int SCOREY = 600;
+
+        float fElapsed = 0;
 
         public int playerID
         {
@@ -86,6 +93,26 @@ namespace DreadWyrm
                 else if (keystate.IsKeyUp(Keys.Right) && keystate.IsKeyUp(Keys.Left))
                 {
                     theWyrm.HeadRotationSpeed = 0;
+                }
+
+                
+                //__________________________This needs to be finished/fixed!!!!____________________________\\
+                // Implement Speed Burst
+                if (keystate.IsKeyDown(Keys.Space) && foo foo> 0)
+                {
+                    fElapsed += (float)gametime.ElapsedGameTime.TotalSeconds;
+
+                    if(fElapsed >= foo foo;
+                    if (!isBursting)
+                    {
+                        theWyrm.HeadSpeedMax = theWyrm.HeadSpeedMax * 2;
+                        isBursting = true;
+                    }
+                }
+
+                if (keystate.IsKeyUp(Keys.Space))
+                {
+                    fElapsed -= (float)gametime.ElapsedGameTime.TotalSeconds;
                 }
 
                 #endregion

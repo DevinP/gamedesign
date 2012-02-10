@@ -50,6 +50,9 @@ namespace DreadWyrm
 
         float f_WyrmMoveCount = 0.0f;
         float f_WyrmMoveDelay = 0.01f;
+        
+        
+        public int speedBurstMax = 20;
 
         //Body Parts
         
