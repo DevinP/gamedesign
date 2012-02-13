@@ -16,6 +16,7 @@ namespace DreadWyrm
         const float TIMETOSHOOT = 0.9f;       //How long between shots (in seconds)
 
         const int BULLETDAMAGE = 10;           //The damage done by this unit
+        const int BULLETSPEED = 5;
 
         bool isShooting = false;
         bool firstShot = true;
@@ -124,7 +125,7 @@ namespace DreadWyrm
                     Vector2 velVec = new Vector2(diffX * unitMultiplier, diffY * unitMultiplier);
 
                     //Create a bullet using that unit vector
-                    Game1.bullets.Add(new Bullet(xPos, yPos, velVec * 5, bulletTexture, 4, 10, 8, 9, BULLETDAMAGE));
+                    Game1.bullets.Add(new Bullet(xPos, yPos, velVec * BULLETSPEED, bulletTexture, 4, 10, 8, 9, BULLETDAMAGE));
 
                     elapsedTimeShoot = 0;
                 }
@@ -153,5 +154,13 @@ namespace DreadWyrm
         {
             asSprite.Draw(sb, (int)xPos - spritewidth / 2, (int)yPos - spriteheight / 2, false);
         }
+
+        public override void getEaten(Player thePlayer)
+        {
+            thePlayer.Meat += meatReward;
+
+            Game1.chomp.Play();
+        }
+
     }
 }

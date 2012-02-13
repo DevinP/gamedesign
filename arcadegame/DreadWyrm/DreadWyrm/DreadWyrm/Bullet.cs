@@ -22,7 +22,7 @@ namespace DreadWyrm
         Vector2 vel;    // velocity of the bullet (in Cartesian coords)
 
         Texture2D bulletTexture;
-        AnimatedSprite asprite;
+        public AnimatedSprite asprite;
 
         public int xPosistion
         {

@@ -17,13 +17,11 @@ namespace DreadWyrm
         WyrmSegment frontSeg;
 
         //The global magic number dimensions of the wyrm segments
-        static float f_width = 50f;
-        static float f_height = 50f;
+        static float f_width = 38f;
+        static float f_height = 38f;
 
         //The circle defining the part of the segment which can be shot by bullets
-        public int boundingRadius;
-        public float boundingCenterX;
-        public float boundingCenterY;
+        public int boundingRadius = 19;
 
         //a magic number float of the percentage from the center to the "chain" node.
         static float f_DISTORIGIN = 0.65f;
@@ -33,8 +31,6 @@ namespace DreadWyrm
         static float[] f_YOFFS = new float[360];
 
         bool isHead;
-
-        bool isGrounded;
 
         //The physical parameters of this Wyrm segment
         float f_xPos;
@@ -141,29 +137,12 @@ namespace DreadWyrm
             set { boundingRadius = value; }
         }
 
-        public float boundingCircleX
-        {
-            get { return boundingCenterX; }
-            set { boundingCenterX = value; }
-        }
-
-        public float boundingCircleY
-        {
-            get { return boundingCenterY; }
-            set { boundingCenterY = value; }
-        }
-
         public WyrmSegment(Texture2D texture, float X, float Y, WyrmSegment front)
         {
             t2d_segmentSprite = texture;
             f_xPos = X;
             f_yPos = Y;
             frontSeg = front;
-
-            //Set the bounding radius of the segments
-            //boundingRadius = 50;
-            //boundingCenterX = X + 25;
-            //boundingCenterY = Y + 25;
         }
 
         public void Update()

@@ -17,7 +17,7 @@ namespace DreadWyrm
         SpriteFont scoreFont;
 
         //health
-        public float i_Health = 75;
+        public float i_Health = 100;
         public int i_HealthMax = 100;
         public Texture2D hb_base;
         public Texture2D healthBar;
@@ -41,6 +41,8 @@ namespace DreadWyrm
 
         const int SCOREX = 920;
         const int SCOREY = 600;
+
+        public bool nuxMode = false;
 
         public int playerID
         {
@@ -245,6 +247,9 @@ namespace DreadWyrm
             healthAfterRegen = i_Health + ((REGEN_DURATION - elapsedTimeTotalRegen) * healthPerMS) + (REGEN_DURATION * healthPerMS * (regen - 1));
 
             theWyrm.Update(gametime);
+
+            if (nuxMode && i_Health <= 0)
+                i_Health = 1;
         }
 
         public void Draw(SpriteBatch sb)

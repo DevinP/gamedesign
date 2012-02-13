@@ -88,14 +88,14 @@ namespace DreadWyrm
                 asSprite.frameOffsetY = 0;
 
             //Keep the animal on screen
-            if (xPos < 10)
+            if (xPos < 50)
             {
-                xPos = 10;
+                xPos = 50;
                 xVel = -1 * xVel;
             }
-            else if (xPos > Background.SCREENWIDTH - 10)
+            else if (xPos > Background.SCREENWIDTH - 50)
             {
-                xPos = Background.SCREENWIDTH - 10;
+                xPos = Background.SCREENWIDTH - 50;
                 xVel = -1 * xVel;
             }
 
@@ -111,6 +111,13 @@ namespace DreadWyrm
         public override void Draw(SpriteBatch sb)
         {
             asSprite.Draw(sb, (int)xPos - spritewidth / 2, (int)yPos - spriteheight / 2, false);
+        }
+
+        public override void getEaten(Player thePlayer)
+        {
+            thePlayer.Meat += meatReward;
+
+            Game1.chomp.Play();
         }
     }
 }

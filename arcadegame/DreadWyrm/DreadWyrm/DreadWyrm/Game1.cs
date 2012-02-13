@@ -19,7 +19,7 @@ namespace DreadWyrm
 
         static int SCREENWIDTH = 1280;
         static int SCREENHEIGHT = 720;
-        public static int WYRMSEGS = 10 ;
+        public static int WYRMSEGS = 8 ;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -38,7 +38,8 @@ namespace DreadWyrm
         SpriteFont scoreFont;                              //The font used to dispaly the meat score
         Vector2 vStartTitleTextLoc = new Vector2(440, 440);//The location for the additional title screen text
         SoundEffect roar;
-        SoundEffect chomp;
+        public static SoundEffect chomp;
+        public static SoundEffect explosion;
 
         Texture2D t2dWyrmHead;                              //The sprite for the Wyrm head
         Texture2D t2dWyrmSeg;                               //The sprite for the Wyrm segments
@@ -49,13 +50,24 @@ namespace DreadWyrm
         Texture2D regenBar;                                 //The sprite to indicate the amount of health being regened
 
         Texture2D bulletTexture;                            //The sprite for the bullets used by enemies
+        Texture2D cannonballTexture;                        //The sprite for tank shells
 
         Texture2D t2dbackground;                            //The background sprite
         Texture2D t2dforeground;                            //The foreground sprite (part of the background)
         Player thePlayer;                                   //The player of the game
-        List<Prey> prey;                                    //The edible animals on screen
+        public static List<Prey> prey;                      //The edible things on screen
+        List<List<int>> levelPrey;                          //The things which must be eaten to advance the wave
+        public static Texture2D explosionTexture;           //Explosion animations
+        public static List<Explosion> explosions;           //The current explosions in the game
 
         Background theBackground;
+
+        bool gameOver = false;                              //The game has ended
+        bool victory = false;                               //The player has won
+
+        int currWave = 1;
+
+        float elapsedTimeGameEnd = 0;
 
         //The game's random numbers
         public static Random m_random;
@@ -74,40 +86,52 @@ namespace DreadWyrm
         bool upgradeModeCanSwitch = true;
         bool upgraded = false;
         float upgradeArrowDir = 0;
-        int maxHealthCost = 1;
-        int digSpeedCost = 1;
-        int speedBurstCost = 1;
-        int regenCost = 1;
+        int maxHealthCost = 0;
+        int digSpeedCost = 0;
+        int staminaCost = 0;
+        int regenCost = 0;
         const int HEALTHMAX_MAX = 1000;
-        const int SPEEDMAX = 10;
+        const int SPEEDMAX = 8;
         const int STAMINA_MAX = 1000;
         const float DIGSPEED_UPGRADE_INCR = 0.1f;
-        const int MAXHEALTH_UPGRADE_INCR = 10;
+        const int MAXHEALTH_UPGRADE_INCR = 50;
         const int STAMINA_UPGRADE_INCR = 250;
-        const int DIGSPEED_COST_INCR = 1;
-        const int MAXHEALTH_COST_INCR = 1;
-        const int STAMINA_COST_INCR = 1;
-        const int REGEN_COST_INCR = 1;
+        const int DIGSPEED_COST_INCR = 5000;
+        const int MAXHEALTH_COST_INCR = 1000;
+        const int STAMINA_COST_INCR = 5000;
+        const int REGEN_COST_INCR = 200;
+
+        const int DEFAULT_MAXHEALTH_COST = 5000;
+        const int DEFAULT_DIGSPEED_COST = 10000;
+        const int DEFAULT_STAMINA_COST = 20000;
+        const int DEFAULT_REGEN_COST = 200;
         
         //Implementing speed boost
-        const float WYRM_BOOST_FACTOR = 2; //Multiplies the max speed of the wyrm when boosting
+        const float WYRM_BOOST_FACTOR = 1.5f; //Multiplies the max speed of the wyrm when boosting
 
         //Constant ints to access the prey texture list
         const int GIRAFFE = 0;
         const int ELEPHANT = 1;
         const int UNARMEDHUMAN = 2;
         const int SOLDIER = 3;
+        const int MINE_LAYER = 4;
+        const int TANK = 5;
+        const int MINE = 6;
+
+        int numWaves = 0;
 
         //Magical constants
-        const int WYRMHEAD_CENTER_NUMBER = 10; //This number is a magic number
-        const int QUARTER_OF_WYRMHEAD_SPRITEHEIGHT = 20;
+        const int WYRMHEAD_CENTER_NUMBER = 8; //This number is a magic number
+        const int QUARTER_OF_WYRMHEAD_SPRITEHEIGHT = 15;
+        const int QUARTER_OF_WYRMSEG_SPRITEHEIGHT = 12;
+
+        Texture2D debugTex;
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             m_random = new Random();
-            bullets = new List<Bullet>();
         }
 
         /// <summary>
@@ -146,6 +170,7 @@ namespace DreadWyrm
 
             roar = Content.Load<SoundEffect>(@"Sounds\Predator Roar");
             chomp = Content.Load<SoundEffect>(@"Sounds\aud_chomp");
+            explosion = Content.Load<SoundEffect>(@"Sounds\explosion");
 
             bgm = Content.Load<Song>(@"Sounds\bgm");
             bgm2 = Content.Load<Song>(@"Sounds\bgm2");
@@ -161,6 +186,7 @@ namespace DreadWyrm
             regenBar = Content.Load<Texture2D>(@"Textures\hb_orange");
 
             bulletTexture = Content.Load<Texture2D>(@"Textures\bullet");
+            cannonballTexture = Content.Load<Texture2D>(@"Textures\cannonball");
 
             t2dbackground = Content.Load<Texture2D>(@"Textures\background");
             t2dforeground = Content.Load<Texture2D>(@"Textures\foreground");
@@ -170,50 +196,13 @@ namespace DreadWyrm
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\elephant"));
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\unarmed"));
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\soldier"));
+            preyTextures.Add(Content.Load<Texture2D>(@"Textures\mine_layer"));
+            preyTextures.Add(Content.Load<Texture2D>(@"Textures\tank"));
+            preyTextures.Add(Content.Load<Texture2D>(@"Textures\mine"));
 
-            //Add the wyrm head segment texture to the wyrm textures list
-            List<Texture2D> wyrmTextures = new List<Texture2D>();
-            wyrmTextures.Add(t2dWyrmHead);
-  
-            //Add on the wyrm segment textures
-            //We want to subtract two from the total segments since the head and tail are not this texture
-            //derp
-            for (int i = 0; i < WYRMSEGS - 2; i++)
-            {
-                wyrmTextures.Add(t2dWyrmSeg);
-            }
+            explosionTexture = Content.Load<Texture2D>(@"Textures\explosions");
 
-            //Lastly, add the wyrm tail texture
-            wyrmTextures.Add(t2dWyrmTail);
-
-            theBackground = new Background(t2dbackground, t2dforeground);
-            thePlayer = new Player(0, wyrmTextures, scoreFont, healthBase, health, stamina, regenBar);
-
-            prey = new List<Prey>();
-
-            //Add some giraffes...
-            for (int i = 0; i < 0; i++)
-            {
-                prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[GIRAFFE], 4, 95, 102, 94, 30, thePlayer.theWyrm, false, 1191, 97));
-            }
-
-            //...and some elephants
-            for (int i = 0; i < 0; i++)
-            {
-                prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[ELEPHANT], 6, 71, 93, 70, 29, thePlayer.theWyrm, false, 4990, 73));
-            }
-
-            //...and humans!
-            for (int i = 0; i < 0; i++)
-            {
-                prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[UNARMEDHUMAN], 4, 24, 21, 23, 6, thePlayer.theWyrm, true, 80, 25));
-            }
-
-            //...and MORE humans (always so many humans). These are armed
-            for (int i = 0; i < 100; i++)
-            {
-                prey.Add(new SoldierHuman(m_random.Next(20, 1050), 100, preyTextures[SOLDIER], 6, 25, 20, 24, 7, thePlayer.theWyrm, 80, 26, 52, 78, bulletTexture));
-            }
+            debugTex = Content.Load<Texture2D>(@"Textures\debugtex");
 
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(bgm2);
@@ -243,6 +232,18 @@ namespace DreadWyrm
             // If the Escape Key is pressed, exit the game.
             if (keystate.IsKeyDown(Keys.Escape))
                 this.Exit();
+
+            if (gameOver)
+            {
+                elapsedTimeGameEnd += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                thePlayer.healthAfterRegen = 0;
+
+                if(elapsedTimeGameEnd > 5)
+                    endGame();
+
+                return;
+            }
 
             #region SongSwitching (Code to handle the switching of the song with right shift)
 
@@ -301,12 +302,9 @@ namespace DreadWyrm
                     upgradeModeCanSwitch = true;
                 }
 
-
                 if (upgradeMode)
                 {
-                    #region Upgrade Mode (upgradeMode == true)
-
-                    
+                    #region Upgrade Mode (upgradeMode == true)      
 
                     if (keystate.IsKeyDown(Keys.Left))
                     {
@@ -331,7 +329,7 @@ namespace DreadWyrm
 
                         if (upgradeArrowDir == (float)Math.PI) //Speed burst
                         {
-                            if (!(thePlayer.Meat < speedBurstCost))
+                            if (!(thePlayer.Meat < staminaCost))
                             {
                                 if ((thePlayer.MaxStamina + STAMINA_UPGRADE_INCR) >= STAMINA_MAX)
                                 {
@@ -340,8 +338,8 @@ namespace DreadWyrm
                                 else
                                 {
                                     thePlayer.MaxStamina += STAMINA_UPGRADE_INCR;
-                                    thePlayer.Meat -= speedBurstCost;
-                                    speedBurstCost += STAMINA_COST_INCR;
+                                    thePlayer.Meat -= staminaCost;
+                                    staminaCost += STAMINA_COST_INCR;
                                 }
                             }
                         }
@@ -410,9 +408,14 @@ namespace DreadWyrm
 
                     checkEat();
 
+                    int numPrey = prey.Count;
+
                     for (int i = 0; i < prey.Count; i++)
                     {
                         prey[i].Update(gameTime);
+
+                        if (prey[i].isMine)
+                            numPrey--;
                     }
 
                     for (int i = 0; i < bullets.Count; i++)
@@ -423,6 +426,14 @@ namespace DreadWyrm
                     thePlayer.Update(gameTime, keystate);
 
                     checkBullets();
+
+                    for (int i = 0; i < explosions.Count; i++)
+                    {
+                        explosions[i].Update(gameTime);
+
+                        if (explosions[i].isDone)
+                            explosions.RemoveAt(i);
+                    }
 
                     //Make it so the player can't move off the screen
                     for (int i = 0; i < WYRMSEGS; i++)
@@ -450,6 +461,20 @@ namespace DreadWyrm
                         canRoar = true;
                     }
 
+                    if (numPrey <= 0)
+                    {
+                        currWave++;
+
+                        if (currWave > numWaves)
+                        {
+                            gameOver = true;
+                            victory = true;
+                        }
+                        else
+                            startNewWave(currWave - 1);
+                        
+                    }
+
                     #endregion
                 }
 
@@ -462,7 +487,11 @@ namespace DreadWyrm
 
                 if (keystate.IsKeyDown(Keys.Space))
                 {
-                    startNewGame();
+                    startNewGame(false);
+                }
+                else if (keystate.IsKeyDown(Keys.N))
+                {
+                    startNewGame(true);
                 }
 
                 #endregion
@@ -504,10 +533,17 @@ namespace DreadWyrm
                     bullets[i].Draw(spriteBatch);
                 }
 
-                if (prey.Count == 0)
+                for (int i = 0; i < explosions.Count; i++)
+                {
+                    explosions[i].Draw(spriteBatch);
+                }
+
+                if (victory)
                 {
                     spriteBatch.DrawString(titleFont, "YOU ATE ALL THE THINGS", new Vector2(500, 150), Color.Red);
                 }
+
+                spriteBatch.DrawString(scoreFont, "Level: " + currWave, new Vector2(1120, 10), Color.Red);
 
                 if (upgradeMode)
                 {
@@ -558,12 +594,15 @@ namespace DreadWyrm
                     }
                     else
                     {
-                        spriteBatch.DrawString(upgradeFont, "Cost: " + speedBurstCost + " KG", new Vector2(375, 250), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "Cost: " + staminaCost + " KG", new Vector2(375, 250), Color.Red);
                     }
 
                     //Draw the arrow which points to the currently selected box
                     spriteBatch.Draw(t2dupgradeArrow, new Rectangle(640, 325, 112, 51), null, Color.White, upgradeArrowDir, new Vector2(0, 25.5f), SpriteEffects.None, 0);
                 }
+
+                if (gameOver && !victory)
+                    spriteBatch.DrawString(scoreFont, "G A M E   O V E R", new Vector2(500, 150), Color.Red);
 
                 #endregion
             }
@@ -576,6 +615,7 @@ namespace DreadWyrm
                 if (gameTime.TotalGameTime.Milliseconds % 1000 < 700)
                 {
                     spriteBatch.DrawString(titleFont, "Press Spacebar to BEGIN YOUR FEAST", vStartTitleTextLoc, Color.OrangeRed);
+                    spriteBatch.DrawString(titleFont, "Press N to engage NUX MODE", new Vector2(465, 500), Color.OrangeRed);
                 }
 
                 #endregion
@@ -586,9 +626,186 @@ namespace DreadWyrm
             base.Draw(gameTime);
         }
 
-        void startNewGame()
+        void startNewGame(bool nuxMode)
         {
+            victory = false;
+
+            //Add the wyrm head segment texture to the wyrm textures list
+            List<Texture2D> wyrmTextures = new List<Texture2D>();
+
+            if (!nuxMode)
+                wyrmTextures.Add(t2dWyrmHead);
+            else
+                wyrmTextures.Add(Content.Load<Texture2D>(@"Textures\nux_head"));
+
+            //Add on the wyrm segment textures
+            //We want to subtract two from the total segments since the head and tail are not this texture
+            //derp
+            for (int i = 0; i < WYRMSEGS - 2; i++)
+            {
+                wyrmTextures.Add(t2dWyrmSeg);
+            }
+
+            //Lastly, add the wyrm tail texture
+            wyrmTextures.Add(t2dWyrmTail);
+            thePlayer = new Player(0, wyrmTextures, scoreFont, healthBase, health, stamina, regenBar);
+
+            if (nuxMode)
+                thePlayer.nuxMode = true;
+
+            theBackground = new Background(t2dbackground, t2dforeground);
+
+            prey = new List<Prey>();
+
+            bullets = new List<Bullet>();
+            explosions = new List<Explosion>();
+
             m_gameStarted = true;
+            currWave = 1;
+
+            levelPrey = new List<List<int>>();
+            numWaves = 0;
+
+            makeLevels();
+
+            elapsedTimeGameEnd = 0;
+
+            regenCost = DEFAULT_REGEN_COST;
+            digSpeedCost = DEFAULT_DIGSPEED_COST;
+            staminaCost = DEFAULT_STAMINA_COST;
+            maxHealthCost = DEFAULT_MAXHEALTH_COST;
+
+            startNewWave(currWave - 1);
+        }
+
+        void endGame()
+        {
+            m_gameStarted = false;
+            gameOver = false;
+        }
+
+        void startNewWave(int wave)
+        {
+            prey = new List<Prey>();
+
+            //For each prey type
+            for (int i = 0; i < levelPrey.Count; i++)
+            {
+                //For each number of that type of prey this wave
+                for (int j = 0; j < levelPrey[i][wave]; j++)
+                {
+                    if (i == GIRAFFE)
+                        prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[GIRAFFE], 4, 95, 102, 94, 30, thePlayer.theWyrm, false, 1191, 97));
+                    if (i == ELEPHANT)
+                        prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[ELEPHANT], 6, 71, 93, 70, 29, thePlayer.theWyrm, false, 4990, 73));
+                    if (i == UNARMEDHUMAN)
+                        prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[UNARMEDHUMAN], 4, 24, 21, 23, 6, thePlayer.theWyrm, true, 80, 25));
+                    if (i == SOLDIER)
+                        prey.Add(new SoldierHuman(m_random.Next(20, 1050), 100, preyTextures[SOLDIER], 6, 25, 20, 24, 7, thePlayer.theWyrm, 80, 26, 52, 78, bulletTexture));
+                    if (i == MINE_LAYER)
+                        prey.Add(new Engineer(m_random.Next(20, 1050), 100, preyTextures[MINE_LAYER], 6, 23, 25, 22, 7, thePlayer.theWyrm, 80, 25, 51, 76, preyTextures[MINE]));
+                    if (i == TANK)
+                        prey.Add(new Vehicle(m_random.Next(20, 1050), 100, preyTextures[TANK], 0, 50, 145, 49, 25, thePlayer.theWyrm, 0, 50, cannonballTexture));
+                }
+            }
+        }
+
+        void makeLevels()
+        {
+            /*GIRAFFE = 0;
+           ELEPHANT = 1;
+           UNARMEDHUMAN = 2;
+           SOLDIER = 3;
+           MINE_LAYER = 4;
+           TANK = 5;*/
+
+            List<int> numGiraffes = new List<int>();
+            List<int> numElephants = new List<int>();
+            List<int> numUnarmed = new List<int>();
+            List<int> numSoldier = new List<int>();
+            List<int> numEngie = new List<int>();
+            List<int> numTank = new List<int>();
+
+            //Build level 1
+            numGiraffes.Add(1);  //1 giraffe on level 1
+            numElephants.Add(0); //0 elephants on lvl 1
+            numUnarmed.Add(5);   //5 unarmed humans on lvl 1
+            numSoldier.Add(0);   //etc
+            numEngie.Add(0);
+            numTank.Add(0);
+            numWaves++;
+
+            //Build level 2
+            numGiraffes.Add(1);
+            numElephants.Add(1);
+            numUnarmed.Add(6);
+            numSoldier.Add(2);
+            numEngie.Add(0);
+            numTank.Add(0);
+            numWaves++;
+
+            //Build level 3
+            numGiraffes.Add(0);
+            numElephants.Add(1);
+            numUnarmed.Add(2);
+            numSoldier.Add(3);
+            numEngie.Add(1);
+            numTank.Add(0);
+            numWaves++;
+
+            //Build level 4
+            numGiraffes.Add(1);
+            numElephants.Add(0);
+            numUnarmed.Add(1);
+            numSoldier.Add(5);
+            numEngie.Add(1);
+            numTank.Add(0);
+            numWaves++;
+
+            //Build level 5
+            numGiraffes.Add(0);
+            numElephants.Add(0);
+            numUnarmed.Add(0);
+            numSoldier.Add(8);
+            numEngie.Add(2);
+            numTank.Add(1);
+            numWaves++;
+
+            //Build level 6
+            numGiraffes.Add(0);
+            numElephants.Add(1);
+            numUnarmed.Add(2);
+            numSoldier.Add(10);
+            numEngie.Add(2);
+            numTank.Add(3);
+            numWaves++;
+
+            //Build level 7
+            numGiraffes.Add(0);
+            numElephants.Add(0);
+            numUnarmed.Add(0);
+            numSoldier.Add(3);
+            numEngie.Add(5);
+            numTank.Add(1);
+            numWaves++;
+
+            //Build level 8
+            numGiraffes.Add(2);
+            numElephants.Add(0);
+            numUnarmed.Add(5);
+            numSoldier.Add(20);
+            numEngie.Add(2);
+            numTank.Add(0);
+            numWaves++;
+
+            levelPrey = new List<List<int>>();
+
+            levelPrey.Add(numGiraffes);
+            levelPrey.Add(numElephants);
+            levelPrey.Add(numUnarmed);
+            levelPrey.Add(numSoldier);
+            levelPrey.Add(numEngie);
+            levelPrey.Add(numTank);
         }
 
         bool isColliding(int x1, int y1, float r1, int x2, int y2, float r2)
@@ -606,9 +823,11 @@ namespace DreadWyrm
                     thePlayer.theWyrm.eatRadius,
                     (int)prey[i].xPosistion, prey[i].yPosition, prey[i].boundingradius))
                 {
-                    thePlayer.Meat = thePlayer.Meat + prey[i].meatReward;
+                    prey[i].getEaten(thePlayer);
                     prey.RemoveAt(i);
-                    chomp.Play();
+
+                    if (thePlayer.Health <= 0 && !thePlayer.nuxMode)
+                        gameOver = true;
                 }
             }
             
@@ -638,10 +857,27 @@ namespace DreadWyrm
                 {
                     thePlayer.Health -= bullets[i].DamageDealt;
 
-                    if (thePlayer.Health < 0)
-                        thePlayer.Health = 1;
+                    if (thePlayer.Health <= 0 && !thePlayer.nuxMode)
+                        gameOver = true;
 
                     bullets.RemoveAt(i);
+
+                    continue;
+                }
+
+                foreach (WyrmSegment ws in thePlayer.theWyrm.l_segments)
+                {
+                    if (isColliding((int)ws.X, (int)ws.Y + QUARTER_OF_WYRMHEAD_SPRITEHEIGHT, ws.boundingRadius, bullets[i].xPosistion, bullets[i].yPosition, bullets[i].boundingRadius))
+                    {
+                        thePlayer.Health -= bullets[i].DamageDealt;
+
+                        if (thePlayer.Health <= 0 && !thePlayer.nuxMode)
+                            gameOver = true;
+
+                        bullets.RemoveAt(i);
+
+                        break;
+                    }
                 }
             }
         }

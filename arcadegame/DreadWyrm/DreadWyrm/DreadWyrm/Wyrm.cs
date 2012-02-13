@@ -16,12 +16,12 @@ namespace DreadWyrm
         const int HEAD = 0;
 
         //The width of the Wyrm sprites
-        const int SPRITEWIDTH_HEAD = 80; //The head is larger so it can have mandibles
-        const int SPRITEWIDTH = 50;
+        const int SPRITEWIDTH_HEAD = 60; //The head is larger so it can have mandibles
+        const int SPRITEWIDTH = 38;
 
         //The height of the Wyrm sprites
-        const int SPRITEHEIGHT_HEAD = 80;
-        const int SPRITEHEIGHT = 50;
+        const int SPRITEHEIGHT_HEAD = 60;
+        const int SPRITEHEIGHT = 38;
 
         //The number of frames in the head animation
         const int HEADFRAMES = 0;
@@ -43,7 +43,7 @@ namespace DreadWyrm
         const float MIDAIRROTATION = 0.45f;
 
         //The radius in number the pixels of the wyrm head's eating radius
-        public int eatRadius = 20;
+        public int eatRadius = 15;
 
         //Is the worm grounded?
         public bool b_wyrmGrounded;
@@ -183,7 +183,7 @@ namespace DreadWyrm
 
         public Wyrm(float initialX, float initialY, List<Texture2D> textures, int segments)
         {
-            f_HeadSpeedMax = 5.2f;
+            f_HeadSpeedMax = 4.8f;
             f_HeadSpeedMin = 2;
             f_HeadSpeedBoostMax = 2 * f_HeadSpeedMax;
             f_HeadSpeedNormalMax = f_HeadSpeedMax;

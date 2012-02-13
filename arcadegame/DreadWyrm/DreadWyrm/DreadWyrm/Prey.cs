@@ -34,6 +34,8 @@ namespace DreadWyrm
 
         protected int otherFacing;                      //The y position in the sprite sheet of the reverse facing
 
+        public bool isMine = false;
+
 
         public AnimatedSprite asSprite
         {
@@ -142,5 +144,7 @@ namespace DreadWyrm
         public abstract void Update(GameTime gametime);
 
         public abstract void Draw(SpriteBatch sb);
+
+        public abstract void getEaten(Player thePlayer);
     }
 }
