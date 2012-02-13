@@ -95,12 +95,12 @@ namespace DreadWyrm
         int digSpeedCost = 0;
         int staminaCost = 0;
         int regenCost = 0;
-        const int HEALTHMAX_MAX = 1000;
+        const int HEALTHMAX_MAX = 500;
         const int SPEEDMAX = 7;
-        const int STAMINA_MAX = 1000;
+        const int STAMINA_MAX = 500;
         const float DIGSPEED_UPGRADE_INCR = 0.5f;
-        const int MAXHEALTH_UPGRADE_INCR = 50;
-        const int STAMINA_UPGRADE_INCR = 100;
+        const int MAXHEALTH_UPGRADE_INCR = 25;
+        const int STAMINA_UPGRADE_INCR = 50;
         const int DIGSPEED_COST_INCR = 500;
         const int MAXHEALTH_COST_INCR = 200;
         const int STAMINA_COST_INCR = 500;
@@ -499,8 +499,6 @@ namespace DreadWyrm
                     {
                         waveSpawnCounter += (float)gameTime.ElapsedGameTime.Milliseconds;
 
-                        Console.WriteLine(waveSpawnCounter);
-
                         if (waveSpawnCounter > 1500)
                         {
                             currWave++;
@@ -863,9 +861,9 @@ namespace DreadWyrm
             List<int> numTank = new List<int>();
 
             //Build level 1
-            numGiraffes.Add(0);  //1 giraffe on level 1
-            numElephants.Add(0); //0 elephants on lvl 1
-            numUnarmed.Add(10);   //5 unarmed humans on lvl 1
+            numGiraffes.Add(0);  //0 giraffe on level 1
+            numElephants.Add(0); //0 elephants on level 1
+            numUnarmed.Add(10);   //10 unarmed humans on level 1
             numSoldier.Add(0);   //etc
             numEngie.Add(0);
             numTank.Add(0);
@@ -873,61 +871,61 @@ namespace DreadWyrm
 
             //Build level 2
             numGiraffes.Add(1);
-            numElephants.Add(1);
+            numElephants.Add(0);
             numUnarmed.Add(6);
-            numSoldier.Add(2);
+            numSoldier.Add(3);
             numEngie.Add(0);
             numTank.Add(0);
             numWaves++;
 
             //Build level 3
             numGiraffes.Add(2);
-            numElephants.Add(1);
+            numElephants.Add(0);
             numUnarmed.Add(2);
-            numSoldier.Add(3);
-            numEngie.Add(1);
+            numSoldier.Add(5);
+            numEngie.Add(2);
             numTank.Add(0);
             numWaves++;
 
             //Build level 4
-            numGiraffes.Add(1);
-            numElephants.Add(2);
-            numUnarmed.Add(1);
-            numSoldier.Add(5);
-            numEngie.Add(1);
+            numGiraffes.Add(0);
+            numElephants.Add(0);
+            numUnarmed.Add(10);
+            numSoldier.Add(7);
+            numEngie.Add(3);
             numTank.Add(0);
             numWaves++;
 
             //Build level 5
             numGiraffes.Add(1);
-            numElephants.Add(2);
-            numUnarmed.Add(0);
-            numSoldier.Add(8);
+            numElephants.Add(1);
+            numUnarmed.Add(5);
+            numSoldier.Add(9);
             numEngie.Add(2);
             numTank.Add(1);
             numWaves++;
 
             //Build level 6
-            numGiraffes.Add(3);
-            numElephants.Add(3);
-            numUnarmed.Add(2);
-            numSoldier.Add(10);
-            numEngie.Add(2);
-            numTank.Add(3);
+            numGiraffes.Add(2);
+            numElephants.Add(1);
+            numUnarmed.Add(5);
+            numSoldier.Add(6);
+            numEngie.Add(3);
+            numTank.Add(4);
             numWaves++;
 
             //Build level 7
-            numGiraffes.Add(0);
-            numElephants.Add(4);
-            numUnarmed.Add(0);
-            numSoldier.Add(3);
-            numEngie.Add(5);
-            numTank.Add(1);
+            numGiraffes.Add(1);
+            numElephants.Add(1);
+            numUnarmed.Add(3);
+            numSoldier.Add(12);
+            numEngie.Add(6);
+            numTank.Add(2);
             numWaves++;
 
             //Build level 8
             numGiraffes.Add(2);
-            numElephants.Add(1);
+            numElephants.Add(0);
             numUnarmed.Add(5);
             numSoldier.Add(20);
             numEngie.Add(2);
@@ -935,18 +933,18 @@ namespace DreadWyrm
             numWaves++;
 
             //Build level 9
-            numGiraffes.Add(3);
-            numElephants.Add(4);
-            numUnarmed.Add(2);
-            numSoldier.Add(10);
+            numGiraffes.Add(2);
+            numElephants.Add(2);
+            numUnarmed.Add(4);
+            numSoldier.Add(15);
             numEngie.Add(10);
             numTank.Add(5);
             numWaves++;
             
             //Build level 10
-            numGiraffes.Add(1);
+            numGiraffes.Add(2);
             numElephants.Add(1);
-            numUnarmed.Add(0);
+            numUnarmed.Add(2);
             numSoldier.Add(15);
             numEngie.Add(10);
             numTank.Add(8);

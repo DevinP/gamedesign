@@ -54,7 +54,7 @@ namespace DreadWyrm
         {
             elapsedTimeMine += (float)gametime.ElapsedGameTime.TotalSeconds;
 
-            if (!theWyrm.b_wyrmGrounded)
+            if (!theWyrm.b_wyrmGrounded && numMines <= 0)
             {
                 //Oh no it's the wyrm!
                 if (xPos > theWyrm.l_segments[0].X)

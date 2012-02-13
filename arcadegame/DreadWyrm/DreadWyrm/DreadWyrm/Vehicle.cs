@@ -9,8 +9,8 @@ namespace DreadWyrm
 {
     class Vehicle : Prey
     {
-        const int BULLETDAMAGE = 25;
-        const int BULLETSPEED = 10;
+        const int BULLETDAMAGE = 50;
+        const int BULLETSPEED = 12;
 
         const float TIMETOCHANGEVEL = 11;
         const float SHOOTDELAY = 1;
