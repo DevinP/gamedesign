@@ -183,7 +183,7 @@ namespace DreadWyrm
 
         public Wyrm(float initialX, float initialY, List<Texture2D> textures, int segments)
         {
-            f_HeadSpeedMax = 4.8f;
+            f_HeadSpeedMax = 5f;
             f_HeadSpeedMin = 2;
             f_HeadSpeedBoostMax = 2 * f_HeadSpeedMax;
             f_HeadSpeedNormalMax = f_HeadSpeedMax;

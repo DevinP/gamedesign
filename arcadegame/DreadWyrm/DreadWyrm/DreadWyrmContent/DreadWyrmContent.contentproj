@@ -302,10 +302,24 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\debugtex.png">
-      <Name>debugtex</Name>
+    <Compile Include="Textures\titlescreen_no_words.png">
+      <Name>titlescreen_no_words</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Sounds\soldierShot.wav">
+      <Name>soldierShot</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Sounds\tankShot.wav">
+      <Name>tankShot</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />

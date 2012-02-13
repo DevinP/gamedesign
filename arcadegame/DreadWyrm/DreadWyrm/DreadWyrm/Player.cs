@@ -13,7 +13,7 @@ namespace DreadWyrm
         //game variables
         int i_playerID;
         public Wyrm theWyrm;
-        int totalMeat;
+        int totalMeat = 0;
         SpriteFont scoreFont;
 
         //health
@@ -36,7 +36,7 @@ namespace DreadWyrm
         const int STAMINA_DEPLETIONRATE = 2; //A point of stamina is two milliseconds of speed bursting
         const int STAMINA_RECHARGERATE = 10;  //One point of stamina regenerates every 5 milliseconds
         public float stamina = 0;
-        public int staminaMax = 250;
+        public int staminaMax = 200;
         public Texture2D staminaBar;
 
         const int SCOREX = 920;

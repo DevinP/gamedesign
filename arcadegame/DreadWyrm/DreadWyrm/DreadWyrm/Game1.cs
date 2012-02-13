@@ -25,6 +25,7 @@ namespace DreadWyrm
         SpriteBatch spriteBatch;
 
         Texture2D t2dTitleScreen;                          //The title screen for the game
+        Texture2D t2dTitleScreenNoWords;
         Texture2D t2dtransparentBlack;                     //A partially transparent texture to draw over the game
         Texture2D t2dupgradeBox;                           //A box to put upgrade messages in
         Texture2D t2dupgradeArrow;                         //Arrow to indicate which upgrade the player will select
@@ -38,8 +39,10 @@ namespace DreadWyrm
         SpriteFont scoreFont;                              //The font used to dispaly the meat score
         Vector2 vStartTitleTextLoc = new Vector2(440, 440);//The location for the additional title screen text
         SoundEffect roar;
+        public static SoundEffect gunShot;
         public static SoundEffect chomp;
         public static SoundEffect explosion;
+        public static SoundEffect tankShot;
 
         Texture2D t2dWyrmHead;                              //The sprite for the Wyrm head
         Texture2D t2dWyrmSeg;                               //The sprite for the Wyrm segments
@@ -64,6 +67,8 @@ namespace DreadWyrm
 
         bool gameOver = false;                              //The game has ended
         bool victory = false;                               //The player has won
+        bool instructionMode = false;
+        bool titleTransitionOk = true;
 
         int currWave = 1;
 
@@ -91,20 +96,20 @@ namespace DreadWyrm
         int staminaCost = 0;
         int regenCost = 0;
         const int HEALTHMAX_MAX = 1000;
-        const int SPEEDMAX = 8;
+        const int SPEEDMAX = 7;
         const int STAMINA_MAX = 1000;
-        const float DIGSPEED_UPGRADE_INCR = 0.1f;
+        const float DIGSPEED_UPGRADE_INCR = 0.5f;
         const int MAXHEALTH_UPGRADE_INCR = 50;
-        const int STAMINA_UPGRADE_INCR = 250;
-        const int DIGSPEED_COST_INCR = 5000;
-        const int MAXHEALTH_COST_INCR = 1000;
-        const int STAMINA_COST_INCR = 5000;
-        const int REGEN_COST_INCR = 200;
+        const int STAMINA_UPGRADE_INCR = 100;
+        const int DIGSPEED_COST_INCR = 500;
+        const int MAXHEALTH_COST_INCR = 200;
+        const int STAMINA_COST_INCR = 500;
+        const int REGEN_COST_INCR = 20;
 
-        const int DEFAULT_MAXHEALTH_COST = 5000;
-        const int DEFAULT_DIGSPEED_COST = 10000;
-        const int DEFAULT_STAMINA_COST = 20000;
-        const int DEFAULT_REGEN_COST = 200;
+        const int DEFAULT_MAXHEALTH_COST = 1000;
+        const int DEFAULT_DIGSPEED_COST = 2000;
+        const int DEFAULT_STAMINA_COST = 1000;
+        const int DEFAULT_REGEN_COST = 50;
         
         //Implementing speed boost
         const float WYRM_BOOST_FACTOR = 1.5f; //Multiplies the max speed of the wyrm when boosting
@@ -125,7 +130,17 @@ namespace DreadWyrm
         const int QUARTER_OF_WYRMHEAD_SPRITEHEIGHT = 15;
         const int QUARTER_OF_WYRMSEG_SPRITEHEIGHT = 12;
 
-        Texture2D debugTex;
+        AnimatedSprite tempGiraffe;
+        AnimatedSprite tempElephant;
+        AnimatedSprite tempUnarmed;
+        AnimatedSprite tempSoldier;
+        AnimatedSprite tempEngineer;
+        AnimatedSprite tempMine;
+        AnimatedSprite tempTank;
+
+        bool nuxmode = false;
+
+        float waveSpawnCounter = 0;
 
         public Game1()
         {
@@ -164,6 +179,7 @@ namespace DreadWyrm
             scoreFont = Content.Load<SpriteFont>(@"Fonts\scoreFont");
 
             t2dTitleScreen = Content.Load<Texture2D>(@"Textures\titleScreen");
+            t2dTitleScreenNoWords = Content.Load<Texture2D>(@"Textures\titlescreen_no_words");
             t2dtransparentBlack = Content.Load<Texture2D>(@"Textures\transparentBlack");
             t2dupgradeBox = Content.Load<Texture2D>(@"Textures\wordbubble");
             t2dupgradeArrow = Content.Load<Texture2D>(@"Textures\arrow");
@@ -171,6 +187,8 @@ namespace DreadWyrm
             roar = Content.Load<SoundEffect>(@"Sounds\Predator Roar");
             chomp = Content.Load<SoundEffect>(@"Sounds\aud_chomp");
             explosion = Content.Load<SoundEffect>(@"Sounds\explosion");
+            gunShot = Content.Load<SoundEffect>(@"Sounds\soldierShot");
+            tankShot = Content.Load<SoundEffect>(@"Sounds\tankShot");
 
             bgm = Content.Load<Song>(@"Sounds\bgm");
             bgm2 = Content.Load<Song>(@"Sounds\bgm2");
@@ -202,11 +220,27 @@ namespace DreadWyrm
 
             explosionTexture = Content.Load<Texture2D>(@"Textures\explosions");
 
-            debugTex = Content.Load<Texture2D>(@"Textures\debugtex");
+            //Initialize the sprites which appear in the title/instruction screens
+            tempGiraffe = new AnimatedSprite(preyTextures[GIRAFFE], 0, 0, 102, 95, 4);
+            tempGiraffe.IsAnimating = true;
+            tempElephant = new AnimatedSprite(preyTextures[ELEPHANT], 0, 0, 93, 71, 6);
+            tempElephant.IsAnimating = true;
+
+            tempUnarmed = new AnimatedSprite(preyTextures[UNARMEDHUMAN], 0, 0, 21, 24, 4);
+            tempUnarmed.IsAnimating = true;
+            tempSoldier = new AnimatedSprite(preyTextures[SOLDIER], 0, 27, 20, 25, 6);
+            tempSoldier.IsAnimating = true;
+
+            tempEngineer = new AnimatedSprite(preyTextures[MINE_LAYER], 0, 25, 25, 23, 6);
+            tempEngineer.IsAnimating = true;
+            tempMine = new AnimatedSprite(preyTextures[MINE], 0, 0, 16, 9, 3);
+
+            tempTank = new AnimatedSprite(preyTextures[TANK], 0, 50, 145, 50, 0);
+            tempTank.IsAnimating = false;
 
             MediaPlayer.IsRepeating = true;
-            MediaPlayer.Play(bgm2);
-            bgm2Playing = true;
+            MediaPlayer.Play(bgm);
+            bgm1Playing = true;
         }
 
         /// <summary>
@@ -239,7 +273,7 @@ namespace DreadWyrm
 
                 thePlayer.healthAfterRegen = 0;
 
-                if(elapsedTimeGameEnd > 5)
+                if(elapsedTimeGameEnd > 3)
                     endGame();
 
                 return;
@@ -327,7 +361,7 @@ namespace DreadWyrm
                     {
                         upgraded = true;
 
-                        if (upgradeArrowDir == (float)Math.PI) //Speed burst
+                        if (upgradeArrowDir == (float)Math.PI) //Stamina
                         {
                             if (!(thePlayer.Meat < staminaCost))
                             {
@@ -348,7 +382,7 @@ namespace DreadWyrm
                         {
                             if (!(thePlayer.Meat < digSpeedCost))
                             {
-                                if ((thePlayer.theWyrm.HeadSpeedMax + DIGSPEED_UPGRADE_INCR) >= SPEEDMAX)
+                                if ((thePlayer.theWyrm.HeadSpeedMax + DIGSPEED_UPGRADE_INCR) > SPEEDMAX)
                                 {
                                     thePlayer.theWyrm.HeadSpeedMax = SPEEDMAX;
                                 }
@@ -463,17 +497,28 @@ namespace DreadWyrm
 
                     if (numPrey <= 0)
                     {
-                        currWave++;
+                        waveSpawnCounter += (float)gameTime.ElapsedGameTime.Milliseconds;
 
-                        if (currWave > numWaves)
+                        Console.WriteLine(waveSpawnCounter);
+
+                        if (waveSpawnCounter > 1500)
                         {
-                            gameOver = true;
-                            victory = true;
+                            currWave++;
+
+                            if (currWave > numWaves)
+                            {
+                                gameOver = true;
+                                victory = true;
+                            }
+                            else
+                                startNewWave(currWave - 1);
+
+                            waveSpawnCounter = 0;
                         }
-                        else
-                            startNewWave(currWave - 1);
-                        
+
                     }
+                    else
+                        waveSpawnCounter = 0;
 
                     #endregion
                 }
@@ -481,23 +526,57 @@ namespace DreadWyrm
                 #endregion
 
             }
-            else
+            else if (!m_gameStarted && !instructionMode)
             {
                 #region Title Screen Mode (m_gameStarted == false)
 
                 if (keystate.IsKeyDown(Keys.Space))
                 {
-                    startNewGame(false);
+                    nuxmode = false;
+                    instructionMode = true;
+                    titleTransitionOk = false;
                 }
                 else if (keystate.IsKeyDown(Keys.N))
                 {
-                    startNewGame(true);
+                    nuxmode = true;
+                    instructionMode = true;
+                    titleTransitionOk = false;
                 }
+
+                if (keystate.IsKeyUp(Keys.Space))
+                    titleTransitionOk = true;
+
+                #endregion
+            }
+            else
+            {
+                #region Instruction Screen Mode
+
+                if (keystate.IsKeyDown(Keys.Space) && titleTransitionOk)
+                {
+                    instructionMode = false;
+                    titleTransitionOk = false;
+                    startNewGame(nuxmode);
+                }
+
+                if (keystate.IsKeyUp(Keys.Space))
+                    titleTransitionOk = true;
+
+                tempGiraffe.Update(gameTime);
+                tempElephant.Update(gameTime);
+
+                tempUnarmed.Update(gameTime);
+                tempSoldier.Update(gameTime);
+
+                tempEngineer.Update(gameTime);
+                tempMine.Update(gameTime);
+
+                tempTank.Update(gameTime);
 
                 #endregion
             }
 
-            base.Update(gameTime);
+                base.Update(gameTime);
         }
 
         /// <summary>
@@ -551,62 +630,74 @@ namespace DreadWyrm
                     spriteBatch.Draw(t2dtransparentBlack, new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT), Color.White);
 
                     //Draw each upgrade box
-                    spriteBatch.Draw(t2dupgradeBox, new Rectangle(540, 110, 200, 100), Color.White);
-                    spriteBatch.DrawString(upgradeFont, "Metabolism Boost", new Vector2(560, 130), Color.Red);
-                    spriteBatch.DrawString(upgradeFont, "(Heal Over Time)", new Vector2(560, 155), Color.Red);
+                    spriteBatch.Draw(t2dupgradeBox, new Rectangle(515, 60, 250, 150), Color.White);
+                    spriteBatch.DrawString(upgradeFont, "METABOLISM BOOST", new Vector2(570, 87), Color.Red);
+                    spriteBatch.DrawString(upgradeFont, "Heal " + thePlayer.REGEN_FACTOR*100 + "% of max health", new Vector2(545, 110), Color.Red);
+                    spriteBatch.DrawString(upgradeFont, "over " + thePlayer.REGEN_DURATION / 500 + " seconds", new Vector2(545, 125), Color.Red);
                     if (thePlayer.Health >= thePlayer.HealthMax)
                     {
-                        spriteBatch.DrawString(upgradeFont, "Already At Max Health", new Vector2(535, 90), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "Already At Max Health", new Vector2(550, 40), Color.Red);
                     }
                     else
                     {
-                        spriteBatch.DrawString(upgradeFont, "Cost: " + regenCost + " KG", new Vector2(590, 90), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "Cost: " + regenCost + " KG", new Vector2(585, 40), Color.Red);
                     }
 
-                    spriteBatch.Draw(t2dupgradeBox, new Rectangle(540, 440, 200, 100), Color.White);
-                    spriteBatch.DrawString(upgradeFont, "Muscle Vibration", new Vector2(560, 460), Color.Red);
-                    spriteBatch.DrawString(upgradeFont, "(Dig Speed)", new Vector2(560, 485), Color.Red);
-                    //spriteBatch.DrawString(upgradeFont, "Cost: " + digSpeedCost + " KG", new Vector2(590, 537), Color.Red);
-                    if (thePlayer.theWyrm.HeadSpeedMax >= SPEEDMAX)
-                        spriteBatch.DrawString(upgradeFont, "Maximum Upgrade Reached", new Vector2(520, 537), Color.Red);
+                    spriteBatch.Draw(t2dupgradeBox, new Rectangle(515, 440, 250, 150), Color.White);
+                    spriteBatch.DrawString(upgradeFont, "MUSCLE VIBRATION", new Vector2(575, 467), Color.Red);
+                    spriteBatch.DrawString(upgradeFont, "Increase max dig speed", new Vector2(545, 490), Color.Red);
+                    spriteBatch.DrawString(upgradeFont, "by " + DIGSPEED_UPGRADE_INCR, new Vector2(545, 505), Color.Red);
+                    spriteBatch.DrawString(upgradeFont, "Current max speed: " + thePlayer.theWyrm.HeadSpeedNormalMax, new Vector2(545, 530), Color.Red);
+                    
+                    if ((thePlayer.theWyrm.HeadSpeedMax + DIGSPEED_UPGRADE_INCR) > SPEEDMAX)
+                        spriteBatch.DrawString(upgradeFont, "Maximum Upgrade Reached", new Vector2(540, 590), Color.Red);
                     else
-                        spriteBatch.DrawString(upgradeFont, "Cost: " + digSpeedCost + " KG", new Vector2(590, 537), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "Cost: " + digSpeedCost + " KG", new Vector2(590, 590), Color.Red);
 
 
-                    spriteBatch.Draw(t2dupgradeBox, new Rectangle(755, 270, 200, 100), Color.White);
-                    spriteBatch.DrawString(upgradeFont, "Fat Tissue", new Vector2(775, 290), Color.Red);
-                    spriteBatch.DrawString(upgradeFont, "(Max Health)", new Vector2(775, 315), Color.Red);
+                    spriteBatch.Draw(t2dupgradeBox, new Rectangle(755, 250, 250, 150), Color.White);
+                    spriteBatch.DrawString(upgradeFont, "FAT TISSUE", new Vector2(837, 277), Color.Red);
+                    spriteBatch.DrawString(upgradeFont, "Increase max health by " + MAXHEALTH_UPGRADE_INCR, new Vector2(780, 305), Color.Red);
+                    spriteBatch.DrawString(upgradeFont, "Current max health: " + thePlayer.HealthMax, new Vector2(780, 330), Color.Red);
+
                     if (thePlayer.HealthMax >= HEALTHMAX_MAX)
                     {
-                        spriteBatch.DrawString(upgradeFont, "Maximum Upgrade Reached", new Vector2(735, 250), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "Maximum Upgrade Reached", new Vector2(785, 230), Color.Red);
                     }
                     else
                     {
-                        spriteBatch.DrawString(upgradeFont, "Cost: " + maxHealthCost + " KG", new Vector2(805, 250), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "Cost: " + maxHealthCost + " KG", new Vector2(817, 230), Color.Red);
                     }
 
-                    spriteBatch.Draw(t2dupgradeBox, new Rectangle(325, 270, 200, 100), Color.White);
-                    spriteBatch.DrawString(upgradeFont, "Muscle Coiling", new Vector2(345, 290), Color.Red);
-                    spriteBatch.DrawString(upgradeFont, "(Speed Burst)", new Vector2(345, 315), Color.Red);
+                    spriteBatch.Draw(t2dupgradeBox, new Rectangle(275, 250, 250, 150), Color.White);
+                    spriteBatch.DrawString(upgradeFont, "MUSCLE COILING", new Vector2(338, 278), Color.Red);
+                    spriteBatch.DrawString(upgradeFont, "Increase max stamina", new Vector2(310, 300), Color.Red);
+                    spriteBatch.DrawString(upgradeFont, "by " + STAMINA_UPGRADE_INCR, new Vector2(310, 315), Color.Red);
+                    spriteBatch.DrawString(upgradeFont, "Current max stamina: " + thePlayer.MaxStamina, new Vector2(310, 345), Color.Red);
                     if (thePlayer.MaxStamina >= STAMINA_MAX)
                     {
-                        spriteBatch.DrawString(upgradeFont, "Maximum Upgrade Reached", new Vector2(305, 250), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "Maximum Upgrade Reached", new Vector2(305, 230), Color.Red);
                     }
                     else
                     {
-                        spriteBatch.DrawString(upgradeFont, "Cost: " + staminaCost + " KG", new Vector2(375, 250), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "Cost: " + staminaCost + " KG", new Vector2(345, 230), Color.Red);
                     }
 
                     //Draw the arrow which points to the currently selected box
                     spriteBatch.Draw(t2dupgradeArrow, new Rectangle(640, 325, 112, 51), null, Color.White, upgradeArrowDir, new Vector2(0, 25.5f), SpriteEffects.None, 0);
+
+                    spriteBatch.DrawString(titleFont, "Press U to RETURN TO GAME", new Vector2(475, 680), Color.Red);
+                    spriteBatch.DrawString(titleFont, "Press ENTER to DIGEST UPGRADE", new Vector2(475, 5), Color.Red);
                 }
+                else
+                    spriteBatch.DrawString(titleFont, "Press U for UPGRADES", new Vector2(920, 570), Color.Red);
 
                 if (gameOver && !victory)
                     spriteBatch.DrawString(scoreFont, "G A M E   O V E R", new Vector2(500, 150), Color.Red);
 
                 #endregion
             }
-            else
+            else if (!m_gameStarted && !instructionMode)
             {
                 #region Title Screen Mode (m_gameStarted == false)
 
@@ -615,11 +706,56 @@ namespace DreadWyrm
                 if (gameTime.TotalGameTime.Milliseconds % 1000 < 700)
                 {
                     spriteBatch.DrawString(titleFont, "Press Spacebar to BEGIN YOUR FEAST", vStartTitleTextLoc, Color.OrangeRed);
-                    spriteBatch.DrawString(titleFont, "Press N to engage NUX MODE", new Vector2(465, 500), Color.OrangeRed);
+                    spriteBatch.DrawString(titleFont, "Press N to start the game with NUX MODE", new Vector2(410, 500), Color.OrangeRed);
+                    //spriteBatch.DrawString(titleFont, "Press I for INSTRUCTIONS", new Vector2(495, 650), Color.OrangeRed);
                 }
 
                 #endregion
             }
+            else
+            {
+                #region Instruction Screen Mode
+
+                //Draw the instruction screen
+                spriteBatch.Draw(t2dTitleScreenNoWords, new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT), Color.White);
+
+                spriteBatch.DrawString(scoreFont, "INSTRUCTIONS", new Vector2(500, 25), Color.OrangeRed);
+
+                if (gameTime.TotalGameTime.Milliseconds % 1000 < 700)
+                {
+                    spriteBatch.DrawString(titleFont, "Press SPACE to PROCEED", new Vector2(490, 650), Color.OrangeRed);
+                }
+
+                //Instruct the player on controls
+                spriteBatch.DrawString(titleFont, "Press --> to turn the Wyrm COUNTERCLOCKWISE.", new Vector2(430, 60), Color.OrangeRed);
+                spriteBatch.DrawString(titleFont, "Press <-- to turn the Wyrm CLOCKWISE.", new Vector2(430, 110), Color.OrangeRed);
+                spriteBatch.DrawString(titleFont, "Press ^ to ACCELERATE the Wyrm in your CURRENT DIRECTION.", new Vector2(430, 160), Color.OrangeRed);
+                spriteBatch.DrawString(titleFont, "|", new Vector2(487, 170), Color.OrangeRed);
+                spriteBatch.DrawString(titleFont, "Press left shift to SPRINT. This uses STAMINA.", new Vector2(430, 210), Color.OrangeRed);
+
+                spriteBatch.DrawString(titleFont, "Get MEAT by EATING prey on the surface. Use this MEAT to UPGRADE.", new Vector2(430, 280), Color.OrangeRed);
+
+                //Inform the player about prey they will see
+                tempGiraffe.Draw(spriteBatch, 315, 310, false);
+                tempElephant.Draw(spriteBatch, 215, 330, false);
+                spriteBatch.DrawString(titleFont, "ANIMALS are worth a lot of meat. Eat them quick!", new Vector2(430, 335), Color.OrangeRed);
+
+                spriteBatch.DrawString(titleFont, "BASIC HUMANS are small but may FIGHT BACK. Eat them before they cause too much damage!", new Vector2(295, 440), Color.OrangeRed);
+
+                tempUnarmed.Draw(spriteBatch, 245, 440, false);
+                tempSoldier.Draw(spriteBatch, 265, 440, false);
+
+                spriteBatch.DrawString(titleFont, "ENGINEERS lay MINES on the ground in an effort to fool you. Get them before they can!", new Vector2(295, 490), Color.OrangeRed);
+                tempEngineer.Draw(spriteBatch, 250, 490, false);
+                tempMine.Draw(spriteBatch, 273, 504, false);
+
+                spriteBatch.DrawString(titleFont, "TANKS shoot fast, powerful shots, but only IN FRONT of them. Attack them from behind to avoid taking damage!", new Vector2(50, 540), Color.OrangeRed);
+                tempTank.Draw(spriteBatch, 50, 570, false);
+                
+
+                #endregion
+            }
+
             //Close the SpriteBatch
             spriteBatch.End();
 
@@ -727,9 +863,9 @@ namespace DreadWyrm
             List<int> numTank = new List<int>();
 
             //Build level 1
-            numGiraffes.Add(1);  //1 giraffe on level 1
+            numGiraffes.Add(0);  //1 giraffe on level 1
             numElephants.Add(0); //0 elephants on lvl 1
-            numUnarmed.Add(5);   //5 unarmed humans on lvl 1
+            numUnarmed.Add(10);   //5 unarmed humans on lvl 1
             numSoldier.Add(0);   //etc
             numEngie.Add(0);
             numTank.Add(0);
@@ -745,7 +881,7 @@ namespace DreadWyrm
             numWaves++;
 
             //Build level 3
-            numGiraffes.Add(0);
+            numGiraffes.Add(2);
             numElephants.Add(1);
             numUnarmed.Add(2);
             numSoldier.Add(3);
@@ -755,7 +891,7 @@ namespace DreadWyrm
 
             //Build level 4
             numGiraffes.Add(1);
-            numElephants.Add(0);
+            numElephants.Add(2);
             numUnarmed.Add(1);
             numSoldier.Add(5);
             numEngie.Add(1);
@@ -763,8 +899,8 @@ namespace DreadWyrm
             numWaves++;
 
             //Build level 5
-            numGiraffes.Add(0);
-            numElephants.Add(0);
+            numGiraffes.Add(1);
+            numElephants.Add(2);
             numUnarmed.Add(0);
             numSoldier.Add(8);
             numEngie.Add(2);
@@ -772,8 +908,8 @@ namespace DreadWyrm
             numWaves++;
 
             //Build level 6
-            numGiraffes.Add(0);
-            numElephants.Add(1);
+            numGiraffes.Add(3);
+            numElephants.Add(3);
             numUnarmed.Add(2);
             numSoldier.Add(10);
             numEngie.Add(2);
@@ -782,7 +918,7 @@ namespace DreadWyrm
 
             //Build level 7
             numGiraffes.Add(0);
-            numElephants.Add(0);
+            numElephants.Add(4);
             numUnarmed.Add(0);
             numSoldier.Add(3);
             numEngie.Add(5);
@@ -791,11 +927,29 @@ namespace DreadWyrm
 
             //Build level 8
             numGiraffes.Add(2);
-            numElephants.Add(0);
+            numElephants.Add(1);
             numUnarmed.Add(5);
             numSoldier.Add(20);
             numEngie.Add(2);
             numTank.Add(0);
+            numWaves++;
+
+            //Build level 9
+            numGiraffes.Add(3);
+            numElephants.Add(4);
+            numUnarmed.Add(2);
+            numSoldier.Add(10);
+            numEngie.Add(10);
+            numTank.Add(5);
+            numWaves++;
+            
+            //Build level 10
+            numGiraffes.Add(1);
+            numElephants.Add(1);
+            numUnarmed.Add(0);
+            numSoldier.Add(15);
+            numEngie.Add(10);
+            numTank.Add(8);
             numWaves++;
 
             levelPrey = new List<List<int>>();

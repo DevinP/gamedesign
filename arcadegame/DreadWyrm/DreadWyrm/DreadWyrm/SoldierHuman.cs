@@ -127,6 +127,8 @@ namespace DreadWyrm
                     //Create a bullet using that unit vector
                     Game1.bullets.Add(new Bullet(xPos, yPos, velVec * BULLETSPEED, bulletTexture, 4, 10, 8, 9, BULLETDAMAGE));
 
+                    Game1.gunShot.Play();
+
                     elapsedTimeShoot = 0;
                 }
             }

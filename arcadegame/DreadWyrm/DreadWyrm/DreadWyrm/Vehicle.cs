@@ -101,9 +101,22 @@ namespace DreadWyrm
                 float unitMultiplier = (float)(1 / (Math.Sqrt(Math.Pow(diffX, 2) + Math.Pow(diffY, 2))));
                 Vector2 velVec = new Vector2(diffX * unitMultiplier, diffY * unitMultiplier);
 
+                int xPosBullet = xPos;
+                int yPosBullet = yPos;
+
+                //Calculate where the tank shell will start from (the end of the tank cannon)
+                if (xVel < 0)
+                    xPosBullet -= 35;
+                else
+                    xPosBullet += 35;
+
+                yPosBullet -= 16;
+
                 //Create a bullet using that unit vector
-                Game1.bullets.Add(new Bullet(xPos, yPos, velVec * BULLETSPEED, bulletTexture, 4, 10, 8, 9, BULLETDAMAGE));
+                Game1.bullets.Add(new Bullet(xPosBullet, yPosBullet, velVec * BULLETSPEED, bulletTexture, 0, 19, 18, 7, BULLETDAMAGE));
                 Game1.bullets[Game1.bullets.Count - 1].asprite.IsAnimating = false;
+
+                Game1.tankShot.Play();
 
                 isShooting = false;
                 mayShoot = false;
