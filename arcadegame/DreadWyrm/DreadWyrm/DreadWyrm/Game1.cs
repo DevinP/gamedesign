@@ -264,8 +264,8 @@ namespace DreadWyrm
             KeyboardState keystate = Keyboard.GetState();
 
             // If the Escape Key is pressed, exit the game.
-            if (keystate.IsKeyDown(Keys.Escape))
-                this.Exit();
+            //if (keystate.IsKeyDown(Keys.Escape))
+            //    this.Exit();
 
             if (gameOver)
             {
