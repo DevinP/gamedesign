@@ -20,6 +20,7 @@ namespace NyanTron
         SpriteBatch spriteBatch;
         GraphicsDevice device;
         Effect effect;
+        Song bgm;
 
         Texture2D wallTexture;
 
@@ -107,6 +108,9 @@ namespace NyanTron
             wallTexture = Content.Load<Texture2D>("wallTex");
 
             wallBox = new Wallbox(device, camera.ViewMatrix, camera.ProjectionMatrix, wallTexture);
+
+            bgm = Content.Load<Song>("NyanCat");
+            MediaPlayer.Play(bgm);
         }
 
         /// <summary>
