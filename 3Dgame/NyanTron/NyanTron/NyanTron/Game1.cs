@@ -21,16 +21,27 @@ namespace NyanTron
         GraphicsDevice device;
         Effect effect;
 
-        VertexBuffer vertexBuffer;
-
         Texture2D wallTexture;
-        static int BOXHEIGHT = 2500;    //The height (y-axis measurement) from the bottom to the top of the box
-        static int BOXWIDTH = 2500;     //The width (x-axis measurement) from side to side of the box
-        static int BOXDEPTH = 2500;     //The depth (z-axis measurement) from from to the back of the box
 
-        Matrix viewMatrix;
-        Matrix projectionMatrix;
+        Wallbox wallBox;
 
+        Camera camera;
+
+        //For now, how much are we rotating in each direction?
+        //ROTATE THESE TO ROTATE NYAN!!
+        float xRot = 270f;
+        float yRot = 90f;
+        float zRot = 0f;
+
+        //I guess nyancat can translate?
+        //MOVE THESE TO MOVE NYAN!
+        float xTrans, yTrans, zTrans = 0f;
+        float transDir = 1;
+
+        //Nyan cat needs some scaling: too fat
+        float xSca = 0.001f; 
+        float ySca = 0.001f;
+        float zSca = 0.001f;
 
         public Game1()
         {
@@ -53,6 +64,34 @@ namespace NyanTron
             graphics.ApplyChanges();
             Window.Title = "Nyan Tron";
 
+            device = graphics.GraphicsDevice;
+
+            camera = new Camera(device);
+
+            ModelHelper.LoadModels(Content);
+            ModelHelper.resetWorldMatrices();
+
+            //the Nyan cat model is HUGE! Lets scale the model down a ton (100 times smaller) so it fits on screen
+            ModelHelper.modelTwo_WorldMatrix =      //the result matrix
+                ModelHelper.ScaleMatrix(            //the function call
+                ModelHelper.modelTwo_WorldMatrix,   //the source matrix
+                xSca, ySca, zSca                    //the x, y, and z scaling
+                );
+
+            //Now lets rotate nyan cat depending on how much we calculated. Also, lets get it horizontal
+            ModelHelper.modelTwo_WorldMatrix =      //the resutl matrix
+                ModelHelper.RotateMatrix(           //the functuion call
+                ModelHelper.modelTwo_WorldMatrix,   //the source matrix
+                xRot, yRot, zRot                    //the x, y, and z rotation
+                );
+
+            //Nyan can can get even more exciting! Lets make him move!
+            ModelHelper.modelTwo_WorldMatrix =      //the result matrix
+                ModelHelper.TranslateMatrix(        //the function call
+                ModelHelper.modelTwo_WorldMatrix,   //the source matrix
+                xTrans, yTrans, zTrans              //the x, y, and z translation
+                );
+
             base.Initialize();
         }
 
@@ -64,15 +103,10 @@ namespace NyanTron
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            device = graphics.GraphicsDevice;
-            // TODO: use this.Content to load your game content here
             effect = Content.Load<Effect>("effects");
-
             wallTexture = Content.Load<Texture2D>("wallTex");
 
-            SetUpVertices();
-
+            wallBox = new Wallbox(device, camera.ViewMatrix, camera.ProjectionMatrix, wallTexture);
         }
 
         /// <summary>
@@ -84,6 +118,8 @@ namespace NyanTron
             // TODO: Unload any non ContentManager content here
         }
 
+
+
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -91,25 +127,29 @@ namespace NyanTron
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            camera.Update();
+
+            ProcessKeyboard(gameTime);
+
+            base.Update(gameTime);
+        }
+
+        private void ProcessKeyboard(GameTime gameTime)
+        {
             KeyboardState keyState = Keyboard.GetState();
 
             // Allows the game to exit
             if (keyState.IsKeyDown(Keys.Escape))
                 this.Exit();
 
-            // TODO: Add your update logic here
-            UpdateCamera();
-
-            base.Update(gameTime);
-        }
-
-        private void UpdateCamera()
-        {
-            Vector3 campos = new Vector3(-50, 0, 0);
-            Vector3 camup = new Vector3(0, 1, 0);
-
-            viewMatrix = Matrix.CreateLookAt(campos, new Vector3(BOXWIDTH / 2, 0, 0), camup);
-            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, device.Viewport.AspectRatio, 0.2f, 500.0f);
+            if (keyState.IsKeyDown(Keys.Up))
+            {
+                camera.translatePosition(0, 0, 1);
+            }
+            if (keyState.IsKeyDown(Keys.Down))
+            {
+                camera.translatePosition(0, 0, -1);
+            }
         }
 
 
@@ -121,43 +161,16 @@ namespace NyanTron
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
-            DrawWallbox();
+            /*RasterizerState rs = new RasterizerState();
+            rs.CullMode = CullMode.None;
+            device.RasterizerState = rs;*/
+           
+            wallBox.Draw(camera.viewMatrix, camera.projectionMatrix);
+
+            ModelHelper.drawModels(camera);
 
             base.Draw(gameTime);
         }
 
-        private void DrawWallbox()
-        {
-            effect.CurrentTechnique = effect.Techniques["Textured"];
-            effect.Parameters["xWorld"].SetValue(Matrix.Identity);
-            effect.Parameters["xView"].SetValue(viewMatrix);
-            effect.Parameters["xProjection"].SetValue(projectionMatrix);
-            effect.Parameters["xTexture"].SetValue(wallTexture);
-
-            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                device.SetVertexBuffer(vertexBuffer);
-                device.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexBuffer.VertexCount / 3);
-            }
-        }
-
-        /* SetUpVertices
-         * 
-         * Sets up the vertices of the triangles used to define the wallbox
-         * */
-        private void SetUpVertices()
-        {
-            List<VertexPositionNormalTexture> verticesList = new List<VertexPositionNormalTexture>();
-
-            verticesList.Add(new VertexPositionNormalTexture(new Vector3(BOXWIDTH/2, BOXHEIGHT/2, 0), new Vector3(-1, 0, 0), new Vector2(0, 0)));
-            verticesList.Add(new VertexPositionNormalTexture(new Vector3(BOXWIDTH/2, BOXHEIGHT/2, -BOXDEPTH/2), new Vector3(-1, 0, 0), new Vector2(0,0)));
-            verticesList.Add(new VertexPositionNormalTexture(new Vector3(BOXWIDTH / 2, -BOXHEIGHT / 2, -BOXDEPTH / 2), new Vector3(-1, 0, 0), new Vector2(0, 0)));
-
-            vertexBuffer = new VertexBuffer(device, VertexPositionNormalTexture.VertexDeclaration, verticesList.Count, BufferUsage.WriteOnly);
-
-            vertexBuffer.SetData<VertexPositionNormalTexture>(verticesList.ToArray());
-        }
     }
 }
