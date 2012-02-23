@@ -54,9 +54,9 @@ namespace NyanTron
         public void ResetCamera()
         {
             //The camera's current position is 0, 0, and 50 away from the origin
-            position = new Vector3(0, 0, Wallbox.BOXDEPTH / 2 + 50);
+            position = new Vector3(-1, 3, 2);
 
-            target = new Vector3(0, 0, 1);
+            target = new Vector3(5, 2, 1);
 
             viewMatrix = Matrix.CreateLookAt(position, target, Vector3.Up);
 
@@ -86,8 +86,6 @@ namespace NyanTron
         {
             //Create a matrix to look at cute girls with
             viewMatrix = Matrix.CreateLookAt(position, target, Vector3.Up);
-
-            Console.WriteLine("X: " + position.X + " Y: " + position.Y + " Z: " + position.Z);
         }
 
         /// <summary>

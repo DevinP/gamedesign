@@ -31,7 +31,7 @@ namespace NyanTron
         //For now, how much are we rotating in each direction?
         //ROTATE THESE TO ROTATE NYAN!!
         float xRot = 270f;
-        float yRot = 90f;
+        float yRot = 270f;
         float zRot = 0f;
 
         //I guess nyancat can translate?
@@ -92,7 +92,7 @@ namespace NyanTron
                 ModelHelper.modelTwo_WorldMatrix,   //the source matrix
                 xTrans, yTrans, zTrans              //the x, y, and z translation
                 );
-
+            
             base.Initialize();
         }
 
@@ -111,6 +111,7 @@ namespace NyanTron
 
             bgm = Content.Load<Song>("NyanCat");
             MediaPlayer.Play(bgm);
+            MediaPlayer.IsRepeating = true;
         }
 
         /// <summary>
@@ -131,9 +132,32 @@ namespace NyanTron
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            camera.Update();
-
             ProcessKeyboard(gameTime);
+
+            ModelHelper.resetWorldMatrices();
+
+            //the Nyan cat model is HUGE! Lets scale the model down a ton (100 times smaller) so it fits on screen
+            ModelHelper.modelTwo_WorldMatrix =      //the result matrix
+                ModelHelper.ScaleMatrix(            //the function call
+                ModelHelper.modelTwo_WorldMatrix,   //the source matrix
+                xSca, ySca, zSca                    //the x, y, and z scaling
+                );
+
+            //Now lets rotate nyan cat depending on how much we calculated. Also, lets get it horizontal
+            ModelHelper.modelTwo_WorldMatrix =      //the resutl matrix
+                ModelHelper.RotateMatrix(           //the functuion call
+                ModelHelper.modelTwo_WorldMatrix,   //the source matrix
+                xRot, yRot, zRot                    //the x, y, and z rotation
+                );
+
+            //Nyan can can get even more exciting! Lets make him move!
+            ModelHelper.modelTwo_WorldMatrix =      //the result matrix
+                ModelHelper.TranslateMatrix(        //the function call
+                ModelHelper.modelTwo_WorldMatrix,   //the source matrix
+                xTrans, yTrans, zTrans              //the x, y, and z translation
+                );
+
+            camera.Update();
 
             base.Update(gameTime);
         }
@@ -146,14 +170,41 @@ namespace NyanTron
             if (keyState.IsKeyDown(Keys.Escape))
                 this.Exit();
 
-            if (keyState.IsKeyDown(Keys.Up))
-            {
-                camera.translatePosition(0, 0, 1);
-            }
+            int xDiff = 0;
+            int yDiff = 0; 
+            int zDiff = 0;
+
             if (keyState.IsKeyDown(Keys.Down))
             {
-                camera.translatePosition(0, 0, -1);
+                xDiff -= 3;
             }
+            if (keyState.IsKeyDown(Keys.Up))
+            {
+                xDiff += 3;
+            }
+            if (keyState.IsKeyDown(Keys.W))
+            {
+                yDiff += 3;
+            }
+            if (keyState.IsKeyDown(Keys.S))
+            {
+                yDiff -= 3;
+            }
+            if (keyState.IsKeyDown(Keys.A))
+            {
+                zDiff -= 3;
+            }
+            if (keyState.IsKeyDown(Keys.D))
+            {
+                zDiff += 3;
+            }
+
+            xTrans += xDiff;
+            yTrans += yDiff;
+            zTrans += zDiff;
+
+            camera.translatePosition(xDiff, yDiff, zDiff);
+            camera.translateTarget(xDiff, yDiff, zDiff);
         }
 
 
