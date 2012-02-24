@@ -130,6 +130,8 @@ namespace NyanTron
             result = result * Matrix.CreateRotationY(radY);
             result = result * Matrix.CreateRotationZ(radZ);
 
+            Console.WriteLine("degX: " + degX + " degY: " + degY + " degZ: " + degZ);
+
             //Return the result of the rotation
             return result;
         }

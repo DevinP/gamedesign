@@ -17,13 +17,16 @@ namespace NyanTron
 {
     class Camera
     {
+        static Vector3 DEFAULTPOSITION = new Vector3(-1, 3, 2);
+        static Vector3 DEFAULTUP = new Vector3(0, 0, -1);
+        static Vector3 DEFAULTTARGET = new Vector3(5, 2, 1);
+
         private Vector3 position;
         private Vector3 target;
+        private Vector3 up;
         public Matrix viewMatrix, projectionMatrix;
 
         GraphicsDevice device;
-
-        Quaternion cameraRot = Quaternion.Identity;
 
         public Matrix ViewMatrix
         {
@@ -54,18 +57,18 @@ namespace NyanTron
         public void ResetCamera()
         {
             //The camera's current position is 0, 0, and 50 away from the origin
-            position = new Vector3(-1, 3, 2);
+            position = DEFAULTPOSITION;
+            up = DEFAULTUP;
+            target = DEFAULTTARGET;
 
-            target = new Vector3(5, 2, 1);
-
-            viewMatrix = Matrix.CreateLookAt(position, target, Vector3.Up);
+            viewMatrix = Matrix.CreateLookAt(position, target, up);
 
             projectionMatrix =                              //Result matrix
                 Matrix.CreatePerspectiveFieldOfView(        //Function call
                 MathHelper.ToRadians(45.0f),                //45 degree field of view (converted to radians)
                 device.Viewport.AspectRatio,                //16/9 aspect ratio
                 0.5f,                                       //Show things that are further than 0.5 away...
-                Wallbox.BOXHEIGHT * 2f                    //...and less than BOXHEIGHT away
+                Wallbox.BOXHEIGHT * 2f                      //...and less than BOXHEIGHT away
                 );
         }
 
@@ -75,6 +78,23 @@ namespace NyanTron
         /// </summary>
         public void Update()
         {
+            //Code to rotate the camera - UNFINISHED
+            /*double newTargetX = 0;
+            double newTargetY = 0;
+            double newTargetZ = 0;
+
+            //YZ plane (rotation about the X-Axis)
+            newTargetX += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET) * Math.Sin(MathHelper.ToRadians(Game1.xRot)));
+            newTargetY += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET) * Math.Cos(MathHelper.ToRadians(Game1.xRot)));
+
+            //ZX plane (rotation about the Y-Axis)
+            newTargetX += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET)*Math.Sin(MathHelper.ToRadians(Game1.yRot)));
+            newTargetZ += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET)*Math.Cos(MathHelper.ToRadians(Game1.yRot)));
+
+            target.X = (float) -newTargetX;
+            target.Y = (float) newTargetY;
+            target.Z = (float) -newTargetZ;*/
+
             //update the view matrix to point from the position to the target
             UpdateViewMatrix();
         }

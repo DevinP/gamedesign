@@ -22,27 +22,13 @@ namespace NyanTron
         Effect effect;
         Song bgm;
 
-        Texture2D wallTexture;
+        Texture2D wallTexture;  //The texture to be applied to the wallbox
 
-        Wallbox wallBox;
+        Wallbox wallBox;        //The wallbox which will contain the player
 
-        Camera camera;
+        Camera camera;          //The camera object, used to determine what the player sees
 
-        //For now, how much are we rotating in each direction?
-        //ROTATE THESE TO ROTATE NYAN!!
-        float xRot = 270f;
-        float yRot = 270f;
-        float zRot = 0f;
-
-        //I guess nyancat can translate?
-        //MOVE THESE TO MOVE NYAN!
-        float xTrans, yTrans, zTrans = 0f;
-        float transDir = 1;
-
-        //Nyan cat needs some scaling: too fat
-        float xSca = 0.001f; 
-        float ySca = 0.001f;
-        float zSca = 0.001f;
+        Player thePlayer;       //The player. Specifically, the player's NyanCat avatar
 
         public Game1()
         {
@@ -69,29 +55,12 @@ namespace NyanTron
 
             camera = new Camera(device);
 
+            //Initialize the models
             ModelHelper.LoadModels(Content);
             ModelHelper.resetWorldMatrices();
 
-            //the Nyan cat model is HUGE! Lets scale the model down a ton (100 times smaller) so it fits on screen
-            ModelHelper.modelTwo_WorldMatrix =      //the result matrix
-                ModelHelper.ScaleMatrix(            //the function call
-                ModelHelper.modelTwo_WorldMatrix,   //the source matrix
-                xSca, ySca, zSca                    //the x, y, and z scaling
-                );
-
-            //Now lets rotate nyan cat depending on how much we calculated. Also, lets get it horizontal
-            ModelHelper.modelTwo_WorldMatrix =      //the resutl matrix
-                ModelHelper.RotateMatrix(           //the functuion call
-                ModelHelper.modelTwo_WorldMatrix,   //the source matrix
-                xRot, yRot, zRot                    //the x, y, and z rotation
-                );
-
-            //Nyan can can get even more exciting! Lets make him move!
-            ModelHelper.modelTwo_WorldMatrix =      //the result matrix
-                ModelHelper.TranslateMatrix(        //the function call
-                ModelHelper.modelTwo_WorldMatrix,   //the source matrix
-                xTrans, yTrans, zTrans              //the x, y, and z translation
-                );
+            //Make a new player
+            thePlayer = new Player();
             
             base.Initialize();
         }
@@ -134,28 +103,7 @@ namespace NyanTron
         {
             ProcessKeyboard(gameTime);
 
-            ModelHelper.resetWorldMatrices();
-
-            //the Nyan cat model is HUGE! Lets scale the model down a ton (100 times smaller) so it fits on screen
-            ModelHelper.modelTwo_WorldMatrix =      //the result matrix
-                ModelHelper.ScaleMatrix(            //the function call
-                ModelHelper.modelTwo_WorldMatrix,   //the source matrix
-                xSca, ySca, zSca                    //the x, y, and z scaling
-                );
-
-            //Now lets rotate nyan cat depending on how much we calculated. Also, lets get it horizontal
-            ModelHelper.modelTwo_WorldMatrix =      //the resutl matrix
-                ModelHelper.RotateMatrix(           //the functuion call
-                ModelHelper.modelTwo_WorldMatrix,   //the source matrix
-                xRot, yRot, zRot                    //the x, y, and z rotation
-                );
-
-            //Nyan can can get even more exciting! Lets make him move!
-            ModelHelper.modelTwo_WorldMatrix =      //the result matrix
-                ModelHelper.TranslateMatrix(        //the function call
-                ModelHelper.modelTwo_WorldMatrix,   //the source matrix
-                xTrans, yTrans, zTrans              //the x, y, and z translation
-                );
+            thePlayer.Update();
 
             camera.Update();
 
@@ -170,41 +118,35 @@ namespace NyanTron
             if (keyState.IsKeyDown(Keys.Escape))
                 this.Exit();
 
-            int xDiff = 0;
-            int yDiff = 0; 
-            int zDiff = 0;
-
-            if (keyState.IsKeyDown(Keys.Down))
+            //Rotations about the Y axis
+            if (keyState.IsKeyDown(Keys.Right))
             {
-                xDiff -= 3;
+                thePlayer.YRotation -= 1;
             }
+            if (keyState.IsKeyDown(Keys.Left))
+            {
+                thePlayer.YRotation += 1;
+            }
+
+            //Rotations about the X axis
             if (keyState.IsKeyDown(Keys.Up))
             {
-                xDiff += 3;
+                thePlayer.XRotation += 1;
             }
-            if (keyState.IsKeyDown(Keys.W))
+            if (keyState.IsKeyDown(Keys.Down))
             {
-                yDiff += 3;
+                thePlayer.XRotation -= 1;
             }
-            if (keyState.IsKeyDown(Keys.S))
-            {
-                yDiff -= 3;
-            }
+
+            //Rotations about the Z axis
             if (keyState.IsKeyDown(Keys.A))
             {
-                zDiff -= 3;
+                thePlayer.ZRotation -= 1;
             }
             if (keyState.IsKeyDown(Keys.D))
             {
-                zDiff += 3;
+                thePlayer.ZRotation += 1;
             }
-
-            xTrans += xDiff;
-            yTrans += yDiff;
-            zTrans += zDiff;
-
-            camera.translatePosition(xDiff, yDiff, zDiff);
-            camera.translateTarget(xDiff, yDiff, zDiff);
         }
 
 
