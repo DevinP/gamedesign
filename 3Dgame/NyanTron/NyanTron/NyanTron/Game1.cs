@@ -105,7 +105,7 @@ namespace NyanTron
 
             thePlayer.Update();
 
-            camera.Update();
+            camera.Update(thePlayer);
 
             base.Update(gameTime);
         }
@@ -128,24 +128,24 @@ namespace NyanTron
                 thePlayer.YRotation += 1;
             }
 
-            //Rotations about the X axis
+            //Rotations about the Z axis
             if (keyState.IsKeyDown(Keys.Up))
             {
-                thePlayer.XRotation += 1;
+                thePlayer.ZRotation += 1;
             }
             if (keyState.IsKeyDown(Keys.Down))
             {
-                thePlayer.XRotation -= 1;
+                thePlayer.ZRotation -= 1;
             }
 
-            //Rotations about the Z axis
+            //Rotations about the X axis
             if (keyState.IsKeyDown(Keys.A))
             {
-                thePlayer.ZRotation -= 1;
+                thePlayer.XRotation -= 1;
             }
             if (keyState.IsKeyDown(Keys.D))
             {
-                thePlayer.ZRotation += 1;
+                thePlayer.XRotation += 1;
             }
         }
 

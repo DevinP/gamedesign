@@ -17,7 +17,8 @@ namespace NyanTron
 {
     class Camera
     {
-        static Vector3 DEFAULTPOSITION = new Vector3(-1, 3, 2);
+        static Vector3 DEFAULTPOSITION = new Vector3(-10, 3, 2);
+        //static Vector3 DEFAULTPOSITION = new Vector3(-1, 3, 2);
         static Vector3 DEFAULTUP = new Vector3(0, 0, -1);
         static Vector3 DEFAULTTARGET = new Vector3(5, 2, 1);
 
@@ -76,24 +77,24 @@ namespace NyanTron
         /// <summary>
         /// This updates the camera. In theory you would have it follow your character, etc.
         /// </summary>
-        public void Update()
+        public void Update(Player thePlayer)
         {
             //Code to rotate the camera - UNFINISHED
-            /*double newTargetX = 0;
+            double newTargetX = 0;
             double newTargetY = 0;
             double newTargetZ = 0;
 
-            //YZ plane (rotation about the X-Axis)
-            newTargetX += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET) * Math.Sin(MathHelper.ToRadians(Game1.xRot)));
-            newTargetY += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET) * Math.Cos(MathHelper.ToRadians(Game1.xRot)));
+            //XY plane (rotation about the Z-Axis)
+            //newTargetX += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET) * Math.Sin(MathHelper.ToRadians(thePlayer.ZRotation)));
+            //newTargetY += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET) * Math.Cos(MathHelper.ToRadians(thePlayer.ZRotation)));
 
             //ZX plane (rotation about the Y-Axis)
-            newTargetX += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET)*Math.Sin(MathHelper.ToRadians(Game1.yRot)));
-            newTargetZ += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET)*Math.Cos(MathHelper.ToRadians(Game1.yRot)));
+            //newTargetX += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET)*Math.Sin(MathHelper.ToRadians(thePlayer.YRotation)));
+            //newTargetZ += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET)*Math.Cos(MathHelper.ToRadians(thePlayer.YRotation)));
 
-            target.X = (float) -newTargetX;
-            target.Y = (float) newTargetY;
-            target.Z = (float) -newTargetZ;*/
+            //target.X = (float) -newTargetX;
+            //target.Y = (float) -newTargetY;
+            //target.Z = (float) -newTargetZ;
 
             //update the view matrix to point from the position to the target
             UpdateViewMatrix();

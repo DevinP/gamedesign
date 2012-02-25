@@ -9,9 +9,9 @@ namespace NyanTron
     {
         //For now, how much are we rotating in each direction?
         //ROTATE THESE TO ROTATE NYAN!!
-        float xRot = 270f;
-        public static float yRot = 270f;
-        public static float zRot = 0f;
+        public float xRot = 0f;//270f;
+        public float yRot = 0f;//270f;
+        public float zRot = 0f;
 
         //I guess nyancat can translate?
         //MOVE THESE TO MOVE NYAN!

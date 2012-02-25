@@ -123,17 +123,18 @@ namespace NyanTron
             float radZ = MathHelper.ToRadians(degZ);
 
             //Create a temporary matrix
-            Matrix result = matrix;
+            Matrix result = Matrix.Identity;
 
             //Twist and turn the matrix
-            result = result * Matrix.CreateRotationX(radX);
             result = result * Matrix.CreateRotationY(radY);
+            result = result * Matrix.CreateRotationX(radX);
             result = result * Matrix.CreateRotationZ(radZ);
 
-            Console.WriteLine("degX: " + degX + " degY: " + degY + " degZ: " + degZ);
 
+            Console.WriteLine("degX: " + degX + " degY: " + degY + " degZ: " + degZ);
+            result = Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(degY), MathHelper.ToRadians(degX), MathHelper.ToRadians(degZ));
             //Return the result of the rotation
-            return result;
+            return matrix * result;
         }
 
         /// <summary>
