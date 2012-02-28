@@ -17,8 +17,8 @@ namespace NyanTron
 {
     class Camera
     {
-        static Vector3 DEFAULTPOSITION = new Vector3(-10, 3, 2);
-        //static Vector3 DEFAULTPOSITION = new Vector3(-1, 3, 2);
+        //static Vector3 DEFAULTPOSITION = new Vector3(-10, 3, 2);
+        static Vector3 DEFAULTPOSITION = new Vector3(-1, 3, 2);
         static Vector3 DEFAULTUP = new Vector3(0, 0, -1);
         static Vector3 DEFAULTTARGET = new Vector3(5, 2, 1);
 
@@ -79,6 +79,9 @@ namespace NyanTron
         /// </summary>
         public void Update(Player thePlayer)
         {
+            position.X += 0.1f;
+            target.X += 0.1f;
+
             //Code to rotate the camera - UNFINISHED
             double newTargetX = 0;
             double newTargetY = 0;
@@ -86,15 +89,15 @@ namespace NyanTron
 
             //XY plane (rotation about the Z-Axis)
             //newTargetX += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET) * Math.Sin(MathHelper.ToRadians(thePlayer.ZRotation)));
-            //newTargetY += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET) * Math.Cos(MathHelper.ToRadians(thePlayer.ZRotation)));
+            newTargetY += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET) * Math.Cos(MathHelper.ToRadians(thePlayer.XRotation)));
 
             //ZX plane (rotation about the Y-Axis)
             //newTargetX += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET)*Math.Sin(MathHelper.ToRadians(thePlayer.YRotation)));
-            //newTargetZ += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET)*Math.Cos(MathHelper.ToRadians(thePlayer.YRotation)));
+            newTargetZ += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET)*Math.Cos(MathHelper.ToRadians(thePlayer.YRotation)));
 
-            //target.X = (float) -newTargetX;
-            //target.Y = (float) -newTargetY;
-            //target.Z = (float) -newTargetZ;
+            //target.X = (float) newTargetX;
+            target.Y = (float) newTargetY;
+            target.Z = (float) -newTargetZ;
 
             //update the view matrix to point from the position to the target
             UpdateViewMatrix();

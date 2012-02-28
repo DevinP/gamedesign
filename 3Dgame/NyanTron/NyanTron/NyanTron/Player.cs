@@ -9,8 +9,8 @@ namespace NyanTron
     {
         //For now, how much are we rotating in each direction?
         //ROTATE THESE TO ROTATE NYAN!!
-        public float xRot = 0f;//270f;
-        public float yRot = 0f;//270f;
+        public float xRot = 270f;
+        public float yRot = 270f;
         public float zRot = 0f;
 
         //I guess nyancat can translate?
@@ -110,6 +110,11 @@ namespace NyanTron
                 ModelHelper.modelTwo_WorldMatrix,   //the source matrix
                 xTrans, yTrans, zTrans              //the x, y, and z translation
                 );
+        }
+
+        public void MoveForward()
+        {
+            xTrans += 0.1f;
         }
     }
 }
