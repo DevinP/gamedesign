@@ -51,6 +51,7 @@ namespace NyanTron
             graphics.ApplyChanges();
             Window.Title = "Nyan Tron";
 
+            //Alias the graphics card to be an easily accessible name
             device = graphics.GraphicsDevice;
 
             camera = new Camera(device);
@@ -76,8 +77,10 @@ namespace NyanTron
             effect = Content.Load<Effect>("effects");
             wallTexture = Content.Load<Texture2D>("wallTex");
 
+            //Make a new wallbox
             wallBox = new Wallbox(device, camera.ViewMatrix, camera.ProjectionMatrix, wallTexture);
 
+            //Play the iconic Nyan Cat music!
             bgm = Content.Load<Song>("NyanCat");
             MediaPlayer.Play(bgm);
             MediaPlayer.IsRepeating = true;
@@ -101,10 +104,10 @@ namespace NyanTron
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            //Process the input to the game
             ProcessKeyboard(gameTime);
 
-            thePlayer.MoveForward();
-
+            //Update the player's position and rotation
             thePlayer.Update();
 
             camera.Update(thePlayer);
@@ -116,39 +119,34 @@ namespace NyanTron
         {
             KeyboardState keyState = Keyboard.GetState();
 
+            float leftRightRot = 0;
+            float upDownRot = 0;
+            float rollRot = 0;
+
+            float turningSpeed = 0.03f;
+
             // Allows the game to exit
             if (keyState.IsKeyDown(Keys.Escape))
                 this.Exit();
 
-            //Rotations about the Y axis
             if (keyState.IsKeyDown(Keys.Right))
-            {
-                thePlayer.YRotation -= 1;
-            }
+                leftRightRot -= turningSpeed;
             if (keyState.IsKeyDown(Keys.Left))
-            {
-                thePlayer.YRotation += 1;
-            }
-            /*
-            //Rotations about the Z axis
-            if (keyState.IsKeyDown(Keys.Up))
-            {
-                thePlayer.ZRotation += 1;
-            }
+                leftRightRot += turningSpeed;
+
             if (keyState.IsKeyDown(Keys.Down))
-            {
-                thePlayer.ZRotation -= 1;
-            }
-            //*/
-            //Rotations about the X axis
-            if (keyState.IsKeyDown(Keys.Down))
-            {
-                thePlayer.XRotation -= 1;
-            }
+                upDownRot -= turningSpeed;
             if (keyState.IsKeyDown(Keys.Up))
-            {
-                thePlayer.XRotation += 1;
-            }
+                upDownRot += turningSpeed;
+
+            if (keyState.IsKeyDown(Keys.A))
+                rollRot -= turningSpeed;
+            if (keyState.IsKeyDown(Keys.D))
+                rollRot += turningSpeed;
+
+            Quaternion additionalRot = Quaternion.CreateFromAxisAngle(new Vector3(0, 0, -1), leftRightRot) * Quaternion.CreateFromAxisAngle(new Vector3(1, 0, 0), upDownRot) * Quaternion.CreateFromAxisAngle(new Vector3(0, 1, 0), rollRot);
+
+            thePlayer.Rotation *= additionalRot;
         }
 
 
@@ -170,6 +168,13 @@ namespace NyanTron
 
             base.Draw(gameTime);
         }
+
+       
+
+
+
+
+
 
     }
 }

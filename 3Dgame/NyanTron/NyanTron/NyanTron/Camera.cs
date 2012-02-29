@@ -17,15 +17,17 @@ namespace NyanTron
 {
     class Camera
     {
-        //static Vector3 DEFAULTPOSITION = new Vector3(-10, 3, 2);
-        static Vector3 DEFAULTPOSITION = new Vector3(-1, 3, 2);
+        static Vector3 DEFAULTPOSITION = new Vector3(-1f, 0f, -1.5f);
         static Vector3 DEFAULTUP = new Vector3(0, 0, -1);
-        static Vector3 DEFAULTTARGET = new Vector3(5, 2, 1);
+        static Vector3 DEFAULTTARGET = new Vector3(1, 4, 0);
 
         private Vector3 position;
         private Vector3 target;
         private Vector3 up;
         public Matrix viewMatrix, projectionMatrix;
+
+
+        Quaternion rotation = Quaternion.Identity;
 
         GraphicsDevice device;
 
@@ -79,28 +81,26 @@ namespace NyanTron
         /// </summary>
         public void Update(Player thePlayer)
         {
-            position.X += 0.1f;
-            target.X += 0.1f;
+          
+            Vector3 campos = DEFAULTPOSITION;
+            campos = Vector3.Transform(campos, Matrix.CreateFromQuaternion(rotation));
+            campos += thePlayer.Position;
 
-            //Code to rotate the camera - UNFINISHED
-            double newTargetX = 0;
-            double newTargetY = 0;
-            double newTargetZ = 0;
+            Vector3 camup = DEFAULTUP;
+            camup = Vector3.Transform(camup, Matrix.CreateFromQuaternion(rotation));
 
-            //XY plane (rotation about the Z-Axis)
-            //newTargetX += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET) * Math.Sin(MathHelper.ToRadians(thePlayer.ZRotation)));
-            newTargetY += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET) * Math.Cos(MathHelper.ToRadians(thePlayer.XRotation)));
+            Vector3 addVector = Vector3.Transform(DEFAULTTARGET, thePlayer.Rotation);  // We were editing this
+            Vector3 target = thePlayer.Position + addVector;
 
-            //ZX plane (rotation about the Y-Axis)
-            //newTargetX += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET)*Math.Sin(MathHelper.ToRadians(thePlayer.YRotation)));
-            newTargetZ += (Vector3.Distance(DEFAULTPOSITION, DEFAULTTARGET)*Math.Cos(MathHelper.ToRadians(thePlayer.YRotation)));
 
-            //target.X = (float) newTargetX;
-            target.Y = (float) newTargetY;
-            target.Z = (float) -newTargetZ;
+            viewMatrix = Matrix.CreateLookAt(campos, target, camup);
+            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, device.Viewport.AspectRatio, 0.2f, 1000.0f);
 
-            //update the view matrix to point from the position to the target
-            UpdateViewMatrix();
+            position = campos;
+            up = camup;
+            rotation = Quaternion.Lerp(rotation, thePlayer.Rotation, 0.2f);
+
+
         }
 
         /// <summary>
