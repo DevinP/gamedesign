@@ -89,7 +89,7 @@ namespace NyanTron
             Vector3 camup = DEFAULTUP;
             camup = Vector3.Transform(camup, Matrix.CreateFromQuaternion(rotation));
 
-            Vector3 addVector = Vector3.Transform(DEFAULTTARGET, thePlayer.Rotation);  // We were editing this
+            Vector3 addVector = Vector3.Transform(DEFAULTTARGET, thePlayer.Rotation);
             Vector3 target = thePlayer.Position + addVector;
 
 

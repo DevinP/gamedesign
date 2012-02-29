@@ -107,8 +107,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BoundingBoxSampleCode.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Camera.cs" />
     <Compile Include="ModelHelper.cs" />
+    <Compile Include="NyanRotSampleCode.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />

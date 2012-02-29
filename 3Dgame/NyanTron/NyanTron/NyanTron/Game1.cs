@@ -123,26 +123,26 @@ namespace NyanTron
             float upDownRot = 0;
             float rollRot = 0;
 
-            float turningSpeed = 0.03f;
+            const float TURNINGSPEED = 0.03f;
 
             // Allows the game to exit
             if (keyState.IsKeyDown(Keys.Escape))
                 this.Exit();
 
             if (keyState.IsKeyDown(Keys.Right))
-                leftRightRot -= turningSpeed;
+                leftRightRot -= TURNINGSPEED;
             if (keyState.IsKeyDown(Keys.Left))
-                leftRightRot += turningSpeed;
+                leftRightRot += TURNINGSPEED;
 
             if (keyState.IsKeyDown(Keys.Down))
-                upDownRot -= turningSpeed;
+                upDownRot -= TURNINGSPEED;
             if (keyState.IsKeyDown(Keys.Up))
-                upDownRot += turningSpeed;
+                upDownRot += TURNINGSPEED;
 
             if (keyState.IsKeyDown(Keys.A))
-                rollRot -= turningSpeed;
+                rollRot -= TURNINGSPEED;
             if (keyState.IsKeyDown(Keys.D))
-                rollRot += turningSpeed;
+                rollRot += TURNINGSPEED;
 
             Quaternion additionalRot = Quaternion.CreateFromAxisAngle(new Vector3(0, 0, -1), leftRightRot) * Quaternion.CreateFromAxisAngle(new Vector3(1, 0, 0), upDownRot) * Quaternion.CreateFromAxisAngle(new Vector3(0, 1, 0), rollRot);
 
@@ -169,12 +169,24 @@ namespace NyanTron
             base.Draw(gameTime);
         }
 
-       
+        //Source: http://www.toymaker.info/Games/XNA/html/xna_model_collisions.html
+        //The first argument as an axis-aligned bounding box
+        //The second argument is the wallbox we use in-game
+        private bool CheckWallCollision(BoundingBox AABB, Wallbox theBox)
+        {
+            // firstly extract the corners of the AABB into 8 vectors - 1 for each corner
+            Vector3[] obb=new Vector3[8];
+            AABB.GetCorners(obb);
 
+            // Transform the vectors by the model's world matrix
+            Vector3.Transform(obb, ref ModelHelper.modelTwo_WorldMatrix, obb);
 
+            // create an AABB in world space form the OBB in world space
+            BoundingBox worldAABBModel = BoundingBox.CreateFromPoints(obb);
 
+            BoundingBox wallBoxAABB = theBox.BoundingBox;
 
-
-
+            return worldAABBModel.Intersects(wallBoxAABB);
+        }
     }
 }

@@ -18,9 +18,6 @@ namespace NyanTron
         public static int BOXWIDTH = 500;     //The width (x-axis measurement) from side to side of the box
         public static int BOXDEPTH = 500;     //The depth (z-axis measurement) from from to the back of the box
 
-       // Quad backWall;
-        //Quad rightWall;
-
         Quad[] walls;
 
         BasicEffect quadEffect;
@@ -29,12 +26,20 @@ namespace NyanTron
 
         GraphicsDevice graphicsDevice;
 
+        BoundingBox bBox;
+
         private const int BACKWALL = 0;
         private const int RIGHTWALL = 1;
         private const int LEFTWALL = 2;
         private const int TOPWALL = 3;
         private const int BOTWALL = 4;
         private const int FRONTWALL = 5;
+
+        public BoundingBox BoundingBox
+        {
+            get { return bBox; }
+            set { bBox = value; }
+        }
 
         public Wallbox(GraphicsDevice device, Matrix viewMat, Matrix projectionMat, Texture2D wallTexture)
         {
@@ -62,6 +67,8 @@ namespace NyanTron
                     new VertexElement(24, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0)
                  }
             );
+
+            bBox = new BoundingBox(new Vector3(-BOXWIDTH / 2, -BOXHEIGHT / 2, -BOXDEPTH / 2), new Vector3(BOXWIDTH / 2, BOXHEIGHT / 2, BOXDEPTH / 2));
         }
 
         public void Draw(Matrix viewMatrix, Matrix projectionMatrix)
