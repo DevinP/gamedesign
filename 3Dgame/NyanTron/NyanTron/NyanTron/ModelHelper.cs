@@ -19,16 +19,17 @@ namespace NyanTron
         //Basically, you modify worldmatrices as your object moves/rotates/embigens, and then use the matrix to draw a model
 
         //SCALE TRANSLATE ROTATE THESE!
-        public static Matrix modelOne_WorldMatrix;
-        public static Matrix modelTwo_WorldMatrix;
+        //public static Matrix modelOne_WorldMatrix;
+        public static Matrix nyan_WorldMatrix;
+        //public static List<Matrix> trail_WorldMatrices;
 
 
         //These are model placeholders for whatever models we may be loading
         //Basically, load them and NEVER TOUCH THEM AGAIN
 
         //LOAD THESE!
-        //public static Model modelOne;
-        public static Model modelTwo;
+        public static Model nyanModel;
+        public static Model trailModel;
 
 
         /// <summary>
@@ -39,8 +40,8 @@ namespace NyanTron
             //TODO: Replace/add other models
 
             //loading goblet.x and nyan.fbx (blender is your friend)
-            //modelOne = cm.Load<Model>("goblet");
-            modelTwo = cm.Load<Model>("nyan");
+            nyanModel = cm.Load<Model>("nyan");
+            trailModel = cm.Load<Model>("trail");
         }
 
         /// <summary>
@@ -51,8 +52,7 @@ namespace NyanTron
             //TODO: Replace/add other models
 
             //set them to the identity matrix. that oughta do it.
-            modelOne_WorldMatrix = Matrix.Identity;
-            modelTwo_WorldMatrix = Matrix.Identity;
+            nyan_WorldMatrix = Matrix.Identity;
         }
 
         /// <summary>
@@ -64,7 +64,14 @@ namespace NyanTron
 
             //draw onto the camera with each model and each model worldmatrix
             //DrawModel(camera, modelOne, modelOne_WorldMatrix);
-            DrawModel(camera, modelTwo, modelTwo_WorldMatrix);
+            DrawModel(camera, nyanModel, nyan_WorldMatrix);
+
+            foreach (Trail currentTrail in Game1.trails)
+            {
+                DrawModel(camera, trailModel, currentTrail.WorldMatrix);
+            }
+            
+            
         }
 
         /// <summary>

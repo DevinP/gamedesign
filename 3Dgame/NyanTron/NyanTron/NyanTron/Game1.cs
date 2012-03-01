@@ -30,6 +30,11 @@ namespace NyanTron
 
         Player thePlayer;       //The player. Specifically, the player's NyanCat avatar
 
+        public static List<Trail> trails;
+
+
+
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -62,7 +67,9 @@ namespace NyanTron
 
             //Make a new player
             thePlayer = new Player();
-            
+
+            trails = new List<Trail>();
+
             base.Initialize();
         }
 
@@ -112,10 +119,13 @@ namespace NyanTron
 
             camera.Update(thePlayer);
 
-            if (!isPlayerWallCollision(thePlayer, wallBox))
+            dropTrail();
+
+            if (!isPlayerWallCollision(thePlayer, wallBox) || isPlayerTrailCollision(thePlayer, trails))
             {
                 thePlayer.Position = new Vector3(0, 0, 0);
                 thePlayer.Rotation = Quaternion.Identity;
+                trails = new List<Trail>();
             }
 
             base.Update(gameTime);
@@ -155,6 +165,14 @@ namespace NyanTron
             thePlayer.Rotation *= additionalRot;
         }
 
+        void dropTrail()
+        {
+            if (trails.Count == 0)
+                trails.Add(new Trail(thePlayer.Position, thePlayer.Rotation));
+            else if (!trails[trails.Count - 1].BoundingBox.Intersects(thePlayer.BoundingBox))
+                trails.Add(new Trail(thePlayer.Position, thePlayer.Rotation));
+        }
+
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -162,7 +180,7 @@ namespace NyanTron
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             /*RasterizerState rs = new RasterizerState();
             rs.CullMode = CullMode.None;
@@ -171,13 +189,27 @@ namespace NyanTron
             wallBox.Draw(camera.viewMatrix, camera.projectionMatrix);
 
             ModelHelper.drawModels(camera);
-
+            
             base.Draw(gameTime);
         }
 
         private bool isPlayerWallCollision(Player thePlayer, Wallbox theBox)
         {
             return theBox.BoundingBox.Intersects(thePlayer.BoundingBox);
+        }
+
+        private bool isPlayerTrailCollision(Player thePlayer, List<Trail> theTrails)
+        {
+            if(theTrails.Count <= 1)
+                return false;
+
+            for (int i = 0; i < theTrails.Count - 2; i++)
+            {
+                if (thePlayer.BoundingBox.Intersects(theTrails[i].BoundingBox))
+                    return true;
+            }
+
+            return false;
         }
     }
 }

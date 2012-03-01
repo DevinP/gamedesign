@@ -17,7 +17,7 @@ namespace NyanTron
         Quaternion rotation = Quaternion.Identity;
         Vector3 position = new Vector3(0, 0, 0);
 
-        const float SPEED = 1f;
+        const float SPEED = 0.25f;
 
         BoundingBox bBox;
         Vector3 B_BOX_MIN_DEFAULT = new Vector3(0, 0, 0);
@@ -44,7 +44,7 @@ namespace NyanTron
         public Player()
         {
            
-            ModelHelper.modelTwo_WorldMatrix = (Matrix.CreateScale(0.0005f, 0.0005f, 0.0005f) * 
+            ModelHelper.nyan_WorldMatrix = (Matrix.CreateScale(0.0005f, 0.0005f, 0.0005f) * 
                 Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(rotation) * 
                 Matrix.CreateTranslation(position));
 
@@ -60,7 +60,7 @@ namespace NyanTron
 
             ModelHelper.resetWorldMatrices();
 
-            ModelHelper.modelTwo_WorldMatrix = (Matrix.CreateScale(0.0005f, 0.0005f, 0.0005f) *
+            ModelHelper.nyan_WorldMatrix = (Matrix.CreateScale(0.0005f, 0.0005f, 0.0005f) *
                 Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(rotation) * 
                 Matrix.CreateTranslation(position));
 

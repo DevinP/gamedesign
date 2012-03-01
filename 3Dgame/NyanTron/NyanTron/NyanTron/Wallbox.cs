@@ -14,9 +14,9 @@ namespace NyanTron
 {
     public class Wallbox
     {
-        public static int BOXHEIGHT = 500;    //The height (y-axis measurement) from the bottom to the top of the box
-        public static int BOXWIDTH = 500;     //The width (x-axis measurement) from side to side of the box
-        public static int BOXDEPTH = 500;     //The depth (z-axis measurement) from from to the back of the box
+        public static int BOXHEIGHT = 50;    //The height (y-axis measurement) from the bottom to the top of the box
+        public static int BOXWIDTH = 50;     //The width (x-axis measurement) from side to side of the box
+        public static int BOXDEPTH = 50;     //The depth (z-axis measurement) from from to the back of the box
 
         Quad[] walls;
 
