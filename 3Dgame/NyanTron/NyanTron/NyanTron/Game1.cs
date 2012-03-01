@@ -112,6 +112,12 @@ namespace NyanTron
 
             camera.Update(thePlayer);
 
+            if (!isPlayerWallCollision(thePlayer, wallBox))
+            {
+                thePlayer.Position = new Vector3(0, 0, 0);
+                thePlayer.Rotation = Quaternion.Identity;
+            }
+
             base.Update(gameTime);
         }
 
@@ -129,19 +135,19 @@ namespace NyanTron
             if (keyState.IsKeyDown(Keys.Escape))
                 this.Exit();
 
-            if (keyState.IsKeyDown(Keys.Right))
+            if (keyState.IsKeyDown(Keys.D))
                 leftRightRot -= TURNINGSPEED;
-            if (keyState.IsKeyDown(Keys.Left))
+            if (keyState.IsKeyDown(Keys.A))
                 leftRightRot += TURNINGSPEED;
 
-            if (keyState.IsKeyDown(Keys.Down))
+            if (keyState.IsKeyDown(Keys.S))
                 upDownRot -= TURNINGSPEED;
-            if (keyState.IsKeyDown(Keys.Up))
+            if (keyState.IsKeyDown(Keys.W))
                 upDownRot += TURNINGSPEED;
 
-            if (keyState.IsKeyDown(Keys.A))
+            if (keyState.IsKeyDown(Keys.Q))
                 rollRot -= TURNINGSPEED;
-            if (keyState.IsKeyDown(Keys.D))
+            if (keyState.IsKeyDown(Keys.E))
                 rollRot += TURNINGSPEED;
 
             Quaternion additionalRot = Quaternion.CreateFromAxisAngle(new Vector3(0, 0, -1), leftRightRot) * Quaternion.CreateFromAxisAngle(new Vector3(1, 0, 0), upDownRot) * Quaternion.CreateFromAxisAngle(new Vector3(0, 1, 0), rollRot);
@@ -169,24 +175,9 @@ namespace NyanTron
             base.Draw(gameTime);
         }
 
-        //Source: http://www.toymaker.info/Games/XNA/html/xna_model_collisions.html
-        //The first argument as an axis-aligned bounding box
-        //The second argument is the wallbox we use in-game
-        private bool CheckWallCollision(BoundingBox AABB, Wallbox theBox)
+        private bool isPlayerWallCollision(Player thePlayer, Wallbox theBox)
         {
-            // firstly extract the corners of the AABB into 8 vectors - 1 for each corner
-            Vector3[] obb=new Vector3[8];
-            AABB.GetCorners(obb);
-
-            // Transform the vectors by the model's world matrix
-            Vector3.Transform(obb, ref ModelHelper.modelTwo_WorldMatrix, obb);
-
-            // create an AABB in world space form the OBB in world space
-            BoundingBox worldAABBModel = BoundingBox.CreateFromPoints(obb);
-
-            BoundingBox wallBoxAABB = theBox.BoundingBox;
-
-            return worldAABBModel.Intersects(wallBoxAABB);
+            return theBox.BoundingBox.Intersects(thePlayer.BoundingBox);
         }
     }
 }

@@ -20,6 +20,8 @@ namespace NyanTron
         const float SPEED = 1f;
 
         BoundingBox bBox;
+        Vector3 B_BOX_MIN_DEFAULT = new Vector3(0, 0, 0);
+        Vector3 B_BOX_MAX_DEFAULT = new Vector3(2, 2, 2);
 
         public Quaternion Rotation 
         {
@@ -46,8 +48,10 @@ namespace NyanTron
                 Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(rotation) * 
                 Matrix.CreateTranslation(position));
 
-            
-            bBox = ModelHelper.CalculateBoundingBox(ModelHelper.modelTwo);
+            Vector3 minCorner = B_BOX_MIN_DEFAULT;
+            Vector3 maxCorner = B_BOX_MAX_DEFAULT;
+
+            bBox = new BoundingBox(minCorner, maxCorner);
         }
 
         public void Update()
@@ -59,18 +63,22 @@ namespace NyanTron
             ModelHelper.modelTwo_WorldMatrix = (Matrix.CreateScale(0.0005f, 0.0005f, 0.0005f) *
                 Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(rotation) * 
                 Matrix.CreateTranslation(position));
+
+            UpdateBoundingBox();
         }
 
-        //Returns an oriented bounding box given an axis-aligned bounding box
-        //Source: http://www.toymaker.info/Games/XNA/html/xna_model_collisions.html
-        public BoundingBox UpdateBoundingBox(BoundingBox AABB)
+        private void UpdateBoundingBox()
         {
-            Vector3[] OBB = new Vector3[8];
-            AABB.GetCorners(OBB);
+            Vector3 minCorner = B_BOX_MIN_DEFAULT;
+            Vector3 maxCorner = B_BOX_MAX_DEFAULT;
 
-            Vector3.Transform(OBB, ref ModelHelper.modelTwo_WorldMatrix, OBB);
+            Vector3.Transform(minCorner, rotation);
+            Vector3.Transform(maxCorner, rotation);
 
-            BoundingBox result = new BoundingBox(
+            minCorner += position;
+            maxCorner += position;
+
+            bBox = new BoundingBox(minCorner, maxCorner);
         }
 
         public void MoveForward()
