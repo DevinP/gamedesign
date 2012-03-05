@@ -70,8 +70,7 @@ namespace NyanTron
             {
                 DrawModel(camera, trailModel, currentTrail.WorldMatrix);
             }
-            
-            
+
         }
 
         /// <summary>

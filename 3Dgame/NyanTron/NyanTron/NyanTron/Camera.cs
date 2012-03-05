@@ -17,7 +17,8 @@ namespace NyanTron
 {
     class Camera
     {
-        static Vector3 DEFAULTPOSITION = new Vector3(-1f, 0f, -1.5f);
+        //static Vector3 DEFAULTPOSITION = new Vector3(-10f, 0f, -10f);   //Debug Camera
+        static Vector3 DEFAULTPOSITION = new Vector3(-1f, 0f, -1.5f); //Play Camera
         static Vector3 DEFAULTUP = new Vector3(0, 0, -1);
         static Vector3 DEFAULTTARGET = new Vector3(1, 4, 0);
 

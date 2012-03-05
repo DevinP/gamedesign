@@ -20,8 +20,12 @@ namespace NyanTron
         const float SPEED = 0.25f;
 
         BoundingBox bBox;
-        Vector3 B_BOX_MIN_DEFAULT = new Vector3(0, 0, 0);
-        Vector3 B_BOX_MAX_DEFAULT = new Vector3(2, 2, 2);
+        Vector3 B_BOX_MIN_DEFAULT = new Vector3(0, 0f, 0);
+        Vector3 B_BOX_MAX_DEFAULT = new Vector3(-0.2f, 2.3f, -1f);
+
+        BoundingOrientedBox bOBox;
+
+
 
         public Quaternion Rotation 
         {
@@ -35,10 +39,10 @@ namespace NyanTron
             set { position = value; }
         }
 
-        public BoundingBox BoundingBox
+        public BoundingOrientedBox BoundingBox
         {
-            get { return bBox; }
-            set { bBox = value; }
+            get { return bOBox; }
+            set { bOBox = value; }
         }
 
         public Player()
@@ -48,10 +52,8 @@ namespace NyanTron
                 Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(rotation) * 
                 Matrix.CreateTranslation(position));
 
-            Vector3 minCorner = B_BOX_MIN_DEFAULT;
-            Vector3 maxCorner = B_BOX_MAX_DEFAULT;
-
-            bBox = new BoundingBox(minCorner, maxCorner);
+            UpdateBoundingBox();
+            
         }
 
         public void Update()
@@ -72,13 +74,10 @@ namespace NyanTron
             Vector3 minCorner = B_BOX_MIN_DEFAULT;
             Vector3 maxCorner = B_BOX_MAX_DEFAULT;
 
-            Vector3.Transform(minCorner, rotation);
-            Vector3.Transform(maxCorner, rotation);
-
-            minCorner += position;
-            maxCorner += position;
-
             bBox = new BoundingBox(minCorner, maxCorner);
+            bOBox = BoundingOrientedBox.CreateFromBoundingBox(bBox);
+
+            bOBox = bOBox.Transform(rotation, position);
         }
 
         public void MoveForward()

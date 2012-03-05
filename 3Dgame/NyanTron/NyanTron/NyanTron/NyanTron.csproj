@@ -110,7 +110,9 @@
     <Compile Include="BoundingBoxSampleCode.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="BoundingOrientedBox.cs" />
     <Compile Include="Camera.cs" />
+    <Compile Include="DebugShapeRenderer.cs" />
     <Compile Include="ModelHelper.cs" />
     <Compile Include="NyanRotSampleCode.cs" />
     <Compile Include="Player.cs" />

@@ -24,16 +24,33 @@ namespace NyanTron
 
         Texture2D wallTexture;  //The texture to be applied to the wallbox
 
+        Texture2D titleScreen;
+
+        bool gameStarted = false;
+
         Wallbox wallBox;        //The wallbox which will contain the player
 
         Camera camera;          //The camera object, used to determine what the player sees
 
         Player thePlayer;       //The player. Specifically, the player's NyanCat avatar
 
+        SpriteFont scoreFont;
+        SpriteFont endGameFont;
+
         public static List<Trail> trails;
 
+        float trailDrop_Timer = 0f;
+        const float TRAILDROP_LIMIT = 68f;
 
+        float gamePause_Timer = 0f;
+        const float GAMEPAUSE_LIMIT = 1500f;
+        bool gamePaused = false;
 
+        int playerScore = 0;
+
+        const bool DRAWDEBUGBOXES = false;
+
+        const int MAXTRAILS = 800;
 
         public Game1()
         {
@@ -69,6 +86,9 @@ namespace NyanTron
             thePlayer = new Player();
 
             trails = new List<Trail>();
+         
+
+
 
             base.Initialize();
         }
@@ -91,6 +111,15 @@ namespace NyanTron
             bgm = Content.Load<Song>("NyanCat");
             MediaPlayer.Play(bgm);
             MediaPlayer.IsRepeating = true;
+
+            scoreFont = Content.Load<SpriteFont>("scoreFont");
+            endGameFont = Content.Load<SpriteFont>("endGameFont");
+
+            titleScreen = Content.Load<Texture2D>("tron-nyan");
+
+            DebugShapeRenderer.Initialize(device);
+
+
         }
 
         /// <summary>
@@ -111,21 +140,73 @@ namespace NyanTron
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            //Process the input to the game
-            ProcessKeyboard(gameTime);
 
-            //Update the player's position and rotation
-            thePlayer.Update();
-
-            camera.Update(thePlayer);
-
-            dropTrail();
-
-            if (!isPlayerWallCollision(thePlayer, wallBox) || isPlayerTrailCollision(thePlayer, trails))
+            if (!gameStarted)
             {
-                thePlayer.Position = new Vector3(0, 0, 0);
-                thePlayer.Rotation = Quaternion.Identity;
-                trails = new List<Trail>();
+
+                #region Title Screen Mode
+
+                // Allows the game to exit
+                if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                    this.Exit();
+
+                if (Keyboard.GetState().IsKeyDown(Keys.Space))
+                    gameStarted = true;
+
+                #endregion
+
+            }
+            else
+            {
+                #region Gameplay Mode
+
+                if (!gamePaused)
+                {
+
+                    //Process the input to the game
+                    ProcessKeyboard(gameTime);
+
+                    //Update the player's position and rotation
+                    thePlayer.Update();
+
+                    camera.Update(thePlayer);
+
+                    trailDrop_Timer += (float)gameTime.ElapsedGameTime.Milliseconds;
+
+                    if (trailDrop_Timer >= TRAILDROP_LIMIT)
+                    {
+                        dropTrail();
+                        trailDrop_Timer = 0;
+                        playerScore++;
+                    }
+
+
+                    if (!isPlayerWallCollision(thePlayer, wallBox) || isPlayerTrailCollision(thePlayer, trails))
+                    {
+                        thePlayer.Position = new Vector3(0, 0, 0);
+                        thePlayer.Rotation = Quaternion.Identity;
+                        
+                        gamePaused = true;
+                    }
+                }
+                else
+                {
+                    // Allows the game to exit
+                    if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                        this.Exit();
+
+                    gamePause_Timer += (float)gameTime.ElapsedGameTime.Milliseconds;
+
+                    if (gamePause_Timer >= GAMEPAUSE_LIMIT)
+                    {
+                        gamePaused = false;
+                        gamePause_Timer = 0;
+                        trails = new List<Trail>();
+                        playerScore = 0;
+                    }
+                }
+
+                #endregion
             }
 
             base.Update(gameTime);
@@ -167,10 +248,10 @@ namespace NyanTron
 
         void dropTrail()
         {
-            if (trails.Count == 0)
-                trails.Add(new Trail(thePlayer.Position, thePlayer.Rotation));
-            else if (!trails[trails.Count - 1].BoundingBox.Intersects(thePlayer.BoundingBox))
-                trails.Add(new Trail(thePlayer.Position, thePlayer.Rotation));
+            trails.Add(new Trail(thePlayer.Position, thePlayer.Rotation));
+
+            if (trails.Count >= 800)
+                trails.RemoveAt(0);
         }
 
 
@@ -185,17 +266,72 @@ namespace NyanTron
             /*RasterizerState rs = new RasterizerState();
             rs.CullMode = CullMode.None;
             device.RasterizerState = rs;*/
-           
-            wallBox.Draw(camera.viewMatrix, camera.projectionMatrix);
 
-            ModelHelper.drawModels(camera);
-            
-            base.Draw(gameTime);
+            if (!gameStarted)
+            {
+                #region Title Screen Mode
+
+                spriteBatch.Begin();
+
+                spriteBatch.Draw(titleScreen, new Rectangle(0, 0, 1280, 720), Color.White);
+
+                spriteBatch.DrawString(scoreFont, "W and S - Pitch Control", new Vector2(450, 10), Color.Honeydew);
+                spriteBatch.DrawString(scoreFont, "A and D - Yaw Control", new Vector2(450, 40), Color.Honeydew);
+                spriteBatch.DrawString(scoreFont, "Q and E - Roll Control", new Vector2(450, 70), Color.Honeydew);
+
+                if (gameTime.TotalGameTime.Milliseconds % 1000 < 700)
+                {
+                    spriteBatch.DrawString(scoreFont, "Press space to begin", new Vector2(500, 500), Color.HotPink);
+                }
+
+                spriteBatch.End();
+
+                #endregion
+            }
+            else
+            {
+                #region Gameplay mode
+                wallBox.Draw(camera.viewMatrix, camera.projectionMatrix);
+
+                ModelHelper.drawModels(camera);
+
+                if (DRAWDEBUGBOXES)
+                {
+                    DebugShapeRenderer.AddBoundingBox(thePlayer.BoundingBox, Color.Aqua, 0f);
+
+                    foreach (Trail currentTrail in trails)
+                    {
+                        DebugShapeRenderer.AddBoundingBox(currentTrail.BoundingBox, Color.Beige, 0f);
+                    }
+
+                    DebugShapeRenderer.Draw(gameTime, camera.viewMatrix, camera.projectionMatrix);
+                }
+
+                spriteBatch.Begin();
+
+                spriteBatch.DrawString(scoreFont, "Esc - Exit", new Vector2(10, 10), Color.HotPink);
+                spriteBatch.DrawString(scoreFont, "Score: " + playerScore, new Vector2(1090, 10), Color.HotPink);
+
+                if (gamePaused)
+                    spriteBatch.DrawString(endGameFont, "Y O U  C R A S H E D", new Vector2(350, 250), Color.Orange);
+
+                spriteBatch.End();
+
+
+                #endregion
+            }
+
+            GraphicsDevice.BlendState = BlendState.Opaque;
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+
+            base.Draw(gameTime); 
         }
 
         private bool isPlayerWallCollision(Player thePlayer, Wallbox theBox)
         {
-            return theBox.BoundingBox.Intersects(thePlayer.BoundingBox);
+            //return theBox.BoundingBox.Intersects(thePlayer.BoundingBox);
+            BoundingBox wallBoxBox = theBox.BoundingBox;
+            return thePlayer.BoundingBox.Intersects(ref wallBoxBox);
         }
 
         private bool isPlayerTrailCollision(Player thePlayer, List<Trail> theTrails)
@@ -205,7 +341,8 @@ namespace NyanTron
 
             for (int i = 0; i < theTrails.Count - 2; i++)
             {
-                if (thePlayer.BoundingBox.Intersects(theTrails[i].BoundingBox))
+                BoundingOrientedBox trailBox = theTrails[i].BoundingBox;
+                if (thePlayer.BoundingBox.Intersects(ref trailBox))
                     return true;
             }
 

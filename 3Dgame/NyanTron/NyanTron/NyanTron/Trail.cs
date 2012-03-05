@@ -21,7 +21,7 @@ namespace NyanTron
 
         Matrix trail_WorldMatrix;
 
-
+        BoundingOrientedBox bOBox;
 
         public Quaternion Rotation
         {
@@ -35,10 +35,10 @@ namespace NyanTron
             set { position = value; }
         }
 
-        public BoundingBox BoundingBox
+        public BoundingOrientedBox BoundingBox
         {
-            get { return bBox; }
-            set { bBox = value; }
+            get { return bOBox; }
+            set { bOBox = value; }
         }
 
         public Matrix WorldMatrix
@@ -51,23 +51,25 @@ namespace NyanTron
 
         public Trail(Vector3 playerPos, Quaternion playerRot)
         {
-            position = playerPos;
+            position = playerPos + Vector3.Transform(new Vector3(0, -0.8f, -1f), playerRot); 
             rotation = playerRot;
-
-
-            /*trail_WorldMatrix = (Matrix.CreateScale(0.0005f, 0.0005f, 0.0005f) *
-                Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(rotation) *
-                Matrix.CreateTranslation(position));*/
 
             trail_WorldMatrix = Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(rotation)
                 * Matrix.CreateTranslation(position);
 
-            Vector3 bBox_Min = new Vector3(position.X - 1, position.Y - 1, position.Z - 1);
-            Vector3 bBox_Max = new Vector3(position.X + 1, position.Y + 1, position.Z + 1);
-            Vector3.Transform(bBox_Min, rotation);
-            Vector3.Transform(bBox_Max, rotation);
+            //Vector3 bBox_Min = new Vector3(position.X - 0, position.Y - 0.8f, position.Z - 0);
+            //Vector3 bBox_Max = new Vector3(position.X - 0.1f, position.Y + 0.8f, position.Z + 1);
+            //Vector3 bBox_Min = new Vector3(0, -0.8f, 0);
+            //Vector3 bBox_Max = new Vector3(-0.2f, 0.8f, 1f);
+
+            Vector3 bBox_Min = new Vector3(0.1f, -0.8f, 0);
+            Vector3 bBox_Max = new Vector3(-0.1f, 0.8f, 1f);
 
             bBox = new BoundingBox(bBox_Min, bBox_Max);
+
+            bOBox = BoundingOrientedBox.CreateFromBoundingBox(bBox);
+
+            bOBox = bOBox.Transform(rotation, position);
         }
     }
 }
