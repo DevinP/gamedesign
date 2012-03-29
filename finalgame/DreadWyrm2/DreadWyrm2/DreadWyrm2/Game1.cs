@@ -29,6 +29,7 @@ namespace DreadWyrm2
         Texture2D t2dtransparentBlack;                     //A partially transparent texture to draw over the game
         Texture2D t2dupgradeBox;                           //A box to put upgrade messages in
         Texture2D t2dupgradeArrow;                         //Arrow to indicate which upgrade the player will select
+        Texture2D mouseCursorTex;                          //The texture for the human players' mouse cursor
         List<Texture2D> preyTextures;                      //The textures used by the prey
         Song bgm;                                          //The background music for the game
         Song bgm2;
@@ -55,9 +56,12 @@ namespace DreadWyrm2
         Texture2D bulletTexture;                            //The sprite for the bullets used by enemies
         Texture2D cannonballTexture;                        //The sprite for tank shells
 
-        Texture2D t2dbackground;                            //The background sprite
-        Texture2D t2dforeground;                            //The foreground sprite (part of the background)
-        Player thePlayer;                                   //The player of the game
+        Texture2D t2dbackgroundSinglePlayer;                //The background sprite
+        Texture2D t2dforegroundSinglePlayer;                //The foreground sprite (part of the background)
+        Texture2D t2dbackgroundTwoPlayer;                   //The background sprite for the multiplayer arena
+        Texture2D t2dforegroundTwoPlayer;                   //The foreground sprite for the multiplayer arena
+        WyrmPlayer theWyrmPlayer;                           //The wyrm player of the game
+        HumanPlayer theHumanPlayer;                         //The human player of the game
         public static List<Prey> prey;                      //The edible things on screen
         List<List<int>> levelPrey;                          //The things which must be eaten to advance the wave
         public static Texture2D explosionTexture;           //Explosion animations
@@ -69,6 +73,7 @@ namespace DreadWyrm2
         bool victory = false;                               //The player has won
         bool instructionMode = false;
         bool titleTransitionOk = true;
+        bool isTwoPlayer = false;
 
         int currWave = 1;
 
@@ -142,6 +147,12 @@ namespace DreadWyrm2
 
         float waveSpawnCounter = 0;
 
+        //DEBUG VARIABLES
+        Texture2D debugTex;
+
+        //TEMP THINGS - MOVE TO THEIR PROPER CLASSES
+        List<Vector2> debugLocs;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -184,6 +195,8 @@ namespace DreadWyrm2
             t2dupgradeBox = Content.Load<Texture2D>(@"Textures\wordbubble");
             t2dupgradeArrow = Content.Load<Texture2D>(@"Textures\arrow");
 
+            mouseCursorTex = Content.Load<Texture2D>(@"Textures\cursor");
+
             roar = Content.Load<SoundEffect>(@"Sounds\Predator Roar");
             chomp = Content.Load<SoundEffect>(@"Sounds\aud_chomp");
             explosion = Content.Load<SoundEffect>(@"Sounds\explosion");
@@ -206,8 +219,12 @@ namespace DreadWyrm2
             bulletTexture = Content.Load<Texture2D>(@"Textures\bullet");
             cannonballTexture = Content.Load<Texture2D>(@"Textures\cannonball");
 
-            t2dbackground = Content.Load<Texture2D>(@"Textures\background");
-            t2dforeground = Content.Load<Texture2D>(@"Textures\foreground");
+            t2dbackgroundSinglePlayer = Content.Load<Texture2D>(@"Textures\background");
+            t2dforegroundSinglePlayer = Content.Load<Texture2D>(@"Textures\foreground");
+
+            //For now, the background for multiplayer is the same for single player
+            t2dbackgroundTwoPlayer = Content.Load<Texture2D>(@"Textures\background");
+            t2dforegroundTwoPlayer = Content.Load<Texture2D>(@"Textures\foreground");
 
             preyTextures = new List<Texture2D>();
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\giraffe"));
@@ -263,18 +280,18 @@ namespace DreadWyrm2
             // Querying them multiple times per Update
             KeyboardState keystate = Keyboard.GetState();
 
-            // If the Escape Key is pressed, exit the game.
-            //if (keystate.IsKeyDown(Keys.Escape))
-            //    this.Exit();
+            //If the Escape Key is pressed, exit the game.
+            if (keystate.IsKeyDown(Keys.Escape))
+                this.Exit();
 
             if (gameOver)
             {
                 elapsedTimeGameEnd += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-                thePlayer.healthAfterRegen = 0;
+                theWyrmPlayer.healthAfterRegen = 0;
 
                 if (elapsedTimeGameEnd > 3)
-                    endGame();
+                    endSinglePlayerGame();
 
                 return;
             }
@@ -321,168 +338,236 @@ namespace DreadWyrm2
             {
                 #region GamePlay Mode (m_gameStarted == true)
 
-                if (keystate.IsKeyDown(Keys.U) && upgradeModeCanSwitch)
+                if (!isTwoPlayer)
                 {
-                    //Toggle the upgrade mode
+                    #region onePlayerMode
+
+                    if (keystate.IsKeyDown(Keys.U) && upgradeModeCanSwitch)
+                    {
+                        //Toggle the upgrade mode
+                        if (upgradeMode)
+                            upgradeMode = false;
+                        else if (!upgradeMode)
+                            upgradeMode = true;
+
+                        upgradeModeCanSwitch = false;
+                    }
+                    else if (keystate.IsKeyUp(Keys.U) && !upgradeModeCanSwitch)
+                    {
+                        upgradeModeCanSwitch = true;
+                    }
+
                     if (upgradeMode)
-                        upgradeMode = false;
-                    else if (!upgradeMode)
-                        upgradeMode = true;
-
-                    upgradeModeCanSwitch = false;
-                }
-                else if (keystate.IsKeyUp(Keys.U) && !upgradeModeCanSwitch)
-                {
-                    upgradeModeCanSwitch = true;
-                }
-
-                if (upgradeMode)
-                {
-                    #region Upgrade Mode (upgradeMode == true)
-
-                    if (keystate.IsKeyDown(Keys.Left))
                     {
-                        upgradeArrowDir = (float)Math.PI; //Speed burst
-                    }
-                    else if (keystate.IsKeyDown(Keys.Down))
-                    {
-                        upgradeArrowDir = (float)(Math.PI / 2); //Dig speed
-                    }
-                    else if (keystate.IsKeyDown(Keys.Right))
-                    {
-                        upgradeArrowDir = 0; //Max health
-                    }
-                    else if (keystate.IsKeyDown(Keys.Up))
-                    {
-                        upgradeArrowDir = (float)((3 * Math.PI) / 2); //Health regen
-                    }
+                        #region Upgrade Mode (upgradeMode == true)
 
-                    if (keystate.IsKeyDown(Keys.Enter) && !upgraded)
-                    {
-                        upgraded = true;
-
-                        if (upgradeArrowDir == (float)Math.PI) //Stamina
+                        if (keystate.IsKeyDown(Keys.Left))
                         {
-                            if (!(thePlayer.Meat < staminaCost))
+                            upgradeArrowDir = (float)Math.PI; //Speed burst
+                        }
+                        else if (keystate.IsKeyDown(Keys.Down))
+                        {
+                            upgradeArrowDir = (float)(Math.PI / 2); //Dig speed
+                        }
+                        else if (keystate.IsKeyDown(Keys.Right))
+                        {
+                            upgradeArrowDir = 0; //Max health
+                        }
+                        else if (keystate.IsKeyDown(Keys.Up))
+                        {
+                            upgradeArrowDir = (float)((3 * Math.PI) / 2); //Health regen
+                        }
+
+                        if (keystate.IsKeyDown(Keys.Enter) && !upgraded)
+                        {
+                            upgraded = true;
+
+                            if (upgradeArrowDir == (float)Math.PI) //Stamina
                             {
-                                if ((thePlayer.MaxStamina + STAMINA_UPGRADE_INCR) >= STAMINA_MAX)
+                                if (!(theWyrmPlayer.Meat < staminaCost))
                                 {
-                                    thePlayer.MaxStamina = STAMINA_MAX;
+                                    if ((theWyrmPlayer.MaxStamina + STAMINA_UPGRADE_INCR) >= STAMINA_MAX)
+                                    {
+                                        theWyrmPlayer.MaxStamina = STAMINA_MAX;
+                                    }
+                                    else
+                                    {
+                                        theWyrmPlayer.MaxStamina += STAMINA_UPGRADE_INCR;
+                                        theWyrmPlayer.Meat -= staminaCost;
+                                        staminaCost += STAMINA_COST_INCR;
+                                    }
+                                }
+                            }
+
+                            else if (upgradeArrowDir == (float)(Math.PI / 2)) //Dig Speed
+                            {
+                                if (!(theWyrmPlayer.Meat < digSpeedCost))
+                                {
+                                    if ((theWyrmPlayer.theWyrm.HeadSpeedMax + DIGSPEED_UPGRADE_INCR) > SPEEDMAX)
+                                    {
+                                        theWyrmPlayer.theWyrm.HeadSpeedMax = SPEEDMAX;
+                                    }
+                                    else
+                                    {
+                                        theWyrmPlayer.theWyrm.HeadSpeedMax += DIGSPEED_UPGRADE_INCR;
+                                        theWyrmPlayer.theWyrm.HeadSpeedNormalMax += DIGSPEED_UPGRADE_INCR;
+                                        theWyrmPlayer.theWyrm.HeadSpeedBoostMax += DIGSPEED_UPGRADE_INCR * WYRM_BOOST_FACTOR;
+                                        theWyrmPlayer.Meat -= digSpeedCost;
+                                        digSpeedCost += DIGSPEED_COST_INCR;
+                                    }
+                                }
+
+                            }
+                            else if (upgradeArrowDir == 0) //Max Health
+                            {
+                                if (!(theWyrmPlayer.Meat < maxHealthCost) && (theWyrmPlayer.HealthMax + MAXHEALTH_UPGRADE_INCR <= HEALTHMAX_MAX))
+                                {
+                                    theWyrmPlayer.HealthMax += MAXHEALTH_UPGRADE_INCR;
+                                    theWyrmPlayer.Meat -= maxHealthCost;
+                                    maxHealthCost += MAXHEALTH_COST_INCR;
+                                    regenCost += REGEN_COST_INCR;
+
+                                    theWyrmPlayer.healthPerMS = (float)((theWyrmPlayer.REGEN_FACTOR * theWyrmPlayer.HealthMax) / (theWyrmPlayer.REGEN_DURATION));
+                                    theWyrmPlayer.healthAfterRegen =
+                                        theWyrmPlayer.Health + ((theWyrmPlayer.REGEN_DURATION - theWyrmPlayer.elapsedTimeTotalRegen) * theWyrmPlayer.healthPerMS)
+                                        + (theWyrmPlayer.REGEN_DURATION * theWyrmPlayer.healthPerMS * (theWyrmPlayer.regen - 1));
+                                }
+
+                            }
+                            else if (upgradeArrowDir == (float)((3 * Math.PI) / 2)) //Health Regen
+                            {
+                                //Make sure the player has enough meat and is missing health
+                                if (!(theWyrmPlayer.Meat < regenCost) && (theWyrmPlayer.Health < theWyrmPlayer.HealthMax))
+                                {
+                                    theWyrmPlayer.healthPerMS = (float)((theWyrmPlayer.REGEN_FACTOR * theWyrmPlayer.HealthMax) / (theWyrmPlayer.REGEN_DURATION));
+                                    theWyrmPlayer.healthAfterRegen += theWyrmPlayer.REGEN_DURATION * theWyrmPlayer.healthPerMS;
+
+                                    if (theWyrmPlayer.healthAfterRegen < theWyrmPlayer.HealthMax * 1.24)
+                                    {
+                                        theWyrmPlayer.regen++;
+                                        theWyrmPlayer.Meat -= regenCost;
+                                    }
+                                }
+                            }
+                        }
+                        else if (keystate.IsKeyUp(Keys.Enter))
+                            upgraded = false;
+
+                        #endregion
+                    }
+                    else
+                    {
+                        #region Play Mode (upgradeMode == false)
+
+                        theBackground.Update();
+
+                        checkEat();
+
+                        int numPrey = prey.Count;
+
+                        for (int i = 0; i < prey.Count; i++)
+                        {
+                            prey[i].Update(gameTime);
+
+                            if (prey[i].isMine)
+                                numPrey--;
+                        }
+
+                        for (int i = 0; i < bullets.Count; i++)
+                        {
+                            bullets[i].Update(gameTime);
+                        }
+
+                        theWyrmPlayer.Update(gameTime, keystate);
+
+                        checkBullets();
+
+                        for (int i = 0; i < explosions.Count; i++)
+                        {
+                            explosions[i].Update(gameTime);
+
+                            if (explosions[i].isDone)
+                                explosions.RemoveAt(i);
+                        }
+
+                        //Make it so the player can't move off the screen
+                        for (int i = 0; i < WYRMSEGS; i++)
+                        {
+                            if (theWyrmPlayer.theWyrm.l_segments[i].X < 25)
+                                theWyrmPlayer.theWyrm.l_segments[i].X = 25;
+
+                            if (theWyrmPlayer.theWyrm.l_segments[i].X > SCREENWIDTH - 25)
+                                theWyrmPlayer.theWyrm.l_segments[i].X = (float)SCREENWIDTH - 25;
+
+                            // if (thePlayer.theWyrm.l_segments[i].Y < 0)
+                            //    thePlayer.theWyrm.l_segments[i].Y = 0;
+
+                            if (theWyrmPlayer.theWyrm.l_segments[i].Y > SCREENHEIGHT - 50)
+                                theWyrmPlayer.theWyrm.l_segments[i].Y = (float)SCREENHEIGHT - 50;
+                        }
+
+                        if (keystate.IsKeyDown(Keys.LeftControl) && canRoar)
+                        {
+                            roar.Play();
+                            canRoar = false;
+                        }
+                        else if (keystate.IsKeyUp(Keys.LeftControl) && !canRoar)
+                        {
+                            canRoar = true;
+                        }
+
+                        if (numPrey <= 0)
+                        {
+                            waveSpawnCounter += (float)gameTime.ElapsedGameTime.Milliseconds;
+
+                            if (waveSpawnCounter > 1500)
+                            {
+                                currWave++;
+
+                                if (currWave > numWaves)
+                                {
+                                    gameOver = true;
+                                    victory = true;
                                 }
                                 else
-                                {
-                                    thePlayer.MaxStamina += STAMINA_UPGRADE_INCR;
-                                    thePlayer.Meat -= staminaCost;
-                                    staminaCost += STAMINA_COST_INCR;
-                                }
-                            }
-                        }
+                                    startNewWave(currWave - 1);
 
-                        else if (upgradeArrowDir == (float)(Math.PI / 2)) //Dig Speed
-                        {
-                            if (!(thePlayer.Meat < digSpeedCost))
-                            {
-                                if ((thePlayer.theWyrm.HeadSpeedMax + DIGSPEED_UPGRADE_INCR) > SPEEDMAX)
-                                {
-                                    thePlayer.theWyrm.HeadSpeedMax = SPEEDMAX;
-                                }
-                                else
-                                {
-                                    thePlayer.theWyrm.HeadSpeedMax += DIGSPEED_UPGRADE_INCR;
-                                    thePlayer.theWyrm.HeadSpeedNormalMax += DIGSPEED_UPGRADE_INCR;
-                                    thePlayer.theWyrm.HeadSpeedBoostMax += DIGSPEED_UPGRADE_INCR * WYRM_BOOST_FACTOR;
-                                    thePlayer.Meat -= digSpeedCost;
-                                    digSpeedCost += DIGSPEED_COST_INCR;
-                                }
+                                waveSpawnCounter = 0;
                             }
 
                         }
-                        else if (upgradeArrowDir == 0) //Max Health
-                        {
-                            if (!(thePlayer.Meat < maxHealthCost) && (thePlayer.HealthMax + MAXHEALTH_UPGRADE_INCR <= HEALTHMAX_MAX))
-                            {
-                                thePlayer.HealthMax += MAXHEALTH_UPGRADE_INCR;
-                                thePlayer.Meat -= maxHealthCost;
-                                maxHealthCost += MAXHEALTH_COST_INCR;
-                                regenCost += REGEN_COST_INCR;
+                        else
+                            waveSpawnCounter = 0;
 
-                                thePlayer.healthPerMS = (float)((thePlayer.REGEN_FACTOR * thePlayer.HealthMax) / (thePlayer.REGEN_DURATION));
-                                thePlayer.healthAfterRegen =
-                                    thePlayer.Health + ((thePlayer.REGEN_DURATION - thePlayer.elapsedTimeTotalRegen) * thePlayer.healthPerMS)
-                                    + (thePlayer.REGEN_DURATION * thePlayer.healthPerMS * (thePlayer.regen - 1));
-                            }
-
-                        }
-                        else if (upgradeArrowDir == (float)((3 * Math.PI) / 2)) //Health Regen
-                        {
-                            //Make sure the player has enough meat and is missing health
-                            if (!(thePlayer.Meat < regenCost) && (thePlayer.Health < thePlayer.HealthMax))
-                            {
-                                thePlayer.healthPerMS = (float)((thePlayer.REGEN_FACTOR * thePlayer.HealthMax) / (thePlayer.REGEN_DURATION));
-                                thePlayer.healthAfterRegen += thePlayer.REGEN_DURATION * thePlayer.healthPerMS;
-
-                                if (thePlayer.healthAfterRegen < thePlayer.HealthMax * 1.24)
-                                {
-                                    thePlayer.regen++;
-                                    thePlayer.Meat -= regenCost;
-                                }
-                            }
-                        }
+                        #endregion
                     }
-                    else if (keystate.IsKeyUp(Keys.Enter))
-                        upgraded = false;
 
                     #endregion
                 }
                 else
                 {
-                    #region Play Mode (upgradeMode == false)
+                    #region twoPlayerMode
 
                     theBackground.Update();
 
-                    checkEat();
+                    theWyrmPlayer.Update(gameTime, keystate);
 
-                    int numPrey = prey.Count;
-
-                    for (int i = 0; i < prey.Count; i++)
-                    {
-                        prey[i].Update(gameTime);
-
-                        if (prey[i].isMine)
-                            numPrey--;
-                    }
-
-                    for (int i = 0; i < bullets.Count; i++)
-                    {
-                        bullets[i].Update(gameTime);
-                    }
-
-                    thePlayer.Update(gameTime, keystate);
-
-                    checkBullets();
-
-                    for (int i = 0; i < explosions.Count; i++)
-                    {
-                        explosions[i].Update(gameTime);
-
-                        if (explosions[i].isDone)
-                            explosions.RemoveAt(i);
-                    }
+                    theHumanPlayer.Update(gameTime);
 
                     //Make it so the player can't move off the screen
                     for (int i = 0; i < WYRMSEGS; i++)
                     {
-                        if (thePlayer.theWyrm.l_segments[i].X < 25)
-                            thePlayer.theWyrm.l_segments[i].X = 25;
+                        if (theWyrmPlayer.theWyrm.l_segments[i].X < 25)
+                            theWyrmPlayer.theWyrm.l_segments[i].X = 25;
 
-                        if (thePlayer.theWyrm.l_segments[i].X > SCREENWIDTH - 25)
-                            thePlayer.theWyrm.l_segments[i].X = (float)SCREENWIDTH - 25;
+                        if (theWyrmPlayer.theWyrm.l_segments[i].X > SCREENWIDTH - 25)
+                            theWyrmPlayer.theWyrm.l_segments[i].X = (float)SCREENWIDTH - 25;
 
                         // if (thePlayer.theWyrm.l_segments[i].Y < 0)
                         //    thePlayer.theWyrm.l_segments[i].Y = 0;
 
-                        if (thePlayer.theWyrm.l_segments[i].Y > SCREENHEIGHT - 50)
-                            thePlayer.theWyrm.l_segments[i].Y = (float)SCREENHEIGHT - 50;
+                        if (theWyrmPlayer.theWyrm.l_segments[i].Y > SCREENHEIGHT - 50)
+                            theWyrmPlayer.theWyrm.l_segments[i].Y = (float)SCREENHEIGHT - 50;
                     }
 
                     if (keystate.IsKeyDown(Keys.LeftControl) && canRoar)
@@ -494,29 +579,6 @@ namespace DreadWyrm2
                     {
                         canRoar = true;
                     }
-
-                    if (numPrey <= 0)
-                    {
-                        waveSpawnCounter += (float)gameTime.ElapsedGameTime.Milliseconds;
-
-                        if (waveSpawnCounter > 1500)
-                        {
-                            currWave++;
-
-                            if (currWave > numWaves)
-                            {
-                                gameOver = true;
-                                victory = true;
-                            }
-                            else
-                                startNewWave(currWave - 1);
-
-                            waveSpawnCounter = 0;
-                        }
-
-                    }
-                    else
-                        waveSpawnCounter = 0;
 
                     #endregion
                 }
@@ -533,12 +595,21 @@ namespace DreadWyrm2
                     nuxmode = false;
                     instructionMode = true;
                     titleTransitionOk = false;
+                    isTwoPlayer = false;
                 }
                 else if (keystate.IsKeyDown(Keys.N))
                 {
                     nuxmode = true;
                     instructionMode = true;
                     titleTransitionOk = false;
+                    isTwoPlayer = false;
+                }
+                else if (keystate.IsKeyDown(Keys.T))
+                {
+                    nuxmode = false;
+                    instructionMode = false;
+                    titleTransitionOk = false;
+                    startNewMultiPlayerGame();
                 }
 
                 if (keystate.IsKeyUp(Keys.Space))
@@ -554,7 +625,7 @@ namespace DreadWyrm2
                 {
                     instructionMode = false;
                     titleTransitionOk = false;
-                    startNewGame(nuxmode);
+                    startNewSinglePlayerGame(nuxmode);
                 }
 
                 if (keystate.IsKeyUp(Keys.Space))
@@ -595,103 +666,124 @@ namespace DreadWyrm2
             {
                 #region Game Play Mode (m_gameStarted == true)
 
-                //spriteBatch.Draw(t2dmainBackground, new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT), Color.White);
-                theBackground.Draw(spriteBatch);
-
-                for (int i = 0; i < prey.Count; i++)
+                if (!isTwoPlayer)
                 {
-                    prey[i].Draw(spriteBatch);
-                }
+                    #region onePlayerMode
+                    //spriteBatch.Draw(t2dmainBackground, new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT), Color.White);
+                    theBackground.Draw(spriteBatch);
 
-                thePlayer.Draw(spriteBatch);
-
-                for (int i = 0; i < bullets.Count; i++)
-                {
-                    bullets[i].Draw(spriteBatch);
-                }
-
-                for (int i = 0; i < explosions.Count; i++)
-                {
-                    explosions[i].Draw(spriteBatch);
-                }
-
-                if (victory)
-                {
-                    spriteBatch.DrawString(titleFont, "YOU ATE ALL THE THINGS", new Vector2(500, 150), Color.Red);
-                }
-
-                spriteBatch.DrawString(scoreFont, "Level: " + currWave, new Vector2(1120, 10), Color.Red);
-
-                if (upgradeMode)
-                {
-                    //Draw the partly-transparent black layer over the screen to darken it
-                    spriteBatch.Draw(t2dtransparentBlack, new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT), Color.White);
-
-                    //Draw each upgrade box
-                    spriteBatch.Draw(t2dupgradeBox, new Rectangle(515, 60, 250, 150), Color.White);
-                    spriteBatch.DrawString(upgradeFont, "METABOLISM BOOST", new Vector2(570, 87), Color.Red);
-                    spriteBatch.DrawString(upgradeFont, "Heal " + thePlayer.REGEN_FACTOR * 100 + "% of max health", new Vector2(545, 110), Color.Red);
-                    spriteBatch.DrawString(upgradeFont, "over " + thePlayer.REGEN_DURATION / 500 + " seconds", new Vector2(545, 125), Color.Red);
-                    if (thePlayer.Health >= thePlayer.HealthMax)
+                    for (int i = 0; i < prey.Count; i++)
                     {
-                        spriteBatch.DrawString(upgradeFont, "Already At Max Health", new Vector2(550, 40), Color.Red);
+                        prey[i].Draw(spriteBatch);
                     }
+
+                    theWyrmPlayer.Draw(spriteBatch);
+
+                    for (int i = 0; i < bullets.Count; i++)
+                    {
+                        bullets[i].Draw(spriteBatch);
+                    }
+
+                    for (int i = 0; i < explosions.Count; i++)
+                    {
+                        explosions[i].Draw(spriteBatch);
+                    }
+
+                    if (victory)
+                    {
+                        spriteBatch.DrawString(titleFont, "YOU ATE ALL THE THINGS", new Vector2(500, 150), Color.Red);
+                    }
+
+                    spriteBatch.DrawString(scoreFont, "Level: " + currWave, new Vector2(1120, 10), Color.Red);
+
+                    if (upgradeMode)
+                    {
+                        #region upgradeMode
+                        //Draw the partly-transparent black layer over the screen to darken it
+                        spriteBatch.Draw(t2dtransparentBlack, new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT), Color.White);
+
+                        //Draw each upgrade box
+                        spriteBatch.Draw(t2dupgradeBox, new Rectangle(515, 60, 250, 150), Color.White);
+                        spriteBatch.DrawString(upgradeFont, "METABOLISM BOOST", new Vector2(570, 87), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "Heal " + theWyrmPlayer.REGEN_FACTOR * 100 + "% of max health", new Vector2(545, 110), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "over " + theWyrmPlayer.REGEN_DURATION / 500 + " seconds", new Vector2(545, 125), Color.Red);
+                        if (theWyrmPlayer.Health >= theWyrmPlayer.HealthMax)
+                        {
+                            spriteBatch.DrawString(upgradeFont, "Already At Max Health", new Vector2(550, 40), Color.Red);
+                        }
+                        else
+                        {
+                            spriteBatch.DrawString(upgradeFont, "Cost: " + regenCost + " KG", new Vector2(585, 40), Color.Red);
+                        }
+
+                        spriteBatch.Draw(t2dupgradeBox, new Rectangle(515, 440, 250, 150), Color.White);
+                        spriteBatch.DrawString(upgradeFont, "MUSCLE VIBRATION", new Vector2(575, 467), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "Increase max dig speed", new Vector2(545, 490), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "by " + DIGSPEED_UPGRADE_INCR, new Vector2(545, 505), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "Current max speed: " + theWyrmPlayer.theWyrm.HeadSpeedNormalMax, new Vector2(545, 530), Color.Red);
+
+                        if ((theWyrmPlayer.theWyrm.HeadSpeedMax + DIGSPEED_UPGRADE_INCR) > SPEEDMAX)
+                            spriteBatch.DrawString(upgradeFont, "Maximum Upgrade Reached", new Vector2(540, 590), Color.Red);
+                        else
+                            spriteBatch.DrawString(upgradeFont, "Cost: " + digSpeedCost + " KG", new Vector2(590, 590), Color.Red);
+
+
+                        spriteBatch.Draw(t2dupgradeBox, new Rectangle(755, 250, 250, 150), Color.White);
+                        spriteBatch.DrawString(upgradeFont, "FAT TISSUE", new Vector2(837, 277), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "Increase max health by " + MAXHEALTH_UPGRADE_INCR, new Vector2(780, 305), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "Current max health: " + theWyrmPlayer.HealthMax, new Vector2(780, 330), Color.Red);
+
+                        if (theWyrmPlayer.HealthMax >= HEALTHMAX_MAX)
+                        {
+                            spriteBatch.DrawString(upgradeFont, "Maximum Upgrade Reached", new Vector2(785, 230), Color.Red);
+                        }
+                        else
+                        {
+                            spriteBatch.DrawString(upgradeFont, "Cost: " + maxHealthCost + " KG", new Vector2(817, 230), Color.Red);
+                        }
+
+                        spriteBatch.Draw(t2dupgradeBox, new Rectangle(275, 250, 250, 150), Color.White);
+                        spriteBatch.DrawString(upgradeFont, "MUSCLE COILING", new Vector2(338, 278), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "Increase max stamina", new Vector2(310, 300), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "by " + STAMINA_UPGRADE_INCR, new Vector2(310, 315), Color.Red);
+                        spriteBatch.DrawString(upgradeFont, "Current max stamina: " + theWyrmPlayer.MaxStamina, new Vector2(310, 345), Color.Red);
+                        if (theWyrmPlayer.MaxStamina >= STAMINA_MAX)
+                        {
+                            spriteBatch.DrawString(upgradeFont, "Maximum Upgrade Reached", new Vector2(305, 230), Color.Red);
+                        }
+                        else
+                        {
+                            spriteBatch.DrawString(upgradeFont, "Cost: " + staminaCost + " KG", new Vector2(345, 230), Color.Red);
+                        }
+
+                        //Draw the arrow which points to the currently selected box
+                        spriteBatch.Draw(t2dupgradeArrow, new Rectangle(640, 325, 112, 51), null, Color.White, upgradeArrowDir, new Vector2(0, 25.5f), SpriteEffects.None, 0);
+
+                        spriteBatch.DrawString(titleFont, "Press U to RETURN TO GAME", new Vector2(475, 680), Color.Red);
+                        spriteBatch.DrawString(titleFont, "Press ENTER to DIGEST UPGRADE", new Vector2(475, 5), Color.Red);
+
+                        #endregion
+                    }
+
                     else
-                    {
-                        spriteBatch.DrawString(upgradeFont, "Cost: " + regenCost + " KG", new Vector2(585, 40), Color.Red);
-                    }
+                        spriteBatch.DrawString(titleFont, "Press U for UPGRADES", new Vector2(920, 570), Color.Red);
 
-                    spriteBatch.Draw(t2dupgradeBox, new Rectangle(515, 440, 250, 150), Color.White);
-                    spriteBatch.DrawString(upgradeFont, "MUSCLE VIBRATION", new Vector2(575, 467), Color.Red);
-                    spriteBatch.DrawString(upgradeFont, "Increase max dig speed", new Vector2(545, 490), Color.Red);
-                    spriteBatch.DrawString(upgradeFont, "by " + DIGSPEED_UPGRADE_INCR, new Vector2(545, 505), Color.Red);
-                    spriteBatch.DrawString(upgradeFont, "Current max speed: " + thePlayer.theWyrm.HeadSpeedNormalMax, new Vector2(545, 530), Color.Red);
-
-                    if ((thePlayer.theWyrm.HeadSpeedMax + DIGSPEED_UPGRADE_INCR) > SPEEDMAX)
-                        spriteBatch.DrawString(upgradeFont, "Maximum Upgrade Reached", new Vector2(540, 590), Color.Red);
-                    else
-                        spriteBatch.DrawString(upgradeFont, "Cost: " + digSpeedCost + " KG", new Vector2(590, 590), Color.Red);
-
-
-                    spriteBatch.Draw(t2dupgradeBox, new Rectangle(755, 250, 250, 150), Color.White);
-                    spriteBatch.DrawString(upgradeFont, "FAT TISSUE", new Vector2(837, 277), Color.Red);
-                    spriteBatch.DrawString(upgradeFont, "Increase max health by " + MAXHEALTH_UPGRADE_INCR, new Vector2(780, 305), Color.Red);
-                    spriteBatch.DrawString(upgradeFont, "Current max health: " + thePlayer.HealthMax, new Vector2(780, 330), Color.Red);
-
-                    if (thePlayer.HealthMax >= HEALTHMAX_MAX)
-                    {
-                        spriteBatch.DrawString(upgradeFont, "Maximum Upgrade Reached", new Vector2(785, 230), Color.Red);
-                    }
-                    else
-                    {
-                        spriteBatch.DrawString(upgradeFont, "Cost: " + maxHealthCost + " KG", new Vector2(817, 230), Color.Red);
-                    }
-
-                    spriteBatch.Draw(t2dupgradeBox, new Rectangle(275, 250, 250, 150), Color.White);
-                    spriteBatch.DrawString(upgradeFont, "MUSCLE COILING", new Vector2(338, 278), Color.Red);
-                    spriteBatch.DrawString(upgradeFont, "Increase max stamina", new Vector2(310, 300), Color.Red);
-                    spriteBatch.DrawString(upgradeFont, "by " + STAMINA_UPGRADE_INCR, new Vector2(310, 315), Color.Red);
-                    spriteBatch.DrawString(upgradeFont, "Current max stamina: " + thePlayer.MaxStamina, new Vector2(310, 345), Color.Red);
-                    if (thePlayer.MaxStamina >= STAMINA_MAX)
-                    {
-                        spriteBatch.DrawString(upgradeFont, "Maximum Upgrade Reached", new Vector2(305, 230), Color.Red);
-                    }
-                    else
-                    {
-                        spriteBatch.DrawString(upgradeFont, "Cost: " + staminaCost + " KG", new Vector2(345, 230), Color.Red);
-                    }
-
-                    //Draw the arrow which points to the currently selected box
-                    spriteBatch.Draw(t2dupgradeArrow, new Rectangle(640, 325, 112, 51), null, Color.White, upgradeArrowDir, new Vector2(0, 25.5f), SpriteEffects.None, 0);
-
-                    spriteBatch.DrawString(titleFont, "Press U to RETURN TO GAME", new Vector2(475, 680), Color.Red);
-                    spriteBatch.DrawString(titleFont, "Press ENTER to DIGEST UPGRADE", new Vector2(475, 5), Color.Red);
+                    if (gameOver && !victory)
+                        spriteBatch.DrawString(scoreFont, "G A M E   O V E R", new Vector2(500, 150), Color.Red);
+                    #endregion
                 }
                 else
-                    spriteBatch.DrawString(titleFont, "Press U for UPGRADES", new Vector2(920, 570), Color.Red);
+                {
+                    #region twoPlayerMode
 
-                if (gameOver && !victory)
-                    spriteBatch.DrawString(scoreFont, "G A M E   O V E R", new Vector2(500, 150), Color.Red);
+                    theBackground.Draw(spriteBatch);
+
+                    theWyrmPlayer.Draw(spriteBatch);
+
+                    theHumanPlayer.Draw(spriteBatch);
+
+                    #endregion
+                }
 
                 #endregion
             }
@@ -705,7 +797,7 @@ namespace DreadWyrm2
                 {
                     spriteBatch.DrawString(titleFont, "Press Spacebar to BEGIN YOUR FEAST", vStartTitleTextLoc, Color.OrangeRed);
                     spriteBatch.DrawString(titleFont, "Press N to start the game with NUX MODE", new Vector2(410, 500), Color.OrangeRed);
-                    //spriteBatch.DrawString(titleFont, "Press I for INSTRUCTIONS", new Vector2(495, 650), Color.OrangeRed);
+                    spriteBatch.DrawString(titleFont, "Press T to ENGAGE TWO PLAYERS", new Vector2(460, 565), Color.OrangeRed);
                 }
 
                 #endregion
@@ -760,8 +852,39 @@ namespace DreadWyrm2
             base.Draw(gameTime);
         }
 
-        void startNewGame(bool nuxMode)
+        void startNewMultiPlayerGame()
         {
+            isTwoPlayer = true;
+
+            victory = false;
+
+            theBackground = new Background(t2dbackgroundTwoPlayer, t2dforegroundTwoPlayer);
+
+            m_gameStarted = true;
+
+            //Add the wyrm head segment texture to the wyrm textures list
+            List<Texture2D> wyrmTextures = new List<Texture2D>();
+
+            //Add the wyrmhead texture
+            wyrmTextures.Add(t2dWyrmHead);
+
+            //Add on the wyrm segment textures
+            //We want to subtract two from the total segments since the head and tail are not this texture
+            for (int i = 0; i < WYRMSEGS - 2; i++)
+            {
+                wyrmTextures.Add(t2dWyrmSeg);
+            }
+
+            //Lastly, add the wyrm tail texture
+            wyrmTextures.Add(t2dWyrmTail);
+            theWyrmPlayer = new WyrmPlayer(wyrmTextures, scoreFont, healthBase, health, stamina, regenBar);
+            theHumanPlayer = new HumanPlayer(mouseCursorTex);
+        }
+
+        void startNewSinglePlayerGame(bool nuxMode)
+        {
+            isTwoPlayer = false;
+
             victory = false;
 
             //Add the wyrm head segment texture to the wyrm textures list
@@ -774,7 +897,6 @@ namespace DreadWyrm2
 
             //Add on the wyrm segment textures
             //We want to subtract two from the total segments since the head and tail are not this texture
-            //derp
             for (int i = 0; i < WYRMSEGS - 2; i++)
             {
                 wyrmTextures.Add(t2dWyrmSeg);
@@ -782,12 +904,12 @@ namespace DreadWyrm2
 
             //Lastly, add the wyrm tail texture
             wyrmTextures.Add(t2dWyrmTail);
-            thePlayer = new Player(0, wyrmTextures, scoreFont, healthBase, health, stamina, regenBar);
+            theWyrmPlayer = new WyrmPlayer(wyrmTextures, scoreFont, healthBase, health, stamina, regenBar);
 
             if (nuxMode)
-                thePlayer.nuxMode = true;
+                theWyrmPlayer.nuxMode = true;
 
-            theBackground = new Background(t2dbackground, t2dforeground);
+            theBackground = new Background(t2dbackgroundSinglePlayer, t2dforegroundSinglePlayer);
 
             prey = new List<Prey>();
 
@@ -812,7 +934,7 @@ namespace DreadWyrm2
             startNewWave(currWave - 1);
         }
 
-        void endGame()
+        void endSinglePlayerGame()
         {
             m_gameStarted = false;
             gameOver = false;
@@ -829,17 +951,17 @@ namespace DreadWyrm2
                 for (int j = 0; j < levelPrey[i][wave]; j++)
                 {
                     if (i == GIRAFFE)
-                        prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[GIRAFFE], 4, 95, 102, 94, 30, thePlayer.theWyrm, false, 1191, 97));
+                        prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[GIRAFFE], 4, 95, 102, 94, 30, theWyrmPlayer.theWyrm, false, 1191, 97));
                     if (i == ELEPHANT)
-                        prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[ELEPHANT], 6, 71, 93, 70, 29, thePlayer.theWyrm, false, 4990, 73));
+                        prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[ELEPHANT], 6, 71, 93, 70, 29, theWyrmPlayer.theWyrm, false, 4990, 73));
                     if (i == UNARMEDHUMAN)
-                        prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[UNARMEDHUMAN], 4, 24, 21, 23, 6, thePlayer.theWyrm, true, 80, 25));
+                        prey.Add(new Animal(m_random.Next(20, 1050), 100, preyTextures[UNARMEDHUMAN], 4, 24, 21, 23, 6, theWyrmPlayer.theWyrm, true, 80, 25));
                     if (i == SOLDIER)
-                        prey.Add(new SoldierHuman(m_random.Next(20, 1050), 100, preyTextures[SOLDIER], 6, 25, 20, 24, 7, thePlayer.theWyrm, 80, 26, 52, 78, bulletTexture));
+                        prey.Add(new SoldierHuman(m_random.Next(20, 1050), 100, preyTextures[SOLDIER], 6, 25, 20, 24, 7, theWyrmPlayer.theWyrm, 80, 26, 52, 78, bulletTexture));
                     if (i == MINE_LAYER)
-                        prey.Add(new Engineer(m_random.Next(20, 1050), 100, preyTextures[MINE_LAYER], 6, 23, 25, 22, 7, thePlayer.theWyrm, 80, 25, 51, 76, preyTextures[MINE]));
+                        prey.Add(new Engineer(m_random.Next(20, 1050), 100, preyTextures[MINE_LAYER], 6, 23, 25, 22, 7, theWyrmPlayer.theWyrm, 80, 25, 51, 76, preyTextures[MINE]));
                     if (i == TANK)
-                        prey.Add(new Vehicle(m_random.Next(20, 1050), 100, preyTextures[TANK], 0, 50, 145, 49, 25, thePlayer.theWyrm, 0, 50, cannonballTexture));
+                        prey.Add(new Vehicle(m_random.Next(20, 1050), 100, preyTextures[TANK], 0, 50, 145, 49, 25, theWyrmPlayer.theWyrm, 0, 50, cannonballTexture));
                 }
             }
         }
@@ -970,15 +1092,15 @@ namespace DreadWyrm2
             for (int i = 0; i < prey.Count; i++)
             {
                 //Do circular collision detection
-                if (isColliding((int)(thePlayer.theWyrm.l_segments[0].X - WYRMHEAD_CENTER_NUMBER * Math.Cos(thePlayer.theWyrm.HeadDirection)),
-                    (int)(thePlayer.theWyrm.l_segments[0].Y + QUARTER_OF_WYRMHEAD_SPRITEHEIGHT - WYRMHEAD_CENTER_NUMBER * Math.Sin(thePlayer.theWyrm.HeadDirection)),
-                    thePlayer.theWyrm.eatRadius,
+                if (isColliding((int)(theWyrmPlayer.theWyrm.l_segments[0].X - WYRMHEAD_CENTER_NUMBER * Math.Cos(theWyrmPlayer.theWyrm.HeadDirection)),
+                    (int)(theWyrmPlayer.theWyrm.l_segments[0].Y + QUARTER_OF_WYRMHEAD_SPRITEHEIGHT - WYRMHEAD_CENTER_NUMBER * Math.Sin(theWyrmPlayer.theWyrm.HeadDirection)),
+                    theWyrmPlayer.theWyrm.eatRadius,
                     (int)prey[i].xPosistion, prey[i].yPosition, prey[i].boundingradius))
                 {
-                    prey[i].getEaten(thePlayer);
+                    prey[i].getEaten(theWyrmPlayer);
                     prey.RemoveAt(i);
 
-                    if (thePlayer.Health <= 0 && !thePlayer.nuxMode)
+                    if (theWyrmPlayer.Health <= 0 && !theWyrmPlayer.nuxMode)
                         gameOver = true;
                 }
             }
@@ -1002,14 +1124,14 @@ namespace DreadWyrm2
                 }
 
                 //Check to see if the bullet is colliding with the head of the wyrm (discounting the mandibles)
-                if (isColliding((int)(thePlayer.theWyrm.l_segments[0].X - WYRMHEAD_CENTER_NUMBER * Math.Cos(thePlayer.theWyrm.HeadDirection)),
-                    (int)(thePlayer.theWyrm.l_segments[0].Y + QUARTER_OF_WYRMHEAD_SPRITEHEIGHT - WYRMHEAD_CENTER_NUMBER * Math.Sin(thePlayer.theWyrm.HeadDirection)),
-                    thePlayer.theWyrm.eatRadius,
+                if (isColliding((int)(theWyrmPlayer.theWyrm.l_segments[0].X - WYRMHEAD_CENTER_NUMBER * Math.Cos(theWyrmPlayer.theWyrm.HeadDirection)),
+                    (int)(theWyrmPlayer.theWyrm.l_segments[0].Y + QUARTER_OF_WYRMHEAD_SPRITEHEIGHT - WYRMHEAD_CENTER_NUMBER * Math.Sin(theWyrmPlayer.theWyrm.HeadDirection)),
+                    theWyrmPlayer.theWyrm.eatRadius,
                     (int)bullets[i].xPosistion, bullets[i].yPosition, bullets[i].boundingRadius))
                 {
-                    thePlayer.Health -= bullets[i].DamageDealt;
+                    theWyrmPlayer.Health -= bullets[i].DamageDealt;
 
-                    if (thePlayer.Health <= 0 && !thePlayer.nuxMode)
+                    if (theWyrmPlayer.Health <= 0 && !theWyrmPlayer.nuxMode)
                         gameOver = true;
 
                     bullets.RemoveAt(i);
@@ -1017,13 +1139,13 @@ namespace DreadWyrm2
                     continue;
                 }
 
-                foreach (WyrmSegment ws in thePlayer.theWyrm.l_segments)
+                foreach (WyrmSegment ws in theWyrmPlayer.theWyrm.l_segments)
                 {
                     if (isColliding((int)ws.X, (int)ws.Y + QUARTER_OF_WYRMHEAD_SPRITEHEIGHT, ws.boundingRadius, bullets[i].xPosistion, bullets[i].yPosition, bullets[i].boundingRadius))
                     {
-                        thePlayer.Health -= bullets[i].DamageDealt;
+                        theWyrmPlayer.Health -= bullets[i].DamageDealt;
 
-                        if (thePlayer.Health <= 0 && !thePlayer.nuxMode)
+                        if (theWyrmPlayer.Health <= 0 && !theWyrmPlayer.nuxMode)
                             gameOver = true;
 
                         bullets.RemoveAt(i);

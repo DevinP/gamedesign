@@ -157,7 +157,7 @@ namespace DreadWyrm2
             asSprite.Draw(sb, (int)xPos - spritewidth / 2, (int)yPos - spriteheight / 2, false);
         }
 
-        public override void getEaten(Player thePlayer)
+        public override void getEaten(WyrmPlayer thePlayer)
         {
             thePlayer.Meat += meatReward;
 

@@ -145,6 +145,6 @@ namespace DreadWyrm2
 
         public abstract void Draw(SpriteBatch sb);
 
-        public abstract void getEaten(Player thePlayer);
+        public abstract void getEaten(WyrmPlayer thePlayer);
     }
 }

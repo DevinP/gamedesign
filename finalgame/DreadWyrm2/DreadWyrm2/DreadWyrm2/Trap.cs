@@ -49,7 +49,7 @@ namespace DreadWyrm2
             asSprite.Update(gametime);
         }
 
-        public override void getEaten(Player thePlayer)
+        public override void getEaten(WyrmPlayer thePlayer)
         {
             thePlayer.Health -= damageDone;
 

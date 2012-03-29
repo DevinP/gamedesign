@@ -8,10 +8,9 @@ using Microsoft.Xna.Framework.Input;
 
 namespace DreadWyrm2
 {
-    public class Player
+    public class WyrmPlayer
     {
         //game variables
-        int i_playerID;
         public Wyrm theWyrm;
         int totalMeat = 0;
         SpriteFont scoreFont;
@@ -44,12 +43,6 @@ namespace DreadWyrm2
 
         public bool nuxMode = false;
 
-        public int playerID
-        {
-            get { return i_playerID; }
-            set { i_playerID = value; }
-        }
-
         public float Health
         {
             get { return i_Health; }
@@ -76,10 +69,8 @@ namespace DreadWyrm2
 
 
         //Constructor
-        public Player(int ID, List<Texture2D> wyrmTextures, SpriteFont font, Texture2D healthBase, Texture2D health, Texture2D stam, Texture2D regBar)
+        public WyrmPlayer(List<Texture2D> wyrmTextures, SpriteFont font, Texture2D healthBase, Texture2D health, Texture2D stam, Texture2D regBar)
         {
-            i_playerID = ID;
-
             //Create a Wyrm
             theWyrm = new Wyrm(100, 400, wyrmTextures, Game1.WYRMSEGS);
 

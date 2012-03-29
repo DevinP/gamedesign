@@ -42,6 +42,8 @@ Content\Textures\wyrmSegRed_50x50.xnb
 Content\Textures\wyrmseg_100x100.xnb
 Content\Textures\wyrmTailRed.xnb
 Content\Textures\wyrmTailRed_50x50.xnb
+Content\Textures\cursor.xnb
+Content\Textures\debugTex.xnb
 Content\Sounds\bgm.wma
 Content\Sounds\bgm2.wma
 Content\Sounds\bgm3.wma
