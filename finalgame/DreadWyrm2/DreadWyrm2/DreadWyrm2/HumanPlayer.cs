@@ -36,8 +36,8 @@ namespace DreadWyrm2
         static Texture2D turretButtonTex;
         const int TURRET_X = 10;
         const int TURRET_Y = 10;
-        const int TURRET_WIDTH = 75;
-        const int TURRET_HEIGHT = 75;
+        const int TURRETBUTTON_WIDTH = 75;
+        const int TURRETBUTTON_HEIGHT = 75;
 
         //Oil derrick button
         static Texture2D oilDerrickButtonTex;
@@ -91,6 +91,12 @@ namespace DreadWyrm2
         const int RECRUIT_TANK = 6;
         /////////////////////////////////////////
 
+        //Turret purchasing and placement variables
+        static Texture2D ghostTurret;
+        bool drawGhostTurret = false;
+        const int TURRET_WIDTH = 60;
+        const int TURRET_HEIGHT = 34;
+
         //Mouse cursor size
         const int MOUSECURSOR_WIDTH = 32;
         const int MOUSECURSOR_HEIGHT = 32;
@@ -119,7 +125,7 @@ namespace DreadWyrm2
             buttons = new List<HUDElement>();
 
             //Turret button
-            buttons.Add(new HUDElement(turretButtonTex, new Rectangle(TURRET_X, TURRET_Y, TURRET_WIDTH, TURRET_HEIGHT)));
+            buttons.Add(new HUDElement(turretButtonTex, new Rectangle(TURRET_X, TURRET_Y, TURRETBUTTON_WIDTH, TURRETBUTTON_HEIGHT)));
 
             //Oil derrick button
             buttons.Add(new HUDElement(oilDerrickButtonTex, new Rectangle(OILDERRICK_X, OILDERRICK_Y, OILDERRICK_WIDTH, OILDERRICK_HEIGHT)));
@@ -159,6 +165,8 @@ namespace DreadWyrm2
             engineerRecruitTex = Content.Load<Texture2D>(@"Textures\engineerIcon");
             factoryButtonTex = Content.Load<Texture2D>(@"Textures\FactoryIcon");
             tankRecruitTex = Content.Load<Texture2D>(@"Textures\addUnit");
+
+            ghostTurret = Content.Load<Texture2D>(@"Textures\ghostTurret");
         }
 
         public void Update(GameTime gameTime)
@@ -172,6 +180,7 @@ namespace DreadWyrm2
             bool clickedSoldier = false;
             bool clickedEngineer = false;
             bool clickedTank = false;
+            bool clickedTurret = false;
 
             if (mState.LeftButton == ButtonState.Pressed && canClick)
             {
@@ -180,6 +189,14 @@ namespace DreadWyrm2
                 clickedSoldier = buttons[RECRUIT_SOLDIER].isWithin(new Vector2(mouseX, mouseY));
                 clickedEngineer = buttons[RECRUIT_ENGINEER].isWithin(new Vector2(mouseX, mouseY));
                 clickedTank = buttons[RECRUIT_TANK].isWithin(new Vector2(mouseX, mouseY));
+                clickedTurret = buttons[TURRET].isWithin(new Vector2(mouseX, mouseY));
+
+                if (drawGhostTurret)
+                {
+                    //Place the turret at this location (mouseX, 419)
+                    drawGhostTurret = false;
+
+                }
             }
             else if (mState.LeftButton == ButtonState.Released && !canClick)
                 canClick = true;
@@ -190,24 +207,33 @@ namespace DreadWyrm2
 
                 totalMoney -= SOLDIER_COST;
             }
-
-            if (clickedTank && (totalMoney - TANK_COST >= 0))
+            else if (clickedTank && (totalMoney - TANK_COST >= 0))
             {
                 Prey.prey.Add(new Tank(Game1.m_random.Next(20, 1050), 100, theWyrm));
 
                 totalMoney -= TANK_COST;
             }
 
-            if (clickedEngineer && (totalMoney - ENGINEER_COST >= 0))
+            else if (clickedEngineer && (totalMoney - ENGINEER_COST >= 0))
             {
                 Prey.prey.Add(new Engineer(Game1.m_random.Next(20, 1050), 100, theWyrm));
 
                 totalMoney -= ENGINEER_COST;
             }
+            else if (clickedTurret && !drawGhostTurret)
+            {
+                drawGhostTurret = true;
+            }
         }
 
         public void Draw(SpriteBatch sb)
         {
+            //Draw a ghost turret if we need to
+            if (drawGhostTurret)
+            {
+                sb.Draw(ghostTurret, new Rectangle(mouseX, 419, TURRET_WIDTH, TURRET_HEIGHT), Color.White);
+            }
+
             //Draw all of the HUDElements
             for (int i = 0; i < buttons.Count; i++)
                 buttons[i].Draw(sb);
