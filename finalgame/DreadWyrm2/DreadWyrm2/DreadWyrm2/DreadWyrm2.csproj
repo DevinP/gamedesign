@@ -113,7 +113,9 @@
     <Compile Include="Bullet.cs" />
     <Compile Include="Engineer.cs" />
     <Compile Include="Explosion.cs" />
+    <Compile Include="HUDElement.cs" />
     <Compile Include="HumanPlayer.cs" />
+    <Compile Include="Turret.cs" />
     <Compile Include="WyrmPlayer.cs" />
     <Compile Include="Prey.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -45,6 +45,17 @@ Content\Textures\wyrmTailRed_50x50.xnb
 Content\Textures\cursor.xnb
 Content\Textures\debugTex.xnb
 Content\Textures\debugButtonTex.xnb
+Content\Textures\BarracksIcon.xnb
+Content\Textures\FactoryIcon.xnb
+Content\Textures\turretSprite.xnb
+Content\Textures\OilDerrickIcon.xnb
+Content\Textures\TurretIcon.xnb
+Content\Textures\addUnit.xnb
+Content\Textures\ghostTurret.xnb
+Content\Textures\2pbackground.xnb
+Content\Textures\2pforeground.xnb
+Content\Textures\soldierIcon.xnb
+Content\Textures\engineerIcon.xnb
 Content\Sounds\bgm.wma
 Content\Sounds\bgm2.wma
 Content\Sounds\bgm3.wma

@@ -29,8 +29,6 @@ namespace DreadWyrm2
         Texture2D t2dtransparentBlack;                     //A partially transparent texture to draw over the game
         Texture2D t2dupgradeBox;                           //A box to put upgrade messages in
         Texture2D t2dupgradeArrow;                         //Arrow to indicate which upgrade the player will select
-        Texture2D mouseCursorTex;                          //The texture for the human players' mouse cursor
-        //List<Texture2D> preyTextures;                      //The textures used by the prey
         Song bgm;                                          //The background music for the game
         Song bgm2;
         Song bgm3;
@@ -40,28 +38,13 @@ namespace DreadWyrm2
         SpriteFont scoreFont;                              //The font used to dispaly the meat score
         Vector2 vStartTitleTextLoc = new Vector2(440, 440);//The location for the additional title screen text
         SoundEffect roar;
-        //public static SoundEffect gunShot;
-        //public static SoundEffect chomp;
-        //public static SoundEffect tankShot;
-
-        //Texture2D t2dWyrmHead;                              //The sprite for the Wyrm head
-        //Texture2D t2dWyrmSeg;                               //The sprite for the Wyrm segments
-        //Texture2D t2dWyrmTail;                              //The sprite for the Wyrm tail
-        //Texture2D healthBase;                               //The sprite for the health base base
-        //Texture2D health;                                   //The sprite for the health bar
-        //Texture2D stamina;                                  //The sprite for the stamina bar
-        //Texture2D regenBar;                                 //The sprite to indicate the amount of health being regened
-
-        //Texture2D bulletTexture;                            //The sprite for the bullets used by enemies
-        //Texture2D cannonballTexture;                        //The sprite for tank shells
-
+       
         Texture2D t2dbackgroundSinglePlayer;                //The background sprite
         Texture2D t2dforegroundSinglePlayer;                //The foreground sprite (part of the background)
         Texture2D t2dbackgroundTwoPlayer;                   //The background sprite for the multiplayer arena
         Texture2D t2dforegroundTwoPlayer;                   //The foreground sprite for the multiplayer arena
         WyrmPlayer theWyrmPlayer;                           //The wyrm player of the game
         HumanPlayer theHumanPlayer;                         //The human player of the game
-        //List<Prey> prey;                                    //The edible things on screen
         List<List<int>> levelPrey;                          //The things which must be eaten to advance the wave
 
         //Explosion data
@@ -83,9 +66,6 @@ namespace DreadWyrm2
 
         //The game's random numbers
         public static Random m_random;
-
-        //A static list of bullets being fired by enemies in-game
-        //public static List<Bullet> bullets;
 
         bool canRoar = true;
         bool canSwitchSongs = true;
@@ -140,11 +120,6 @@ namespace DreadWyrm2
 
         float waveSpawnCounter = 0;
 
-        //DEBUG VARIABLES
-        Texture2D debugTex;
-        Texture2D debugButton;
-
-
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -177,9 +152,6 @@ namespace DreadWyrm2
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            //Debug Textures
-            debugButton = Content.Load<Texture2D>(@"Textures\debugButtonTex");
-
             titleFont = Content.Load<SpriteFont>(@"Fonts\Title");
             upgradeFont = Content.Load<SpriteFont>(@"Fonts\Upgrade");
             scoreFont = Content.Load<SpriteFont>(@"Fonts\scoreFont");
@@ -208,8 +180,8 @@ namespace DreadWyrm2
             t2dforegroundSinglePlayer = Content.Load<Texture2D>(@"Textures\foreground");
 
             //For now, the background for multiplayer is the same for single player
-            t2dbackgroundTwoPlayer = Content.Load<Texture2D>(@"Textures\background");
-            t2dforegroundTwoPlayer = Content.Load<Texture2D>(@"Textures\foreground");
+            t2dbackgroundTwoPlayer = Content.Load<Texture2D>(@"Textures\2pbackground");
+            t2dforegroundTwoPlayer = Content.Load<Texture2D>(@"Textures\2pforeground");
 
             explosionTexture = Content.Load<Texture2D>(@"Textures\explosions");
 
@@ -334,21 +306,6 @@ namespace DreadWyrm2
                 if (!isTwoPlayer)
                 {
                     #region onePlayerMode
-
-                    /*if (keystate.IsKeyDown(Keys.U) && upgradeModeCanSwitch)
-                    {
-                        //Toggle the upgrade mode
-                        if (upgradeMode)
-                            upgradeMode = false;
-                        else if (!upgradeMode)
-                            upgradeMode = true;
-
-                        upgradeModeCanSwitch = false;
-                    }
-                    else if (keystate.IsKeyUp(Keys.U) && !upgradeModeCanSwitch)
-                    {
-                        upgradeModeCanSwitch = true;
-                    }*/
 
                     if (upgradeMode)
                     {
@@ -640,6 +597,14 @@ namespace DreadWyrm2
 
                         checkBullets();
 
+                        for (int i = 0; i < explosions.Count; i++)
+                        {
+                            explosions[i].Update(gameTime);
+
+                            if (explosions[i].isDone)
+                                explosions.RemoveAt(i);
+                        }
+
                         theHumanPlayer.Update(gameTime);
 
                         //Make it so the player can't move off the screen
@@ -650,9 +615,6 @@ namespace DreadWyrm2
 
                             if (theWyrmPlayer.theWyrm.l_segments[i].X > SCREENWIDTH - 25)
                                 theWyrmPlayer.theWyrm.l_segments[i].X = (float)SCREENWIDTH - 25;
-
-                            // if (thePlayer.theWyrm.l_segments[i].Y < 0)
-                            //    thePlayer.theWyrm.l_segments[i].Y = 0;
 
                             if (theWyrmPlayer.theWyrm.l_segments[i].Y > SCREENHEIGHT - 50)
                                 theWyrmPlayer.theWyrm.l_segments[i].Y = (float)SCREENHEIGHT - 50;
@@ -777,7 +739,10 @@ namespace DreadWyrm2
                         spriteBatch.DrawString(titleFont, "YOU ATE ALL THE THINGS", new Vector2(500, 150), Color.Red);
                     }
 
-                    spriteBatch.DrawString(scoreFont, "Level: " + currWave, new Vector2(1120, 10), Color.Red);
+                    if(currWave <= 10)
+                        spriteBatch.DrawString(scoreFont, "Level: " + currWave, new Vector2(1120, 10), Color.Red);
+                    else
+                        spriteBatch.DrawString(scoreFont, "Level: 10", new Vector2(1120, 10), Color.Red);
 
                     if (upgradeMode)
                     {
@@ -842,7 +807,7 @@ namespace DreadWyrm2
                         //Draw the arrow which points to the currently selected box
                         spriteBatch.Draw(t2dupgradeArrow, new Rectangle(640, 325, 112, 51), null, Color.White, upgradeArrowDir, new Vector2(0, 25.5f), SpriteEffects.None, 0);
 
-                        spriteBatch.DrawString(titleFont, "Press U to RETURN TO GAME", new Vector2(475, 680), Color.Red);
+                        spriteBatch.DrawString(titleFont, "Press U to RETURN TO GAME", new Vector2(495, 680), Color.Red);
                         spriteBatch.DrawString(titleFont, "Press ENTER to DIGEST UPGRADE", new Vector2(475, 5), Color.Red);
 
                         #endregion
@@ -865,9 +830,10 @@ namespace DreadWyrm2
 
                     theWyrmPlayer.Draw(spriteBatch);
 
-                    spriteBatch.Draw(debugButton, new Rectangle(10, 10, 15, 15), Color.White);
-
-                    theHumanPlayer.Draw(spriteBatch);
+                    for (int i = 0; i < explosions.Count; i++)
+                    {
+                        explosions[i].Draw(spriteBatch);
+                    }
 
                     if (upgradeMode)
                     {
@@ -932,17 +898,15 @@ namespace DreadWyrm2
                         //Draw the arrow which points to the currently selected box
                         spriteBatch.Draw(t2dupgradeArrow, new Rectangle(640, 325, 112, 51), null, Color.White, upgradeArrowDir, new Vector2(0, 25.5f), SpriteEffects.None, 0);
 
-                        spriteBatch.DrawString(titleFont, "Press U to RETURN TO GAME", new Vector2(475, 680), Color.Red);
+                        spriteBatch.DrawString(titleFont, "Press U to RETURN TO GAME", new Vector2(495, 680), Color.Red);
                         spriteBatch.DrawString(titleFont, "Press ENTER to DIGEST UPGRADE", new Vector2(475, 5), Color.Red);
 
                         #endregion
                     }
-
                     else
                         spriteBatch.DrawString(titleFont, "Press U for UPGRADES", new Vector2(920, 570), Color.Red);
 
-                    if (gameOver && !victory)
-                        spriteBatch.DrawString(scoreFont, "G A M E   O V E R", new Vector2(500, 150), Color.Red);
+                    theHumanPlayer.Draw(spriteBatch);
 
                     #endregion
                 }
@@ -1029,6 +993,8 @@ namespace DreadWyrm2
 
             theWyrmPlayer = new WyrmPlayer();
             theHumanPlayer = new HumanPlayer(theWyrmPlayer);
+
+            explosions = new List<Explosion>();
 
             Prey.reInitializeAll();
 
