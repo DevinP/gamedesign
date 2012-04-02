@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
 
 namespace DreadWyrm2
 {
     public abstract class Prey
     {
-        protected Texture2D preyTexture;                //The texture of this prey
         protected AnimatedSprite asprite;               //The animated sprite belonging to this prey
-        protected int animationFrames;                  //The frames of animation in this prey
 
         protected int xPos;                             //The x position of the prey, measured in the center
         protected int yPos;                             //The y position of the prey, measured in the center
@@ -21,21 +21,36 @@ namespace DreadWyrm2
 
         protected float xVel;                           //The x velocity of the prey
 
-        protected int spriteheight;                     //The height of the prey sprite
-        protected int spritewidth;                      //The width of the prey sprite
+        protected int spriteHeight;
+        protected int spriteWidth;
+        protected int preyheight;              //The height of the prey's bounding box
 
-        protected int preyheight;                       //The height of the prey's bounding box
-
-        public float boundingradius;                    //The radius of the bounding circle for the prey
+        public float boundingradius;           //The radius of the bounding circle for the prey
 
         protected Wyrm theWyrm;
 
-        public int meatReward;                          //The meat granted from eating this prey
+        public static List<Texture2D> preyTextures;     //The textures used by the prey
+        public static List<Bullet> bullets;             //The bullets being fired by the prey
 
-        protected int otherFacing;                      //The y position in the sprite sheet of the reverse facing
+        public static List<Prey> prey;
+
+        protected static Texture2D bulletTexture;
+        protected static Texture2D cannonballTexture;
+
+        protected static SoundEffect chomp;
+        protected static SoundEffect gunShot;
+        protected static SoundEffect tankShot;
+
+        //Constant ints to access the prey texture list
+        public const int GIRAFFE = 0;
+        public const int ELEPHANT = 1;
+        public const int UNARMEDHUMAN = 2;
+        public const int SOLDIER = 3;
+        public const int MINE_LAYER = 4;
+        public const int TANK = 5;
+        public const int MINE = 6;
 
         public bool isMine = false;
-
 
         public AnimatedSprite asSprite
         {
@@ -74,45 +89,42 @@ namespace DreadWyrm2
             set { xVel = value; }
         }
 
-
-        public int spriteHeight
-        {
-            get { return spriteheight; }
-            set { spriteheight = value; }
-        }
-
-        public int spriteWidth
-        {
-            get { return spritewidth; }
-            set { spritewidth = value; }
-        }
-
         public int preyHeight
         {
             get { return preyheight; }
             set { preyheight = value; }
         }
 
-        public Prey(int initialX, int initialY, Texture2D texture, int frames, int spriteHeight, int spriteWidth, int preyHeight,
-                    float boundingRadius, Wyrm predator, int meat, int facingY)
+        public Prey(int initialX, int initialY, Wyrm predator)
         {
             xPos = initialX;
             yPos = initialY;
 
-            preyTexture = texture;
-            animationFrames = frames;
-
-            spriteheight = spriteHeight;
-            spritewidth = spriteWidth;
             preyheight = preyHeight;
-            boundingradius = boundingRadius;
 
             theWyrm = predator;
 
-            meatReward = meat;
-
-            basepoint = new Vector2(initialX, initialY + spriteheight / 2);
+            basepoint = new Vector2(initialX, initialY + spriteHeight / 2);
             footpoint = new Vector2(initialX, initialY + preyheight / 2);
+        }
+
+        public static void LoadContent(ContentManager Content)
+        {
+            chomp = Content.Load<SoundEffect>(@"Sounds\aud_chomp");
+            gunShot = Content.Load<SoundEffect>(@"Sounds\soldierShot");
+            tankShot = Content.Load<SoundEffect>(@"Sounds\tankShot");
+
+            bulletTexture = Content.Load<Texture2D>(@"Textures\bullet");
+            cannonballTexture = Content.Load<Texture2D>(@"Textures\cannonball");
+
+            preyTextures = new List<Texture2D>();
+            preyTextures.Add(Content.Load<Texture2D>(@"Textures\giraffe"));
+            preyTextures.Add(Content.Load<Texture2D>(@"Textures\elephant"));
+            preyTextures.Add(Content.Load<Texture2D>(@"Textures\unarmed"));
+            preyTextures.Add(Content.Load<Texture2D>(@"Textures\soldier"));
+            preyTextures.Add(Content.Load<Texture2D>(@"Textures\mine_layer"));
+            preyTextures.Add(Content.Load<Texture2D>(@"Textures\tank"));
+            preyTextures.Add(Content.Load<Texture2D>(@"Textures\mine"));
         }
 
         //A helper function which keeps the prey near the current ground level
@@ -136,9 +148,58 @@ namespace DreadWyrm2
         protected void recalcPositions()
         {
             basepoint.X = xPos;
-            basepoint.Y = yPos + spriteheight / 2;
+            basepoint.Y = yPos + spriteHeight / 2;
             footpoint.X = xPos;
             footpoint.Y = yPos + preyheight / 2;
+        }
+
+        
+        /// <summary>
+        /// Updates all Prey currently in the game, as well as the bullets associated with those prey
+        /// </summary>
+        /// <param name="gameTime">The GameTime object being used in the game</param>
+        /// <returns>The number of Prey in the game after the update is done</returns>
+        public static int UpdateAll(GameTime gameTime)
+        {
+            int numPrey = prey.Count;
+
+            for (int i = 0; i < prey.Count; i++)
+            {
+                prey[i].Update(gameTime);
+
+                if (prey[i].isMine)
+                    numPrey--;
+            }
+
+            for (int i = 0; i < bullets.Count; i++)
+            {
+                bullets[i].Update(gameTime);
+            }
+
+            return numPrey;
+        }
+
+        /// <summary>
+        /// Draws all the prey in the game as well as all bullets associated with those prey
+        /// </summary>
+        /// <param name="spriteBatch">The spritebatch object used to draw</param>
+        public static void DrawAll(SpriteBatch spriteBatch)
+        {
+            for (int i = 0; i < prey.Count; i++)
+            {
+                prey[i].Draw(spriteBatch);
+            }
+
+            for (int i = 0; i < bullets.Count; i++)
+            {
+                bullets[i].Draw(spriteBatch);
+            }
+        }
+
+        public static void reInitializeAll()
+        {
+            bullets = new List<Bullet>();
+            prey = new List<Prey>();
         }
 
         public abstract void Update(GameTime gametime);

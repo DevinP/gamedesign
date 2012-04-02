@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Content;
 
 namespace DreadWyrm2
 {
@@ -13,14 +14,14 @@ namespace DreadWyrm2
         //game variables
         public Wyrm theWyrm;
         int totalMeat = 0;
-        SpriteFont scoreFont;
+        static SpriteFont scoreFont;
 
         //health
         public float i_Health = 100;
         public int i_HealthMax = 100;
-        public Texture2D hb_base;
-        public Texture2D healthBar;
-        public Texture2D regenBar;
+        public static Texture2D hb_base;
+        public static Texture2D healthBar;
+        public static Texture2D regenBar;
         public int regen = 0;
         public int REGEN_DURATION = 5000;      //Number of milliseconds health regen lasts for
         public float REGEN_FACTOR = 0.25f;     //The percent of max health regenerated over the course of the health regen
@@ -36,12 +37,12 @@ namespace DreadWyrm2
         const int STAMINA_RECHARGERATE = 10;  //One point of stamina regenerates every 5 milliseconds
         public float stamina = 0;
         public int staminaMax = 200;
-        public Texture2D staminaBar;
+        public static Texture2D staminaBar;
 
         const int SCOREX = 920;
         const int SCOREY = 600;
 
-        public bool nuxMode = false;
+        public static bool nuxMode = false;
 
         public float Health
         {
@@ -69,18 +70,24 @@ namespace DreadWyrm2
 
 
         //Constructor
-        public WyrmPlayer(List<Texture2D> wyrmTextures, SpriteFont font, Texture2D healthBase, Texture2D health, Texture2D stam, Texture2D regBar)
+        public WyrmPlayer()
         {
             //Create a Wyrm
-            theWyrm = new Wyrm(100, 400, wyrmTextures, Game1.WYRMSEGS);
+            theWyrm = new Wyrm(100, 400);
 
-            scoreFont = font;
-
-            hb_base = healthBase;
-            healthBar = health;
-            staminaBar = stam;
             stamina = staminaMax;
-            regenBar = regBar;
+        }
+
+        public static void LoadContent(ContentManager Content)
+        {
+            Wyrm.LoadContent(Content);
+
+            scoreFont = Content.Load<SpriteFont>(@"Fonts\scoreFont");
+
+            hb_base = Content.Load<Texture2D>(@"Textures\hb_red");
+            healthBar = Content.Load<Texture2D>(@"Textures\hb_green");
+            staminaBar = Content.Load<Texture2D>(@"Textures\hb_yellow");
+            regenBar = Content.Load<Texture2D>(@"Textures\hb_orange");
         }
 
         public void Update(GameTime gametime, KeyboardState keystate)

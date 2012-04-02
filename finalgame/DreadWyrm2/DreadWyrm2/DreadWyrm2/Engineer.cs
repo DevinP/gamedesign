@@ -22,30 +22,40 @@ namespace DreadWyrm2
 
         bool isLayingMine = false;
 
-        int mineRightFacingY;
-        int mineLeftFacingY;
         int numMines = 2;
 
-        Texture2D mineTexture;
+        //Things specific to the Engineer unit
+        const int NUM_FRAMES = 6;      //The number of frames in this unit's animation
+        const int SPRITEHEIGHT = 23;   //The height (in pixels) of this unit's sprite
+        const int SPRITEWIDTH = 25;    //The width (in pixels) of this unit's sprite
+        const int PREY_HEIGHT = 22;    //The height of this unit for hte purposes of keeping it on the ground
+        const int BOUNDING_RADIUS = 7; //The radius of this unit's bounding circle
+        const int MEAT_AMOUNT = 80;    //The amount of meat that this unit awards
+        const int FACING_Y = 25;       //The Y-position on the sprite sheet where the mirror image of the sprite begins
+        const int MINE_LEFT_Y = 51;    //The Y-position on the sprite sheet for the animation of laying a mine to the left
+        const int MINE_RIGHT_Y = 76;   //The Y-position on the sprite sheet for the animation of laying a mine to the right
 
-        public Engineer(int initialX, int initialY, Texture2D texture, int frames, int spriteHeight, int spriteWidth, int preyHeight,
-                    float boundingRadius, Wyrm predator, int meat, int facingY, int mineLeftY, int mineRightY, Texture2D mineTex)
-            : base(initialX, initialY, texture, frames, spriteHeight, spriteWidth, preyHeight, boundingRadius, predator, meat, facingY)
+        /// <summary>
+        /// An engineer which lays mines to trick the Wyrm
+        /// </summary>
+        /// <param name="initialX">The initial X location of the Engineer</param>
+        /// <param name="initialY">The initial Y location of the Engineer</param>
+        /// <param name="predator">The Wyrm which is looking to eat the Engineer</param>
+        public Engineer(int initialX, int initialY, Wyrm predator)
+            : base(initialX, initialY, predator)
         {
-            asSprite = new AnimatedSprite(texture, 0, 0, spriteWidth, spriteHeight, frames);
-            asSprite.IsAnimating = true;
+            preyheight = PREY_HEIGHT;         //Assign a value to the height of this prey
+            boundingradius = BOUNDING_RADIUS; //Assign a value to the bounding radius of this prey
+            spriteHeight = SPRITEHEIGHT;
+            spriteWidth = SPRITEWIDTH;
 
-            otherFacing = facingY;
+            asSprite = new AnimatedSprite(preyTextures[MINE_LAYER], 0, 0, SPRITEWIDTH,  SPRITEHEIGHT, NUM_FRAMES);
+            asSprite.IsAnimating = true;
 
             if (Game1.m_random.NextDouble() < 0.5)
                 xVel = -1;
             else
                 xVel = 1;
-
-            mineRightFacingY = mineRightY;
-            mineLeftFacingY = mineLeftY;
-
-            mineTexture = mineTex;
 
             mineLayTarget = MathHelper.Clamp((float)(Game1.m_random.NextDouble() * MAXTIMETOMINE), MINTIMETOMINE, MAXTIMETOMINE);
         }
@@ -101,7 +111,7 @@ namespace DreadWyrm2
 
                 //Use the walking animations when not laying a mine
                 if (xVel > 0)
-                    asSprite.frameOffsetY = otherFacing;
+                    asSprite.frameOffsetY = FACING_Y;
                 else
                     asSprite.frameOffsetY = 0;
 
@@ -115,15 +125,16 @@ namespace DreadWyrm2
             {
                 //Switch to the mine laying animations
                 if (xVel > 0)
-                    asSprite.frameOffsetY = mineRightFacingY;
+                    asSprite.frameOffsetY = MINE_RIGHT_Y;
                 else
-                    asSprite.frameOffsetY = mineLeftFacingY;
+                    asSprite.frameOffsetY = MINE_LEFT_Y;
 
                 if (asSprite.Frame == 5)
                 {
 
                     //Spawn a mine trap at this position
-                    Game1.prey.Add(new Trap(xPos, yPos, mineTexture, 3, 9, 16, 7, 3, theWyrm, 20, Game1.explosionTexture));
+                    //Note that we do not need any information about the Wyrm, so we will just pass in null
+                    prey.Add(new Mine(xPos, yPos, null, Game1.explosionTexture));
 
                     numMines--;
 
@@ -155,14 +166,14 @@ namespace DreadWyrm2
 
         public override void Draw(SpriteBatch sb)
         {
-            asSprite.Draw(sb, (int)xPos - spritewidth / 2, (int)yPos - spriteheight / 2, false);
+            asSprite.Draw(sb, (int)xPos - spriteWidth / 2, (int)yPos - spriteHeight / 2, false);
         }
 
         public override void getEaten(WyrmPlayer thePlayer)
         {
-            thePlayer.Meat += meatReward;
+            thePlayer.Meat += MEAT_AMOUNT;
 
-            Game1.chomp.Play();
+            chomp.Play();
         }
     }
 }

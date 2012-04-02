@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace DreadWyrm2
 {
-    class Vehicle : Prey
+    class Tank : Prey
     {
         const int BULLETDAMAGE = 50;
         const int BULLETSPEED = 12;
@@ -15,29 +15,40 @@ namespace DreadWyrm2
         const float TIMETOCHANGEVEL = 11;
         const float SHOOTDELAY = 1;
 
-        Texture2D bulletTexture;
-
         bool isShooting = false;
         bool mayShoot = false;
 
         float elapsedTimeVel = 0;
         float elapsedTimeShoot = 0;
 
-        public Vehicle(int initialX, int initialY, Texture2D texture, int frames, int spriteHeight, int spriteWidth, int preyHeight,
-                    float boundingRadius, Wyrm predator, int meat, int facingY, Texture2D bulletTex)
-            : base(initialX, initialY, texture, frames, spriteHeight, spriteWidth, preyHeight, boundingRadius, predator, meat, facingY)
-        {
-            asSprite = new AnimatedSprite(texture, 0, 0, 145, 50, 0);
-            asSprite.IsAnimating = false;
+        const int SPRITE_HEIGHT = 50;       //The height of the tank sprite
+        const int SPRITE_WIDTH = 145;       //The width the tank sprite
+        const int PREY_HEIGHT = 49;         //The height of the tank for grounding purposes
+        const float BOUNDING_RADIUS = 25;   //The bounding radius of the tank
+        const int MEAT_REWARD = 0;          //The meat given to the Wyrm when the tank is eaten
+        const int FACING_Y = 50;            //The Y position on the sprite sheet where the tank changes direction
 
-            otherFacing = facingY;
+        /// <summary>
+        /// A tank which will shoot the Wyrm very hard
+        /// </summary>
+        /// <param name="initialX">The initial X position of the tank</param>
+        /// <param name="initialY">The initial Y position of the tank</param>
+        /// <param name="predator">The wyrm that the tank will shoot at</param>
+        public Tank(int initialX, int initialY, Wyrm predator)
+            : base(initialX, initialY, predator)
+        {
+            preyheight = PREY_HEIGHT;
+            boundingradius = BOUNDING_RADIUS;
+            spriteHeight = SPRITE_HEIGHT;
+            spriteWidth = SPRITE_WIDTH;
+
+            asSprite = new AnimatedSprite(preyTextures[TANK], 0, 0, SPRITE_WIDTH, SPRITE_HEIGHT, 0);
+            asSprite.IsAnimating = false;
 
             if (Game1.m_random.NextDouble() < 0.5)
                 xVel = -1;
             else
                 xVel = 1;
-
-            bulletTexture = bulletTex;
         }
 
         public override void Update(GameTime gametime)
@@ -46,7 +57,7 @@ namespace DreadWyrm2
 
             //Use the walking animations when not shooting
             if (xVel > 0)
-                asSprite.frameOffsetY = otherFacing;
+                asSprite.frameOffsetY = FACING_Y;
             else
                 asSprite.frameOffsetY = 0;
 
@@ -113,10 +124,10 @@ namespace DreadWyrm2
                 yPosBullet -= 16;
 
                 //Create a bullet using that unit vector
-                Game1.bullets.Add(new Bullet(xPosBullet, yPosBullet, velVec * BULLETSPEED, bulletTexture, 0, 19, 18, 7, BULLETDAMAGE));
-                Game1.bullets[Game1.bullets.Count - 1].asprite.IsAnimating = false;
+                bullets.Add(new Bullet(xPosBullet, yPosBullet, velVec * BULLETSPEED, cannonballTexture, 0, 19, 18, 7, BULLETDAMAGE));
+                bullets[bullets.Count - 1].asprite.IsAnimating = false;
 
-                Game1.tankShot.Play();
+                tankShot.Play();
 
                 isShooting = false;
                 mayShoot = false;
@@ -145,7 +156,7 @@ namespace DreadWyrm2
 
         public override void Draw(SpriteBatch sb)
         {
-            asSprite.Draw(sb, (int)xPos - spritewidth / 2, (int)yPos - spriteheight / 2, false);
+            asSprite.Draw(sb, (int)xPos - spriteWidth / 2, (int)yPos - spriteHeight / 2, false);
         }
 
         public override void getEaten(WyrmPlayer thePlayer)

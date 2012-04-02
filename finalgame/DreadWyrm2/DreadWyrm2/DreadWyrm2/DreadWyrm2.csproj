@@ -120,7 +120,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="SoldierHuman.cs" />
-    <Compile Include="Trap.cs" />
+    <Compile Include="Mine.cs" />
     <Compile Include="Vehicle.cs" />
     <Compile Include="Wyrm.cs" />
     <Compile Include="WyrmSegment.cs" />

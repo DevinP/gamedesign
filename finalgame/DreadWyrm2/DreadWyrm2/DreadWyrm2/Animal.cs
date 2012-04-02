@@ -13,18 +13,40 @@ namespace DreadWyrm2
 
         float elapsedTime;                 //For counting for changing the animal's velocity
         const float TIMETOCHANGE = 11;     //When to change velocity (in seconds)
-
-        bool human;
+        
         bool framesFast;
 
-        public Animal(int initialX, int initialY, Texture2D texture, int frames, int spriteHeight, int spriteWidth, int preyHeight,
-                      float boundingRadius, Wyrm predator, bool isHuman, int meat, int facingY)
-            : base(initialX, initialY, texture, frames, spriteHeight, spriteWidth, preyHeight, boundingRadius, predator, meat, facingY)
-        {
-            asSprite = new AnimatedSprite(preyTexture, 0, 0, spritewidth, spriteheight, animationFrames);
-            asSprite.IsAnimating = true;
+        int meatReward;
+        int otherFacing;
 
-            human = isHuman;
+        /// <summary>
+        /// An animal that the Wyrm can eat
+        /// </summary>
+        /// <param name="initialX">The initial X position of the animal</param>
+        /// <param name="initialY">The initial Y position of the animal</param>
+        /// <param name="texture">The texture this animal uses</param>
+        /// <param name="frames">The number of frames in the animal's animation</param>
+        /// <param name="spriteHeight">The pixel height of the animal's sprite</param>
+        /// <param name="spriteWidth">The pixel width of the animal's sprite</param>
+        /// <param name="prHeight">The height of the animal in-game</param>
+        /// <param name="boundingRadius">The bounding radius that the wyrm can eat the animal with</param>
+        /// <param name="predator">The wyrm that the animal reacts to</param>
+        /// <param name="meat">The amount of meat that this animal is worth</param>
+        /// <param name="facingY">The Y position on the spritesheet which mirrors the sprite's facing</param>
+        public Animal(int initialX, int initialY, Texture2D texture, int frames, int spHeight, int spWidth, int prHeight,
+                      float boundingRadius, Wyrm predator, int meat, int facingY)
+            : base(initialX, initialY, predator)
+        {
+            spriteWidth = spWidth;
+            spriteHeight = spHeight;
+            preyheight = prHeight;
+            boundingradius = boundingRadius;
+
+            meatReward = meat;
+            otherFacing = facingY;
+
+            asSprite = new AnimatedSprite(texture, 0, 0, spriteWidth, spriteHeight, frames);
+            asSprite.IsAnimating = true;
 
             otherFacing = facingY;
 
@@ -110,14 +132,14 @@ namespace DreadWyrm2
 
         public override void Draw(SpriteBatch sb)
         {
-            asSprite.Draw(sb, (int)xPos - spritewidth / 2, (int)yPos - spriteheight / 2, false);
+            asSprite.Draw(sb, (int)xPos - spriteWidth / 2, (int)yPos - spriteHeight / 2, false);
         }
 
         public override void getEaten(WyrmPlayer thePlayer)
         {
             thePlayer.Meat += meatReward;
 
-            Game1.chomp.Play();
+            chomp.Play();
         }
     }
 }

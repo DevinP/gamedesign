@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Content;
 
 namespace DreadWyrm2
 {
     public class Wyrm
     {
+        public static int WYRMSEGS = 8;
+
         //The minimum speed a Wyrm may travel at
         const float HEADSPEEDMIN = 0.0f;
 
@@ -56,7 +59,7 @@ namespace DreadWyrm2
 
         //the textures are contained in a list.
         //The first texture is the head, the middle textures are segment textures, and the last segment is the tail texture
-        List<Texture2D> l_t2d_SegmentTextures;
+        static List<Texture2D> l_t2d_SegmentTextures;
 
         //Similarly, a list of the segments themselves
         //The first element is the head, the middle elements are segment textures, and the last element is the tail texture
@@ -94,7 +97,7 @@ namespace DreadWyrm2
         public int numSegments
         {
             get { return i_numSegments; }
-            set { i_numSegments = (int)MathHelper.Clamp(value, 0, Game1.WYRMSEGS); }
+            set { i_numSegments = (int)MathHelper.Clamp(value, 0, WYRMSEGS); }
         }
 
         public List<Texture2D> SegmentTextures
@@ -181,7 +184,7 @@ namespace DreadWyrm2
             set { f_HeadRotationAccelerationMax = value; }
         }
 
-        public Wyrm(float initialX, float initialY, List<Texture2D> textures, int segments)
+        public Wyrm(float initialX, float initialY)
         {
             f_HeadSpeedMax = 5f;
             f_HeadSpeedMin = 2;
@@ -190,9 +193,6 @@ namespace DreadWyrm2
 
             f_HeadRotationSpeedMax = 6;
             f_HeadRotationSpeedMin = -6;
-
-            //Save the wyrm textures given to us
-            l_t2d_SegmentTextures = textures;
 
             //Start the Wyrm by creating the head
             l_segments = new List<WyrmSegment>();
@@ -204,7 +204,7 @@ namespace DreadWyrm2
             asSprites.Add(new AnimatedSprite(l_t2d_SegmentTextures[HEAD], (int)0, (int)0, SPRITEWIDTH_HEAD, SPRITEHEIGHT_HEAD, HEADFRAMES));
             asSprites[HEAD].IsAnimating = false;
 
-            numSegments = segments;
+            numSegments = WYRMSEGS;
 
             //Add the rest of the Wyrm segments on and create sprites for them
             for (int i = 1; i <= numSegments - 2; i++)
@@ -234,6 +234,23 @@ namespace DreadWyrm2
 
             //lets update the offsets for the newly created segments
             WyrmSegment.calcOffsets();
+        }
+
+        public static void LoadContent(ContentManager Content)
+        {
+            l_t2d_SegmentTextures = new List<Texture2D>();
+
+            if(!WyrmPlayer.nuxMode)
+                l_t2d_SegmentTextures.Add(Content.Load<Texture2D>(@"Textures\wyrmHeadRed"));
+            else
+                l_t2d_SegmentTextures.Add(Content.Load<Texture2D>(@"Textures\nux_head"));
+
+            for (int i = 0; i < WYRMSEGS - 2; i++)
+            {
+                l_t2d_SegmentTextures.Add(Content.Load<Texture2D>(@"Textures\wyrmSegRed"));
+            }
+
+            l_t2d_SegmentTextures.Add(Content.Load<Texture2D>(@"Textures\wyrmTailRed"));
         }
 
         public void Update(GameTime gametime)

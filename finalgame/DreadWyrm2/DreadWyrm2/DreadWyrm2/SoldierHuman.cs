@@ -9,7 +9,7 @@ namespace DreadWyrm2
 {
     class SoldierHuman : Prey
     {
-        float elapsedTimeVel;                 //For counting for changing the animal's velocity
+        float elapsedTimeVel;                 //For counting for changing the soldier's velocity
         const float TIMETOCHANGEVEL = 11;     //When to change velocity (in seconds)
 
         float elapsedTimeShoot = 0.45f;       //For counting for when another bullet can be shot
@@ -21,29 +21,38 @@ namespace DreadWyrm2
         bool isShooting = false;
         bool firstShot = true;
 
-        int shootingRightFacingY;
-        int shootingLeftFacingY;
+        const int NUM_FRAMES = 6;       //The number of frames in the animation for the soldier human
+        const int SPRITE_HEIGHT = 25;   //The height of the soldier's sprite
+        const int SPRITE_WIDTH = 20;    //The width of the soldier's sprite
+        const int PREY_HEIGHT = 24;     //The height of the soldier for grounding purposes
+        const float BOUNDING_RADIUS = 7;  //The bounding radius of the soldier
+        const int MEAT_REWARD = 80;     //The amount of meat this unit is worth
+        const int FACING_Y = 26;        //The Y position on the sprite sheet at which the sprite changes direction
+        const int SHOOTING_LEFT_Y = 52; //The Y position on the sprite sheet at which the sprite shoots left
+        const int SHOOTING_RIGHT_Y = 78;//The Y position on the sprite sheet at which the sprite shoots right
 
-        Texture2D bulletTexture;
-
-        public SoldierHuman(int initialX, int initialY, Texture2D texture, int frames, int spriteHeight, int spriteWidth, int preyHeight,
-                    float boundingRadius, Wyrm predator, int meat, int facingY, int shootingLeftY, int shootingRightY, Texture2D bulletTex)
-            : base(initialX, initialY, texture, frames, spriteHeight, spriteWidth, preyHeight, boundingRadius, predator, meat, facingY)
+        /// <summary>
+        /// A soldier equipped with a gun to combat the wyrm
+        /// </summary>
+        /// <param name="initialX">The initial X position of the soldier</param>
+        /// <param name="initialY">The initial Y position of the soldier</param>
+        /// <param name="predator">The wyrm for the soldier to shoot at</param>
+        /// <param name="bulletTex"></param>
+        public SoldierHuman(int initialX, int initialY, Wyrm predator)
+            : base(initialX, initialY, predator)
         {
-            asSprite = new AnimatedSprite(texture, 0, 0, spriteWidth, spriteHeight, frames);
-            asSprite.IsAnimating = true;
+            preyheight = PREY_HEIGHT;
+            boundingradius = BOUNDING_RADIUS;
+            spriteHeight = SPRITE_HEIGHT;
+            spriteWidth = SPRITE_WIDTH;
 
-            otherFacing = facingY;
+            asSprite = new AnimatedSprite(preyTextures[SOLDIER], 0, 0, SPRITE_WIDTH, SPRITE_HEIGHT, NUM_FRAMES);
+            asSprite.IsAnimating = true;
 
             if (Game1.m_random.NextDouble() < 0.5)
                 xVel = -1;
             else
                 xVel = 1;
-
-            shootingRightFacingY = shootingRightY;
-            shootingLeftFacingY = shootingLeftY;
-
-            bulletTexture = bulletTex;
         }
 
         public override void Update(GameTime gametime)
@@ -97,7 +106,7 @@ namespace DreadWyrm2
 
                 //Use the walking animations when not shooting
                 if (xVel > 0)
-                    asSprite.frameOffsetY = otherFacing;
+                    asSprite.frameOffsetY = FACING_Y;
                 else
                     asSprite.frameOffsetY = 0;
             }
@@ -107,9 +116,9 @@ namespace DreadWyrm2
 
                 //Switch to the shooting animations
                 if (xVel > 0)
-                    asSprite.frameOffsetY = shootingRightFacingY;
+                    asSprite.frameOffsetY = SHOOTING_RIGHT_Y;
                 else
-                    asSprite.frameOffsetY = shootingLeftFacingY;
+                    asSprite.frameOffsetY = SHOOTING_LEFT_Y;
 
                 if (asSprite.Frame == 3 && elapsedTimeShoot > TIMETOSHOOT)
                 {
@@ -125,9 +134,9 @@ namespace DreadWyrm2
                     Vector2 velVec = new Vector2(diffX * unitMultiplier, diffY * unitMultiplier);
 
                     //Create a bullet using that unit vector
-                    Game1.bullets.Add(new Bullet(xPos, yPos, velVec * BULLETSPEED, bulletTexture, 4, 10, 8, 9, BULLETDAMAGE));
+                    bullets.Add(new Bullet(xPos, yPos, velVec * BULLETSPEED, bulletTexture, 4, 10, 8, 9, BULLETDAMAGE));
 
-                    Game1.gunShot.Play();
+                    gunShot.Play();
 
                     elapsedTimeShoot = 0;
                 }
@@ -154,14 +163,14 @@ namespace DreadWyrm2
 
         public override void Draw(SpriteBatch sb)
         {
-            asSprite.Draw(sb, (int)xPos - spritewidth / 2, (int)yPos - spriteheight / 2, false);
+            asSprite.Draw(sb, (int)xPos - spriteWidth / 2, (int)yPos - spriteHeight / 2, false);
         }
 
         public override void getEaten(WyrmPlayer thePlayer)
         {
-            thePlayer.Meat += meatReward;
+            thePlayer.Meat += MEAT_REWARD;
 
-            Game1.chomp.Play();
+            chomp.Play();
         }
 
     }
