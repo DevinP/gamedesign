@@ -96,20 +96,21 @@ namespace DreadWyrm2
             {
                 #region Wyrm is grounded (player has control)
 
-                if (keystate.IsKeyDown(Keys.Up))
+                if (keystate.IsKeyDown(Keys.Up) || keystate.IsKeyDown(Keys.W))
                     theWyrm.HeadAcceleration = 0.3f;
                 else if (keystate.IsKeyUp(Keys.Up))
                     theWyrm.HeadAcceleration = -0.1f;
 
-                if (keystate.IsKeyDown(Keys.Right))
+                if (keystate.IsKeyDown(Keys.Right) || keystate.IsKeyDown(Keys.D))
                 {
                     theWyrm.HeadRotationSpeed = 0.05f;
                 }
-                else if (keystate.IsKeyDown(Keys.Left))
+                else if (keystate.IsKeyDown(Keys.Left) || keystate.IsKeyDown(Keys.A))
                 {
                     theWyrm.HeadRotationSpeed = -0.05f;
                 }
-                else if (keystate.IsKeyUp(Keys.Right) && keystate.IsKeyUp(Keys.Left))
+                else if (keystate.IsKeyUp(Keys.Right) && keystate.IsKeyUp(Keys.Left) && 
+                    keystate.IsKeyUp(Keys.A) && keystate.IsKeyUp(Keys.D))
                 {
                     theWyrm.HeadRotationSpeed = 0;
                 }

@@ -100,7 +100,6 @@ namespace DreadWyrm2
             xPos = initialX;
             yPos = initialY;
 
-            preyheight = preyHeight;
 
             theWyrm = predator;
 

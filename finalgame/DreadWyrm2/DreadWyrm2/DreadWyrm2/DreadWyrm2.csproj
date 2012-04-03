@@ -110,6 +110,7 @@
     <Compile Include="Animal.cs" />
     <Compile Include="AnimatedSprite.cs" />
     <Compile Include="Background.cs" />
+    <Compile Include="Building.cs" />
     <Compile Include="Bullet.cs" />
     <Compile Include="Engineer.cs" />
     <Compile Include="Explosion.cs" />
