@@ -865,9 +865,10 @@ namespace DreadWyrm2
                         bullets[i].Draw(spriteBatch);
                     }
 
-                    theWyrmPlayer.Draw(spriteBatch);
 
                     Building.DrawAll(spriteBatch);
+
+                    theWyrmPlayer.Draw(spriteBatch);
 
                     for (int i = 0; i < explosions.Count; i++)
                     {

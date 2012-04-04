@@ -16,7 +16,7 @@ namespace DreadWyrm2
     {
         bool isShooting = false;
 
-        const float TIMETOSHOOT = 0.12f;                         //Delay between turret shots (in seconds)
+        const float TIMETOSHOOT = 0.08f;                         //Delay between turret shots (in seconds)
         float elapsedTimeShoot = (float)(0 - 0.5 * TIMETOSHOOT);//A counter to track time between shots, so we know when we can shoot again (starts at 0 - FRAME_LENGTH)
         float FRAME_LENGTH = (float)(0.5 * TIMETOSHOOT);        //0.5 * TIMETOSHOOT
 
@@ -24,12 +24,14 @@ namespace DreadWyrm2
 
         //Turret constants
         const int BULLETSPEED = 8;
-        const int BULLETDAMAGE = 7;
+        const int BULLETDAMAGE = 5;
+        const int TURRET_MAX_RANGE = 500;
+
+        //Spritesheet stuff
         const int SPRITE_WIDTH = 140;
         const int SPRITE_HEIGHT = 100;
         const int TURRET_HEIGHT = 101;
         const float TURRET_SPRITE_SCALING = 0.5f;
-
         const int NUM_FRAMES = 4;
         const int FACING_LEFT_DOWN = 0;
         const int FACING_LEFT_MIDDLE = 100;
@@ -56,7 +58,19 @@ namespace DreadWyrm2
         {
             if (!theWyrm.b_wyrmGrounded)
             {
-                isShooting = true;
+                //Calculate the length from the turret to the wyrm head
+                Vector2 wyrmPos = new Vector2(theWyrm.l_segments[0].X, theWyrm.l_segments[0].Y);
+                Vector2 turretPos = new Vector2(xPos, yPos);
+
+                Vector2 diff = new Vector2(wyrmPos.X - turretPos.X, wyrmPos.Y - turretPos.Y);
+
+                float length = diff.Length();
+
+                //If the wyrm is within the range of the turret, fire at it
+                if (length < TURRET_MAX_RANGE)
+                    isShooting = true;
+                else
+                    isShooting = false;
             }
             else
             {
