@@ -221,9 +221,10 @@ namespace DreadWyrm2
 
                 totalMoney -= ENGINEER_COST;
             }
-            else if (clickedTurret && !drawGhostTurret)
+            else if (clickedTurret && !drawGhostTurret && (totalMoney - TURRET_COST >= 0))
             {
                 drawGhostTurret = true;
+                totalMoney -= TURRET_COST;
             }
         }
 
