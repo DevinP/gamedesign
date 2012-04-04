@@ -12,7 +12,7 @@ namespace DreadWyrm2
     public abstract class Building
     {
 
-        protected AnimatedSprite asprite;                   //The animated sprite belonging to this prey
+        protected AnimatedSprite asSprite;                   //The animated sprite belonging to this prey
 
         protected int xPos;                                 //The x position of the prey, measured in the center
         protected int yPos;                                 //The y position of the prey, measured in the center
@@ -24,7 +24,9 @@ namespace DreadWyrm2
         protected int spriteWidth;
         protected int buildingheight;                       //The height of the buildings's bounding box
 
-        public float boundingradius;                        //The radius of the bounding circle for the prey
+        protected int hitPoints;                           //The hit points of the building
+
+        public float boundingRadius;                        //The radius of the bounding circle for the prey
 
         protected Wyrm theWyrm;                             //The Wyrm player so buildings (turrets) can shoot at it
 
@@ -32,7 +34,12 @@ namespace DreadWyrm2
 
         public static List<Building> buildings;             //The list of all the buildings on the battlefield
 
+        //Sound effects
+        //Turret-related sound effects
+        protected static SoundEffect turretShot;
 
+        //Constant ints to access the building texture list
+        public const int TURRET = 0;
 
         /// <summary>
         /// Building Constructor
@@ -45,7 +52,6 @@ namespace DreadWyrm2
             xPos = initialX;
             yPos = initialY;
 
-
             theWyrm = predator;
 
             basepoint = new Vector2(initialX, initialY + spriteHeight / 2);
@@ -54,10 +60,12 @@ namespace DreadWyrm2
 
         public static void LoadContent(ContentManager Content)
         {
+            turretShot = Content.Load<SoundEffect>(@"Sounds\turretShot");
+
+            buildingTextures = new List<Texture2D>();
+            buildingTextures.Add(Content.Load<Texture2D>(@"Textures\turret_sprite_sheet_140x100_4x6"));
 
             /*
-            buildingTextures = new List<Texture2D>();
-            buildingTextures.Add(Content.Load<Texture2D>(@"Textures\turret"));
             buildingTextures.Add(Content.Load<Texture2D>(@"Textures\barracks"));
             buildingTextures.Add(Content.Load<Texture2D>(@"Textures\factory"));
             buildingTextures.Add(Content.Load<Texture2D>(@"Textures\generator"));
@@ -65,19 +73,19 @@ namespace DreadWyrm2
 
         }
 
-        //A helper function which keeps the prey near the current ground level
+        //A helper function which keeps the building near the current ground level
         protected void footToGround()
         {
             while (!Background.checkIsGrounded((int)basepoint.X, (int)basepoint.Y))
             {
-                //The base is not grounded. Move the prey down until the base is grounded
+                //The base is not grounded. Move the building down until the base is grounded
                 yPos++;
                 recalcPositions();
             }
 
             while (Background.checkIsGrounded((int)footpoint.X, (int)footpoint.Y))
             {
-                //The footpoint is grounded, edge the prey up until the footpoint is not grounded
+                //The footpoint is grounded, edge the building up until the footpoint is not grounded
                 yPos--;
                 recalcPositions();
             }
@@ -108,6 +116,11 @@ namespace DreadWyrm2
             return numBuilds;
         }
 
+        public static void reInitializeAll()
+        {
+            buildings = new List<Building>();
+        }
+
         /// <summary>
         /// Draws all the buildings in the game
         /// </summary>
@@ -125,6 +138,8 @@ namespace DreadWyrm2
         public abstract void Update(GameTime gametime);
 
         public abstract void Draw(SpriteBatch sb);
+
+        public abstract void takeDamage(int amountDamage);
 
         public abstract void getDestroyed(WyrmPlayer thePlayer);
 

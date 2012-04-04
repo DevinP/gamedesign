@@ -38,7 +38,7 @@ namespace DreadWyrm2
             : base(initialX, initialY, predator)
         {
             preyheight = PREY_HEIGHT;
-            boundingradius = BOUNDING_RADIUS;
+            boundingRadius = BOUNDING_RADIUS;
             spriteHeight = SPRITE_HEIGHT;
             spriteWidth = SPRITE_WIDTH;
 
@@ -124,8 +124,8 @@ namespace DreadWyrm2
                 yPosBullet -= 16;
 
                 //Create a bullet using that unit vector
-                bullets.Add(new Bullet(xPosBullet, yPosBullet, velVec * BULLETSPEED, cannonballTexture, 0, 19, 18, 7, BULLETDAMAGE));
-                bullets[bullets.Count - 1].asprite.IsAnimating = false;
+                Game1.bullets.Add(new Bullet(xPosBullet, yPosBullet, velVec * BULLETSPEED, Game1.cannonballTexture, 0, 19, 18, 7, BULLETDAMAGE));
+                Game1.bullets[Game1.bullets.Count - 1].asprite.IsAnimating = false;
 
                 tankShot.Play();
 

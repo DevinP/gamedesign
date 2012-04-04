@@ -29,7 +29,7 @@ namespace DreadWyrm2
             : base(initialX, initialY, predator)
         {
             preyheight = PREY_HEIGHT;
-            boundingradius = BOUNDING_RADIUS;
+            boundingRadius = BOUNDING_RADIUS;
             spriteHeight = SPRITE_HEIGHT;
             spriteWidth = SPRITE_WIDTH;
 

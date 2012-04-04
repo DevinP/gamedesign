@@ -146,6 +146,28 @@ namespace DreadWyrm2
                 spriteBatch.End();
         }
 
+        public void Draw(
+        SpriteBatch spriteBatch,
+        int XOffset,
+        int YOffset,
+        float scale)
+        {
+
+           /* spriteBatch.Draw(
+                t2dTexture,
+                new Rectangle(
+                  iScreenX + XOffset,
+                  iScreenY + YOffset,
+                  iFrameWidth,
+                  iFrameHeight),
+                GetSourceRect(),
+                cTinting);
+            */
+
+            spriteBatch.Draw(t2dTexture, new Vector2(iScreenX + XOffset, iScreenY + YOffset), GetSourceRect(), Color.White,
+                0, new Vector2(0, 0), scale, SpriteEffects.None, 0);
+        }
+
         /* Draw()
          * 
          * This method is a version of Draw which is best used in sprites that will be rotating around their center

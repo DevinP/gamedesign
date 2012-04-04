@@ -34,13 +34,13 @@ namespace DreadWyrm2
         /// <param name="meat">The amount of meat that this animal is worth</param>
         /// <param name="facingY">The Y position on the spritesheet which mirrors the sprite's facing</param>
         public Animal(int initialX, int initialY, Texture2D texture, int frames, int spHeight, int spWidth, int prHeight,
-                      float boundingRadius, Wyrm predator, int meat, int facingY)
+                      float bndRadius, Wyrm predator, int meat, int facingY)
             : base(initialX, initialY, predator)
         {
             spriteWidth = spWidth;
             spriteHeight = spHeight;
             preyheight = prHeight;
-            boundingradius = boundingRadius;
+            boundingRadius = bndRadius;
 
             meatReward = meat;
             otherFacing = facingY;

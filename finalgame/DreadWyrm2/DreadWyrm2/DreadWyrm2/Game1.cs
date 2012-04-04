@@ -20,7 +20,6 @@ namespace DreadWyrm2
         static int SCREENWIDTH = 1280;
         static int SCREENHEIGHT = 720;
 
-
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
@@ -52,13 +51,18 @@ namespace DreadWyrm2
         public static List<Explosion> explosions;           //The current explosions in the game
         public static SoundEffect explosion;
 
+        //Bullet data
+        public static List<Bullet> bullets;                 //The bullets currently in the game
+        public static Texture2D bulletTexture;              //The texture for bullets in the game
+        public static Texture2D cannonballTexture;          //The texture for larger cannonballs in the game
+
         Background theBackground;
 
-        bool gameOver = false;                              //The game has ended
-        bool victory = false;                               //The player has won
+        public static bool gameOver = false;                //The game has ended
+        bool singlePlayerVictory = false;                   //The player has won in single player
         bool instructionMode = false;
         bool titleTransitionOk = true;
-        bool isTwoPlayer = false;
+        public static bool isTwoPlayer = false;
 
         int currWave = 1;
 
@@ -166,6 +170,8 @@ namespace DreadWyrm2
 
             Prey.LoadContent(Content);
 
+            Building.LoadContent(Content);
+
             roar = Content.Load<SoundEffect>(@"Sounds\Predator Roar");
 
             explosion = Content.Load<SoundEffect>(@"Sounds\explosion");
@@ -179,11 +185,12 @@ namespace DreadWyrm2
             t2dbackgroundSinglePlayer = Content.Load<Texture2D>(@"Textures\background");
             t2dforegroundSinglePlayer = Content.Load<Texture2D>(@"Textures\foreground");
 
-            //For now, the background for multiplayer is the same for single player
             t2dbackgroundTwoPlayer = Content.Load<Texture2D>(@"Textures\2pbackground");
             t2dforegroundTwoPlayer = Content.Load<Texture2D>(@"Textures\2pforeground");
 
             explosionTexture = Content.Load<Texture2D>(@"Textures\explosions");
+            bulletTexture = Content.Load<Texture2D>(@"Textures\bullet");
+            cannonballTexture = Content.Load<Texture2D>(@"Textures\cannonball");
 
             //Initialize the sprites which appear in the title/instruction screens
             tempGiraffe = new AnimatedSprite(Prey.preyTextures[Prey.GIRAFFE], 0, 0, 102, 95, 4);
@@ -239,7 +246,12 @@ namespace DreadWyrm2
                 theWyrmPlayer.healthAfterRegen = 0;
 
                 if (elapsedTimeGameEnd > 3)
-                    endSinglePlayerGame();
+                {
+                    if (!isTwoPlayer)
+                        endSinglePlayerGame();
+                    else
+                        endMultiPlayerGame();
+                }
 
                 return;
             }
@@ -287,6 +299,7 @@ namespace DreadWyrm2
                 #region GamePlay Mode (m_gameStarted == true)
 
                 int numPrey;
+                
 
                 if (keystate.IsKeyDown(Keys.U) && upgradeModeCanSwitch)
                 {
@@ -415,6 +428,11 @@ namespace DreadWyrm2
 
                         numPrey = Prey.UpdateAll(gameTime);
 
+                        for (int i = 0; i < bullets.Count; i++)
+                        {
+                            bullets[i].Update(gameTime);
+                        }
+
                         theWyrmPlayer.Update(gameTime, keystate);
 
                         checkBullets();
@@ -464,7 +482,7 @@ namespace DreadWyrm2
                                 if (currWave > numWaves)
                                 {
                                     gameOver = true;
-                                    victory = true;
+                                    singlePlayerVictory = true;
                                 }
                                 else
                                     startNewWave(currWave - 1);
@@ -593,7 +611,16 @@ namespace DreadWyrm2
 
                         numPrey = Prey.UpdateAll(gameTime);
 
+                        for (int i = 0; i < bullets.Count; i++)
+                        {
+                            bullets[i].Update(gameTime);
+                        }
+
                         theWyrmPlayer.Update(gameTime, keystate);
+
+                        int numBuilding;
+
+                        numBuilding = Building.UpdateAll(gameTime);
 
                         checkBullets();
 
@@ -727,6 +754,11 @@ namespace DreadWyrm2
 
                     Prey.DrawAll(spriteBatch);
 
+                    for (int i = 0; i < bullets.Count; i++)
+                    {
+                        bullets[i].Draw(spriteBatch);
+                    }
+
                     theWyrmPlayer.Draw(spriteBatch);
 
                     for (int i = 0; i < explosions.Count; i++)
@@ -734,7 +766,7 @@ namespace DreadWyrm2
                         explosions[i].Draw(spriteBatch);
                     }
 
-                    if (victory)
+                    if (singlePlayerVictory)
                     {
                         spriteBatch.DrawString(titleFont, "YOU ATE ALL THE THINGS", new Vector2(500, 150), Color.Red);
                     }
@@ -816,7 +848,7 @@ namespace DreadWyrm2
                     else
                         spriteBatch.DrawString(titleFont, "Press U for UPGRADES", new Vector2(920, 570), Color.Red);
 
-                    if (gameOver && !victory)
+                    if (gameOver && !singlePlayerVictory)
                         spriteBatch.DrawString(scoreFont, "G A M E   O V E R", new Vector2(500, 150), Color.Red);
                     #endregion
                 }
@@ -828,7 +860,14 @@ namespace DreadWyrm2
 
                     Prey.DrawAll(spriteBatch);
 
+                    for (int i = 0; i < bullets.Count; i++)
+                    {
+                        bullets[i].Draw(spriteBatch);
+                    }
+
                     theWyrmPlayer.Draw(spriteBatch);
+
+                    Building.DrawAll(spriteBatch);
 
                     for (int i = 0; i < explosions.Count; i++)
                     {
@@ -982,7 +1021,7 @@ namespace DreadWyrm2
         {
             isTwoPlayer = true;
 
-            victory = false;
+            singlePlayerVictory = false;
 
             theBackground = new Background(t2dbackgroundTwoPlayer, t2dforegroundTwoPlayer);
 
@@ -997,6 +1036,8 @@ namespace DreadWyrm2
             explosions = new List<Explosion>();
 
             Prey.reInitializeAll();
+            bullets = new List<Bullet>();
+            Building.reInitializeAll();
 
             elapsedTimeGameEnd = 0;
 
@@ -1010,7 +1051,7 @@ namespace DreadWyrm2
         {
             isTwoPlayer = false;
 
-            victory = false;
+            singlePlayerVictory = false;
 
             if (nuxMode)
                 WyrmPlayer.nuxMode = true;
@@ -1022,6 +1063,7 @@ namespace DreadWyrm2
             theBackground = new Background(t2dbackgroundSinglePlayer, t2dforegroundSinglePlayer);
 
             Prey.reInitializeAll();
+            bullets = new List<Bullet>();
              
             explosions = new List<Explosion>();
 
@@ -1044,6 +1086,12 @@ namespace DreadWyrm2
         }
 
         void endSinglePlayerGame()
+        {
+            m_gameStarted = false;
+            gameOver = false;
+        }
+
+        void endMultiPlayerGame()
         {
             m_gameStarted = false;
             gameOver = false;
@@ -1204,7 +1252,7 @@ namespace DreadWyrm2
                 if (isColliding((int)(theWyrmPlayer.theWyrm.l_segments[0].X - WYRMHEAD_CENTER_NUMBER * Math.Cos(theWyrmPlayer.theWyrm.HeadDirection)),
                     (int)(theWyrmPlayer.theWyrm.l_segments[0].Y + QUARTER_OF_WYRMHEAD_SPRITEHEIGHT - WYRMHEAD_CENTER_NUMBER * Math.Sin(theWyrmPlayer.theWyrm.HeadDirection)),
                     theWyrmPlayer.theWyrm.eatRadius,
-                    (int)Prey.prey[i].xPosistion, Prey.prey[i].yPosition, Prey.prey[i].boundingradius))
+                    (int)Prey.prey[i].xPosistion, Prey.prey[i].yPosition, Prey.prey[i].boundingRadius))
                 {
                     Prey.prey[i].getEaten(theWyrmPlayer);
                     Prey.prey.RemoveAt(i);
@@ -1218,17 +1266,17 @@ namespace DreadWyrm2
 
         void checkBullets()
         {
-            for (int i = 0; i < Prey.bullets.Count; i++)
+            for (int i = 0; i < bullets.Count; i++)
             {
-                if (Prey.bullets[i].xPosistion >= Background.SCREENWIDTH || Prey.bullets[i].xPosistion <= 0 || Prey.bullets[i].yPosition <= 0)
+                if (bullets[i].xPosistion >= Background.SCREENWIDTH || bullets[i].xPosistion <= 0 || bullets[i].yPosition <= 0)
                 {
-                    Prey.bullets.RemoveAt(i);
+                    bullets.RemoveAt(i);
                     continue;
                 }
 
-                if (Background.checkIsGrounded(Prey.bullets[i].xPosistion, Prey.bullets[i].yPosition))
+                if (Background.checkIsGrounded(bullets[i].xPosistion, bullets[i].yPosition))
                 {
-                    Prey.bullets.RemoveAt(i);
+                    bullets.RemoveAt(i);
                     continue;
                 }
 
@@ -1236,28 +1284,28 @@ namespace DreadWyrm2
                 if (isColliding((int)(theWyrmPlayer.theWyrm.l_segments[0].X - WYRMHEAD_CENTER_NUMBER * Math.Cos(theWyrmPlayer.theWyrm.HeadDirection)),
                     (int)(theWyrmPlayer.theWyrm.l_segments[0].Y + QUARTER_OF_WYRMHEAD_SPRITEHEIGHT - WYRMHEAD_CENTER_NUMBER * Math.Sin(theWyrmPlayer.theWyrm.HeadDirection)),
                     theWyrmPlayer.theWyrm.eatRadius,
-                    (int)Prey.bullets[i].xPosistion, Prey.bullets[i].yPosition, Prey.bullets[i].boundingRadius))
+                    (int)bullets[i].xPosistion, bullets[i].yPosition, bullets[i].boundingRadius))
                 {
-                    theWyrmPlayer.Health -= Prey.bullets[i].DamageDealt;
+                    theWyrmPlayer.Health -= bullets[i].DamageDealt;
 
                     if (theWyrmPlayer.Health <= 0 && !WyrmPlayer.nuxMode)
                         gameOver = true;
 
-                    Prey.bullets.RemoveAt(i);
+                    bullets.RemoveAt(i);
 
                     continue;
                 }
 
                 foreach (WyrmSegment ws in theWyrmPlayer.theWyrm.l_segments)
                 {
-                    if (isColliding((int)ws.X, (int)ws.Y + QUARTER_OF_WYRMHEAD_SPRITEHEIGHT, ws.boundingRadius, Prey.bullets[i].xPosistion, Prey.bullets[i].yPosition, Prey.bullets[i].boundingRadius))
+                    if (isColliding((int)ws.X, (int)ws.Y + QUARTER_OF_WYRMHEAD_SPRITEHEIGHT, ws.boundingRadius, bullets[i].xPosistion, bullets[i].yPosition, bullets[i].boundingRadius))
                     {
-                        theWyrmPlayer.Health -= Prey.bullets[i].DamageDealt;
+                        theWyrmPlayer.Health -= bullets[i].DamageDealt;
 
                         if (theWyrmPlayer.Health <= 0 && !WyrmPlayer.nuxMode)
                             gameOver = true;
 
-                        Prey.bullets.RemoveAt(i);
+                        bullets.RemoveAt(i);
 
                         break;
                     }

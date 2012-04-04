@@ -25,17 +25,17 @@ namespace DreadWyrm2
         protected int spriteWidth;
         protected int preyheight;              //The height of the prey's bounding box
 
-        public float boundingradius;           //The radius of the bounding circle for the prey
+        public float boundingRadius;           //The radius of the bounding circle for the prey
 
         protected Wyrm theWyrm;
 
         public static List<Texture2D> preyTextures;     //The textures used by the prey
-        public static List<Bullet> bullets;             //The bullets being fired by the prey
+        //public static List<Bullet> bullets;             //The bullets currently in the game
 
         public static List<Prey> prey;
 
-        protected static Texture2D bulletTexture;
-        protected static Texture2D cannonballTexture;
+        //public static Texture2D bulletTexture;
+        //public static Texture2D cannonballTexture;
 
         protected static SoundEffect chomp;
         protected static SoundEffect gunShot;
@@ -113,9 +113,6 @@ namespace DreadWyrm2
             gunShot = Content.Load<SoundEffect>(@"Sounds\soldierShot");
             tankShot = Content.Load<SoundEffect>(@"Sounds\tankShot");
 
-            bulletTexture = Content.Load<Texture2D>(@"Textures\bullet");
-            cannonballTexture = Content.Load<Texture2D>(@"Textures\cannonball");
-
             preyTextures = new List<Texture2D>();
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\giraffe"));
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\elephant"));
@@ -170,10 +167,10 @@ namespace DreadWyrm2
                     numPrey--;
             }
 
-            for (int i = 0; i < bullets.Count; i++)
+            /*for (int i = 0; i < bullets.Count; i++)
             {
                 bullets[i].Update(gameTime);
-            }
+            }*/
 
             return numPrey;
         }
@@ -189,15 +186,15 @@ namespace DreadWyrm2
                 prey[i].Draw(spriteBatch);
             }
 
-            for (int i = 0; i < bullets.Count; i++)
+            /*for (int i = 0; i < bullets.Count; i++)
             {
                 bullets[i].Draw(spriteBatch);
-            }
+            }*/
         }
 
         public static void reInitializeAll()
         {
-            bullets = new List<Bullet>();
+            //bullets = new List<Bullet>();
             prey = new List<Prey>();
         }
 

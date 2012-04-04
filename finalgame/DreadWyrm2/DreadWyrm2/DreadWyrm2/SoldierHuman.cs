@@ -42,7 +42,7 @@ namespace DreadWyrm2
             : base(initialX, initialY, predator)
         {
             preyheight = PREY_HEIGHT;
-            boundingradius = BOUNDING_RADIUS;
+            boundingRadius = BOUNDING_RADIUS;
             spriteHeight = SPRITE_HEIGHT;
             spriteWidth = SPRITE_WIDTH;
 
@@ -57,7 +57,6 @@ namespace DreadWyrm2
 
         public override void Update(GameTime gametime)
         {
-
             if (!theWyrm.b_wyrmGrounded)
             {
                 //Oh no it's the wyrm!
@@ -134,7 +133,7 @@ namespace DreadWyrm2
                     Vector2 velVec = new Vector2(diffX * unitMultiplier, diffY * unitMultiplier);
 
                     //Create a bullet using that unit vector
-                    bullets.Add(new Bullet(xPos, yPos, velVec * BULLETSPEED, bulletTexture, 4, 10, 8, 9, BULLETDAMAGE));
+                    Game1.bullets.Add(new Bullet(xPos, yPos, velVec * BULLETSPEED, Game1.bulletTexture, 4, 10, 8, 9, BULLETDAMAGE));
 
                     gunShot.Play();
 

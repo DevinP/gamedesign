@@ -194,6 +194,7 @@ namespace DreadWyrm2
                 if (drawGhostTurret)
                 {
                     //Place the turret at this location (mouseX, 419)
+                    Building.buildings.Add(new Turret(mouseX, 419, theWyrm));
                     drawGhostTurret = false;
 
                 }
