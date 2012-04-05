@@ -110,12 +110,16 @@
     <Compile Include="Animal.cs" />
     <Compile Include="AnimatedSprite.cs" />
     <Compile Include="Background.cs" />
+    <Compile Include="Barracks.cs" />
     <Compile Include="Building.cs" />
     <Compile Include="Bullet.cs" />
     <Compile Include="Engineer.cs" />
     <Compile Include="Explosion.cs" />
+    <Compile Include="Factory.cs" />
+    <Compile Include="Generator.cs" />
     <Compile Include="HUDElement.cs" />
     <Compile Include="HumanPlayer.cs" />
+    <Compile Include="OilDerrick.cs" />
     <Compile Include="Turret.cs" />
     <Compile Include="WyrmPlayer.cs" />
     <Compile Include="Prey.cs" />

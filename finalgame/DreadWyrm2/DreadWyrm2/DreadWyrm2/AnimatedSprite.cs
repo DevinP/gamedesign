@@ -152,20 +152,19 @@ namespace DreadWyrm2
         int YOffset,
         float scale)
         {
-
-           /* spriteBatch.Draw(
-                t2dTexture,
-                new Rectangle(
-                  iScreenX + XOffset,
-                  iScreenY + YOffset,
-                  iFrameWidth,
-                  iFrameHeight),
-                GetSourceRect(),
-                cTinting);
-            */
-
             spriteBatch.Draw(t2dTexture, new Vector2(iScreenX + XOffset, iScreenY + YOffset), GetSourceRect(), Color.White,
                 0, new Vector2(0, 0), scale, SpriteEffects.None, 0);
+        }
+
+        public void Draw(
+        SpriteBatch spriteBatch,
+        int XOffset,
+        int YOffset,
+        float scale,
+        float rotationAngle)
+        {
+            spriteBatch.Draw(t2dTexture, new Vector2(iScreenX + XOffset, iScreenY + YOffset), GetSourceRect(), Color.White, rotationAngle,
+                new Vector2(0, 0), scale, SpriteEffects.None, 0);
         }
 
         /* Draw()

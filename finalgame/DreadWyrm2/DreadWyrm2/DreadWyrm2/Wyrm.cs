@@ -19,12 +19,12 @@ namespace DreadWyrm2
         const int HEAD = 0;
 
         //The width of the Wyrm sprites
-        const int SPRITEWIDTH_HEAD = 60; //The head is larger so it can have mandibles
-        const int SPRITEWIDTH = 38;
+        public static int SPRITEWIDTH_HEAD = 60; //The head is larger so it can have mandibles
+        public static int SPRITEWIDTH = 38; 
 
         //The height of the Wyrm sprites
-        const int SPRITEHEIGHT_HEAD = 60;
-        const int SPRITEHEIGHT = 38;
+        public static int SPRITEHEIGHT_HEAD = 60;
+        public static int SPRITEHEIGHT = 38;
 
         //The number of frames in the head animation
         const int HEADFRAMES = 0;
@@ -380,62 +380,13 @@ namespace DreadWyrm2
                 }
                 #endregion
 
-                /*
-                #region Dealings with the Background class
-
-                //See if the head's position is grounded
-                b_wyrmGrounded = Background.checkIsGrounded((int)l_segments[HEAD].X, (int)l_segments[HEAD].Y);
-
-
-                #region Create dirt paths on background
-                //We need to run through each pixel of the tail
-
-                //the starting point of the tail texture
-                int tailStartX = (int)l_segments[l_segments.Count-1].X - SPRITEWIDTH/2;
-                int tailStartY = (int)l_segments[l_segments.Count - 1].Y;
-
-                //for each pixel in the X direction
-                for (int i = tailStartX; i < tailStartX + SPRITEWIDTH; i++)
-                {
-                    //for each pixel i nthe y direction
-                    for (int j = tailStartY; j < tailStartY + SPRITEHEIGHT; j++)
-                    {
-                        //the wyrm better be on the screen
-                        if (i > 0 && j > 0 && i < Background.SCREENWIDTH && j < Background.SCREENHEIGHT)
-                        {
-                            // is the background alpha already less than 100%?
-                            if (Background.pixels[j * Background.SCREENWIDTH + i].A < 255)
-                            {
-                                //actually, do nothing
-                            }
-                            else
-                            {
-                                //lets create a wyrmtrail object
-                                Background.createWyrmTrail(i, j);
-
-                                //actually, make alpha 0, and murder the screen
-                                //Background.pixels[j * Background.SCREENWIDTH + i].A = 0;
-                            }
-                        }
-                    }
-
-                }
-
-
-
-                #endregion
-
-                #endregion
-                  
-                 //*/
-
             }
 
         }
 
         public void Draw(SpriteBatch sb)
         {
-            //Draw all the of the segments
+            //Draw all of the segments at normal sprite size
             for (int i = 1; i <= numSegments; i++)
             {
                 asSprites[numSegments - i].Draw(sb, (int)l_segments[numSegments - i].X, (int)l_segments[numSegments - i].Y + (SPRITEHEIGHT / 2),

@@ -40,6 +40,10 @@ namespace DreadWyrm2
 
         //Constant ints to access the building texture list
         public const int TURRET = 0;
+        public const int BARRACKS = 1;
+        public const int FACTORY = 2;
+        public const int OIL_DERRICK = 3;
+        public const int GENERATOR = 4;
 
         /// <summary>
         /// Building Constructor
@@ -54,8 +58,8 @@ namespace DreadWyrm2
 
             theWyrm = predator;
 
-            basepoint = new Vector2(initialX, initialY + spriteHeight / 2);
-            footpoint = new Vector2(initialX, initialY + buildingheight / 2);
+            basepoint = new Vector2(initialX, initialY + spriteHeight);
+            footpoint = new Vector2(initialX, initialY + buildingheight);
         }
 
         public static void LoadContent(ContentManager Content)
@@ -64,13 +68,10 @@ namespace DreadWyrm2
 
             buildingTextures = new List<Texture2D>();
             buildingTextures.Add(Content.Load<Texture2D>(@"Textures\turret_sprite_sheet_140x100_4x6"));
-
-            /*
-            buildingTextures.Add(Content.Load<Texture2D>(@"Textures\barracks"));
-            buildingTextures.Add(Content.Load<Texture2D>(@"Textures\factory"));
-            buildingTextures.Add(Content.Load<Texture2D>(@"Textures\generator"));
-            //*/
-
+            buildingTextures.Add(Content.Load<Texture2D>(@"Textures\Barracks142x68"));
+            buildingTextures.Add(Content.Load<Texture2D>(@"Textures\Factory142x100"));
+            buildingTextures.Add(Content.Load<Texture2D>(@"Textures\OilDerrickBuilding55x100"));
+            buildingTextures.Add(Content.Load<Texture2D>(@"Textures\Generator251x126"));
         }
 
         //A helper function which keeps the building near the current ground level
@@ -94,9 +95,9 @@ namespace DreadWyrm2
         protected void recalcPositions()
         {
             basepoint.X = xPos;
-            basepoint.Y = yPos + spriteHeight / 2;
+            basepoint.Y = yPos + spriteHeight;
             footpoint.X = xPos;
-            footpoint.Y = yPos + buildingheight / 2;
+            footpoint.Y = yPos + buildingheight;
         }
 
         /// <summary>

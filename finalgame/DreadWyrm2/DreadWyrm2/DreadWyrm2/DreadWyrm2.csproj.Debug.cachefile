@@ -47,8 +47,8 @@ Content\Textures\debugTex.xnb
 Content\Textures\debugButtonTex.xnb
 Content\Textures\BarracksIcon.xnb
 Content\Textures\FactoryIcon.xnb
-Content\Textures\OilDerrickIcon.xnb
 Content\Textures\turretSprite.xnb
+Content\Textures\OilDerrickIcon.xnb
 Content\Textures\TurretIcon.xnb
 Content\Textures\addUnit.xnb
 Content\Textures\ghostTurret.xnb
@@ -58,6 +58,17 @@ Content\Textures\soldierIcon.xnb
 Content\Textures\engineerIcon.xnb
 Content\Sounds\turretShot.xnb
 Content\Textures\turret_sprite_sheet_140x100_4x6.xnb
+Content\Textures\Barracks142x68.xnb
+Content\Textures\GhostBarracks142x68.xnb
+Content\Textures\BarracksIconDisabled.xnb
+Content\Textures\Factory142x100.xnb
+Content\Textures\GhostFactory142x100.xnb
+Content\Textures\FactoryIconDisabled.xnb
+Content\Textures\TurretIconDisabled.xnb
+Content\Textures\OilDerrickIconDisabled.xnb
+Content\Textures\OilDerrickBuilding55x100.xnb
+Content\Textures\GhostOilDerrickBuilding55x100.xnb
+Content\Textures\Generator251x126.xnb
 Content\Sounds\bgm.wma
 Content\Sounds\bgm2.wma
 Content\Sounds\bgm3.wma

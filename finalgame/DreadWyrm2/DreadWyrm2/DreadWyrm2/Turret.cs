@@ -24,7 +24,7 @@ namespace DreadWyrm2
 
         //Turret constants
         const int BULLETSPEED = 8;
-        const int BULLETDAMAGE = 5;
+        const int BULLETDAMAGE = 4;
         const int TURRET_MAX_RANGE = 500;
 
         //Spritesheet stuff
@@ -196,6 +196,9 @@ namespace DreadWyrm2
             asSprite.Update(gametime);
 
             footToGround();
+
+            yPos += (int) (SPRITE_HEIGHT * TURRET_SPRITE_SCALING + 2);
+
         }
 
         /// <summary>
@@ -253,7 +256,7 @@ namespace DreadWyrm2
 
         public override void Draw(SpriteBatch sb)
         {
-            asSprite.Draw(sb, xPos, yPos + 1, TURRET_SPRITE_SCALING);
+            asSprite.Draw(sb, xPos, yPos, TURRET_SPRITE_SCALING);
         }
 
         public override void takeDamage(int amountDamage)

@@ -858,15 +858,14 @@ namespace DreadWyrm2
 
                     theBackground.Draw(spriteBatch);
 
-                    Prey.DrawAll(spriteBatch);
+                    Building.DrawAll(spriteBatch);
 
                     for (int i = 0; i < bullets.Count; i++)
                     {
                         bullets[i].Draw(spriteBatch);
                     }
 
-
-                    Building.DrawAll(spriteBatch);
+                    Prey.DrawAll(spriteBatch);
 
                     theWyrmPlayer.Draw(spriteBatch);
 
@@ -1032,13 +1031,14 @@ namespace DreadWyrm2
             List<Texture2D> wyrmTextures = new List<Texture2D>();
 
             theWyrmPlayer = new WyrmPlayer();
-            theHumanPlayer = new HumanPlayer(theWyrmPlayer);
 
             explosions = new List<Explosion>();
 
             Prey.reInitializeAll();
             bullets = new List<Bullet>();
             Building.reInitializeAll();
+
+            theHumanPlayer = new HumanPlayer(theWyrmPlayer);
 
             elapsedTimeGameEnd = 0;
 
