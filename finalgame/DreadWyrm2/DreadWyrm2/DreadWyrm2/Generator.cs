@@ -41,7 +41,17 @@ namespace DreadWyrm2
             asSprite.Draw(sb, xPos, yPos, false);
         }
 
-        public override void takeDamage(int amountDamage)
+        public override int getBoundingX()
+        {
+            return xPos;
+        }
+
+        public override int getBoundingY()
+        {
+            return yPos;
+        }
+
+        public override void takeDamage()
         {
             throw new NotImplementedException();
         }

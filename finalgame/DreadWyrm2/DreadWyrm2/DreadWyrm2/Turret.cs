@@ -5,7 +5,8 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+using Microsoft.Xna.Framework.
+GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -39,6 +40,25 @@ namespace DreadWyrm2
         const int FACING_RIGHT_DOWN = 300;
         const int FACING_RIGHT_MIDDLE = 400;
         const int FACING_RIGHT_UP = 500;
+        const int BOUNDING_RADIUS = 29;
+        const int BOUNDING_OFFSET_X = 7;
+        const int BOUNDING_OFFSET_Y = 22;
+
+        /*public int boundingCenterX
+        {
+            //Offset values by the sprite width since from outside the class we need to access the center of the sprite
+            //Also we need to ensure the bounding center is at the correct center of the turret, rather than the center of the sprite
+            get{ return xPos + (int)(((SPRITE_WIDTH * TURRET_SPRITE_SCALING)) / 2) + (int) (BOUNDING_OFFSET_X * TURRET_SPRITE_SCALING); }
+            set { }
+        }*/
+
+        /*public int boundingCenterY
+        {
+            //Offset values by the sprite height since from outside the class we need to access the center of the sprite
+            //Also we need to ensure the bounding center is at the correct center of the turret, rather than the center of the sprite
+            get { return xPos + (int)(((SPRITE_HEIGHT * TURRET_SPRITE_SCALING)) / 2) + (int)(BOUNDING_OFFSET_Y * TURRET_SPRITE_SCALING); }
+            set { }
+        }*/
 
         public Turret(int x, int y, Wyrm predator)
             : base(x, y, predator)
@@ -50,6 +70,8 @@ namespace DreadWyrm2
             buildingheight = TURRET_HEIGHT;
             spriteHeight = SPRITE_HEIGHT;
             spriteWidth = SPRITE_WIDTH;
+
+            boundingRadius = BOUNDING_RADIUS * TURRET_SPRITE_SCALING;
 
             turretShotInstance = turretShot.CreateInstance();
         }
@@ -198,7 +220,6 @@ namespace DreadWyrm2
             footToGround();
 
             yPos += (int) (SPRITE_HEIGHT * TURRET_SPRITE_SCALING + 2);
-
         }
 
         /// <summary>
@@ -259,9 +280,19 @@ namespace DreadWyrm2
             asSprite.Draw(sb, xPos, yPos, TURRET_SPRITE_SCALING);
         }
 
-        public override void takeDamage(int amountDamage)
+        public override int getBoundingX()
         {
-            throw new NotImplementedException();
+            return xPos + (int)(((SPRITE_WIDTH * TURRET_SPRITE_SCALING)) / 2) + (int)(BOUNDING_OFFSET_X * TURRET_SPRITE_SCALING);
+        }
+
+        public override int getBoundingY()
+        {
+            return yPos + (int)(((SPRITE_HEIGHT * TURRET_SPRITE_SCALING)) / 2) + (int)(BOUNDING_OFFSET_Y * TURRET_SPRITE_SCALING);
+        }
+
+        public override void takeDamage()
+        {
+            Console.WriteLine("Got hit");
         }
 
         public override void getDestroyed(WyrmPlayer thePlayer)

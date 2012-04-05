@@ -14,8 +14,8 @@ namespace DreadWyrm2
 
         protected AnimatedSprite asSprite;                   //The animated sprite belonging to this prey
 
-        protected int xPos;                                 //The x position of the prey, measured in the center
-        protected int yPos;                                 //The y position of the prey, measured in the center
+        protected int xPos;                                 //The x position of the building, measured in the top left corner
+        protected int yPos;                                 //The y position of the building, measured in the top left corner
 
         protected Vector2 basepoint;                        //The point at the bottom edge of the building
         protected Vector2 footpoint;                        //The point which is slightly above the bottom edge of the building
@@ -34,6 +34,8 @@ namespace DreadWyrm2
 
         public static List<Building> buildings;             //The list of all the buildings on the battlefield
 
+        bool damagedRecently = false;
+
         //Sound effects
         //Turret-related sound effects
         protected static SoundEffect turretShot;
@@ -44,6 +46,13 @@ namespace DreadWyrm2
         public const int FACTORY = 2;
         public const int OIL_DERRICK = 3;
         public const int GENERATOR = 4;
+
+
+        public bool DamagedThisJump
+        {
+            get { return damagedRecently; }
+            set { damagedRecently = value; }
+        }
 
         /// <summary>
         /// Building Constructor
@@ -140,9 +149,13 @@ namespace DreadWyrm2
 
         public abstract void Draw(SpriteBatch sb);
 
-        public abstract void takeDamage(int amountDamage);
+        public abstract void takeDamage();
 
         public abstract void getDestroyed(WyrmPlayer thePlayer);
+
+        public abstract int getBoundingX();
+
+        public abstract int getBoundingY();
 
     }
 }

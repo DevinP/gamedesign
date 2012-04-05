@@ -124,6 +124,9 @@ namespace DreadWyrm2
 
         float waveSpawnCounter = 0;
 
+        //DEBUG
+        Texture2D debugCircle;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -153,6 +156,9 @@ namespace DreadWyrm2
         /// </summary>
         protected override void LoadContent()
         {
+            //DEBUG
+            debugCircle = Content.Load<Texture2D>(@"Textures\debugCircleTex");
+
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
@@ -609,6 +615,8 @@ namespace DreadWyrm2
 
                         checkEat();
 
+                        checkBuildingCollisions();
+
                         numPrey = Prey.UpdateAll(gameTime);
 
                         for (int i = 0; i < bullets.Count; i++)
@@ -617,6 +625,14 @@ namespace DreadWyrm2
                         }
 
                         theWyrmPlayer.Update(gameTime, keystate);
+
+                        if (theWyrmPlayer.theWyrm.b_wyrmGrounded)
+                        {
+                            foreach (Building theBuilding in Building.buildings)
+                            {
+                                theBuilding.DamagedThisJump = false;
+                            }
+                        }
 
                         int numBuilding;
 
@@ -859,6 +875,12 @@ namespace DreadWyrm2
                     theBackground.Draw(spriteBatch);
 
                     Building.DrawAll(spriteBatch);
+
+                    foreach (Building theBuilding in Building.buildings)
+                    {
+                        spriteBatch.Draw(debugCircle, new Rectangle((int)(theBuilding.getBoundingX() - theBuilding.boundingRadius), (int)(theBuilding.getBoundingY() - theBuilding.boundingRadius),
+                                (int)(2 * theBuilding.boundingRadius), (int)(2 * theBuilding.boundingRadius)), Color.White);
+                    }
 
                     for (int i = 0; i < bullets.Count; i++)
                     {
@@ -1263,6 +1285,24 @@ namespace DreadWyrm2
                 }
             }
 
+        }
+
+        void checkBuildingCollisions()
+        {
+            for (int i = 0; i < Building.buildings.Count; i++)
+            {
+                //Do circular collision detection
+                if (isColliding((int)(theWyrmPlayer.theWyrm.l_segments[0].X - WYRMHEAD_CENTER_NUMBER * Math.Cos(theWyrmPlayer.theWyrm.HeadDirection)),
+                    (int)(theWyrmPlayer.theWyrm.l_segments[0].Y + QUARTER_OF_WYRMHEAD_SPRITEHEIGHT - WYRMHEAD_CENTER_NUMBER * Math.Sin(theWyrmPlayer.theWyrm.HeadDirection)),
+                    theWyrmPlayer.theWyrm.eatRadius,
+                    Building.buildings[i].getBoundingX(), Building.buildings[i].getBoundingY(), Building.buildings[i].boundingRadius))
+                {
+                    if(!Building.buildings[i].DamagedThisJump)
+                        Building.buildings[i].takeDamage();
+
+                    Building.buildings[i].DamagedThisJump = true;
+                }
+            }
         }
 
         void checkBullets()

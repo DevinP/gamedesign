@@ -300,7 +300,7 @@ namespace DreadWyrm2
                 }
             }
             else if (mState.LeftButton == ButtonState.Released && !canClick)
-                canClick = true;
+                canClick = true;    //Allow the player to activate click effects only once per click
 
             if (clickedSoldier && (totalMoney - SOLDIER_COST >= 0))
             {
