@@ -36,8 +36,8 @@ namespace DreadWyrm2
 
         List<HUDElement> buttons;
 
-        bool hasBarracks = false;
-        bool hasFactory = false;
+        public static bool hasBarracks = false;
+        public static bool hasFactory = false;
 
         /////////////////////////////////////////
         //UI element locations, sizes, and textures
@@ -251,6 +251,15 @@ namespace DreadWyrm2
             mouseX = mState.X;
             mouseY = mState.Y;
 
+            if (mouseX < 0)
+                mouseX = 0;
+            if (mouseX > Game1.SCREENWIDTH)
+                mouseX = Game1.SCREENWIDTH;
+            if (mouseY < 0)
+                mouseY = 0;
+            if (mouseY > Game1.SCREENHEIGHT)
+                mouseY = Game1.SCREENHEIGHT;
+
             bool clickedSoldier = false;
             bool clickedEngineer = false;
             bool clickedTank = false;
@@ -302,20 +311,20 @@ namespace DreadWyrm2
             else if (mState.LeftButton == ButtonState.Released && !canClick)
                 canClick = true;    //Allow the player to activate click effects only once per click
 
-            if (clickedSoldier && (totalMoney - SOLDIER_COST >= 0))
+            if (clickedSoldier && (totalMoney - SOLDIER_COST >= 0) && hasBarracks)
             {
                 Prey.prey.Add(new SoldierHuman((int)(barracksLoc.X + XCOORD_BARRACKS_DOOR), (int)(barracksLoc.Y + YCOORD_BARRACKS_DOOR), theWyrm));
 
                 totalMoney -= SOLDIER_COST;
             }
-            else if (clickedTank && (totalMoney - TANK_COST >= 0))
+            else if (clickedTank && (totalMoney - TANK_COST >= 0) && hasFactory)
             {
                 Prey.prey.Add(new Tank((int)(factoryLoc.X + XCOORD_FACTORY_DOOR), (int)(factoryLoc.Y + YCOORD_FACTORY_DOOR), theWyrm));
 
                 totalMoney -= TANK_COST;
             }
 
-            else if (clickedEngineer && (totalMoney - ENGINEER_COST >= 0))
+            else if (clickedEngineer && (totalMoney - ENGINEER_COST >= 0) && hasBarracks)
             {
                 Prey.prey.Add(new Engineer((int)(barracksLoc.X + XCOORD_BARRACKS_DOOR), (int)(barracksLoc.Y + YCOORD_BARRACKS_DOOR), theWyrm));
 

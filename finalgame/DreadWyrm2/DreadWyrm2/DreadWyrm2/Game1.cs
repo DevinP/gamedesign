@@ -17,8 +17,8 @@ namespace DreadWyrm2
     public class Game1 : Microsoft.Xna.Framework.Game
     {
 
-        static int SCREENWIDTH = 1280;
-        static int SCREENHEIGHT = 720;
+        public static int SCREENWIDTH = 1280;
+        public static int SCREENHEIGHT = 720;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -1087,6 +1087,9 @@ namespace DreadWyrm2
             theHumanPlayer = new HumanPlayer(theWyrmPlayer);
 
             elapsedTimeGameEnd = 0;
+
+            HumanPlayer.hasFactory = false;
+            HumanPlayer.hasBarracks = false;
 
             regenCost = DEFAULT_REGEN_COST;
             digSpeedCost = DEFAULT_DIGSPEED_COST;

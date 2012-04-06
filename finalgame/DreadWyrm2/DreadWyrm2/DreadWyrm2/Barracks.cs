@@ -55,6 +55,13 @@ namespace DreadWyrm2
             sb.Draw(hb_green, new Rectangle(xPos + 7, yPos - 5, (int)greenBarWidth, 5), Color.White);
         }
 
+        public override void getDestroyed()
+        {
+            base.getDestroyed();
+
+            HumanPlayer.hasBarracks = false;
+        }
+
         public override int getBoundingX()
         {
             return xPos + 55;

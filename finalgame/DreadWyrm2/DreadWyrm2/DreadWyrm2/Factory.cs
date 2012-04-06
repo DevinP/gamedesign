@@ -58,6 +58,13 @@ namespace DreadWyrm2
             sb.Draw(hb_green, new Rectangle(xPos + 10, yPos - 5, (int)greenBarWidth, 5), Color.White);
         }
 
+        public override void getDestroyed()
+        {
+            base.getDestroyed();
+
+            HumanPlayer.hasFactory = false;
+        }
+
         public override int getBoundingX()
         {
             return xPos + 61;

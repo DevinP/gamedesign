@@ -96,6 +96,11 @@ namespace DreadWyrm2
 
             basepoint = new Vector2(initialX, initialY + spriteHeight);
             footpoint = new Vector2(initialX, initialY + buildingheight);
+
+            if (xPos <= 0)
+                xPos = 1;
+            if (xPos >= Game1.SCREENWIDTH - 100)
+                xPos = Game1.SCREENWIDTH - 100;
         }
 
         public static void LoadContent(ContentManager Content)
