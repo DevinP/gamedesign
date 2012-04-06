@@ -104,10 +104,10 @@ namespace DreadWyrm2
 
             buildingTextures = new List<Texture2D>();
             buildingTextures.Add(Content.Load<Texture2D>(@"Textures\turret_sprite_sheet_140x100_4x6"));
-            buildingTextures.Add(Content.Load<Texture2D>(@"Textures\Barracks142x68"));
-            buildingTextures.Add(Content.Load<Texture2D>(@"Textures\Factory142x100"));
-            buildingTextures.Add(Content.Load<Texture2D>(@"Textures\OilDerrickBuilding55x100"));
-            buildingTextures.Add(Content.Load<Texture2D>(@"Textures\Generator251x126"));
+            buildingTextures.Add(Content.Load<Texture2D>(@"Textures\barracksSpriteSheet"));
+            buildingTextures.Add(Content.Load<Texture2D>(@"Textures\factorySpriteSheet"));
+            buildingTextures.Add(Content.Load<Texture2D>(@"Textures\oilDerrickSpriteSheet"));
+            buildingTextures.Add(Content.Load<Texture2D>(@"Textures\generatorSpriteSheetNoPanel"));
 
             //Load the building health bar textures
             hb_green = Content.Load<Texture2D>(@"Textures\hb_green");
@@ -149,7 +149,7 @@ namespace DreadWyrm2
                 getDestroyed();
         }
 
-        public void getDestroyed()
+        public virtual void getDestroyed()
         {
             isDestroyed = true;
         }

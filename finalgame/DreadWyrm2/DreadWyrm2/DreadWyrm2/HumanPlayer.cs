@@ -20,7 +20,7 @@ namespace DreadWyrm2
         const float INCOME_ADJUSTMENT_PER_OIL_DERRICK = 5;  //The number of dollars per 5 seconds an oil derrick provides
 
         int totalMoney = 100;
-        int numOilDerricks = 0;
+        public static int numOilDerricks = 0;
 
         static SpriteFont humanFontFunds;
         static SpriteFont humanFontCosts;
@@ -118,25 +118,25 @@ namespace DreadWyrm2
         //Oil derrick purchasing and placement variables
         static Texture2D ghostOilDerrick;
         bool drawGhostOilDerrick = false;
-        const int OIL_DERRICK_WIDTH = 55;
+        const int OIL_DERRICK_WIDTH = 71;
         const int OIL_DERRICK_HEIGHT = 100;
 
         //Barracks purchasing and placement variables
         static Texture2D ghostBarracks;
         bool drawGhostBarracks = false;
-        const int BARRACKS_WIDTH = 142;
-        const int BARRACKS_HEIGHT = 68;
-        const int XCOORD_BARRACKS_DOOR = 17;
-        const int YCOORD_BARRACKS_DOOR = 54;
+        const int BARRACKS_WIDTH = 116;
+        const int BARRACKS_HEIGHT = 70;
+        const int XCOORD_BARRACKS_DOOR = 19;
+        const int YCOORD_BARRACKS_DOOR = 49;
         Vector2 barracksLoc;
 
         //Factory purchasing and placement variables
         static Texture2D ghostFactory;
         bool drawGhostFactory = false;
-        const int FACTORY_WIDTH = 142;
+        const int FACTORY_WIDTH = 121;
         const int FACTORY_HEIGHT = 100;
-        const int XCOORD_FACTORY_DOOR = 80;
-        const int YCOORD_FACTORY_DOOR = 71;
+        const int XCOORD_FACTORY_DOOR = 65;
+        const int YCOORD_FACTORY_DOOR = 76;
         Vector2 factoryLoc;
 
         //Mouse cursor size
@@ -238,9 +238,9 @@ namespace DreadWyrm2
             tankRecruitTex = Content.Load<Texture2D>(@"Textures\addUnit");
 
             ghostTurret = Content.Load<Texture2D>(@"Textures\ghostTurret");
-            ghostBarracks = Content.Load<Texture2D>(@"Textures\GhostBarracks142x68");
-            ghostFactory = Content.Load<Texture2D>(@"Textures\GhostFactory142x100");
-            ghostOilDerrick = Content.Load<Texture2D>(@"Textures\GhostOilDerrickBuilding55x100");
+            ghostBarracks = Content.Load<Texture2D>(@"Textures\GhostBarracks");
+            ghostFactory = Content.Load<Texture2D>(@"Textures\GhostFactory");
+            ghostOilDerrick = Content.Load<Texture2D>(@"Textures\GhostOilDerrick");
         }
 
         public void Update(GameTime gameTime)
@@ -400,30 +400,55 @@ namespace DreadWyrm2
             if (!hasBarracks && (totalMoney - BARRACKS_COST >= 0))
             {
                 buttons[BARRACKS].Draw(sb);
+
+                //Draw the cost of the barracks under the icon
+                sb.DrawString(humanFontCosts, "$" + BARRACKS_COST, new Vector2(BARRACKS_X + 25, BARRACKS_Y + BARRACKS_BUTTON_HEIGHT), Color.Black);
             }
             else
             {
                 buttons[BARRACKS_DISABLED].Draw(sb);
             }
 
+            if (!hasBarracks && (totalMoney - BARRACKS_COST < 0))
+            {
+                //Draw the cost of the barracks even if the player can't afford it
+                sb.DrawString(humanFontCosts, "$" + BARRACKS_COST, new Vector2(BARRACKS_X + 25, BARRACKS_Y + BARRACKS_BUTTON_HEIGHT), Color.Black);
+            }
+
             if (!hasFactory && (totalMoney - FACTORY_COST >= 0))
             {
                 buttons[FACTORY].Draw(sb);
+
+                //Draw the cost of the factory under the icon
+                sb.DrawString(humanFontCosts, "$" + FACTORY_COST, new Vector2(FACTORY_X + 25, FACTORY_Y + FACTORY_BUTTON_HEIGHT), Color.Black);
             }
             else
             {
                 buttons[FACTORY_DISABLED].Draw(sb);
             }
 
+            if (!hasFactory && (totalMoney - FACTORY_COST < 0))
+            {
+                //Draw the cost of the factory even if the player can't afford it
+                sb.DrawString(humanFontCosts, "$" + FACTORY_COST, new Vector2(FACTORY_X + 25, FACTORY_Y + FACTORY_BUTTON_HEIGHT), Color.Black);
+            }
+
             if (hasFactory)
             {
                 buttons[RECRUIT_TANK].Draw(sb);
+
+                //Draw the cost of the tank
+                sb.DrawString(humanFontCosts, "$" + TANK_COST, new Vector2(ADDTANK_X + 2, ADDTANK_Y + ADDTANK_HEIGHT), Color.Black);
             }
 
             if (hasBarracks)
             {
                 buttons[RECRUIT_SOLDIER].Draw(sb);
                 buttons[RECRUIT_ENGINEER].Draw(sb);
+
+                //Draw the costs of the units that be trained from a barracks
+                sb.DrawString(humanFontCosts, "$" + SOLDIER_COST, new Vector2(ADDTROOPS_X + 2, ADDTROOPS_Y + ADDTROOPS_HEIGHT), Color.Black);
+                sb.DrawString(humanFontCosts, "$" + ENGINEER_COST, new Vector2(ADDENGINEER_X + 2, ADDENGINEER_Y + ADDENGINEER_HEIGHT), Color.Black);
             }
 
             //Draw the total money of the human player

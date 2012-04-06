@@ -11,20 +11,27 @@ namespace DreadWyrm2
 {
     class OilDerrick : Building
     {
-
         //Oil derrick constants
+        const float FRAME_LENGTH = 0.8f;
+        const int OILDERRICK_MAX_HIT_POINTS = 15;
+        const int OILDERRICK_HEALTH_BAR_WIDTH = 50;    //The width of the health bar in pixels
         
         //Spritesheet stuff
-        const int NUM_FRAMES = 0;
-        const int SPRITE_WIDTH = 55;
+        const int NUM_FRAMES = 4;
+        const int SPRITE_WIDTH = 71;
         const int SPRITE_HEIGHT = 100;
-        const int OIL_DERRICK_HEIGHT = 56;
+        const int OIL_DERRICK_HEIGHT = 72;
 
         public OilDerrick(int x, int y, Wyrm predator)
             : base(x, y, predator)
         {
             asSprite = new AnimatedSprite(buildingTextures[OIL_DERRICK], 0, 0, SPRITE_WIDTH, SPRITE_HEIGHT, NUM_FRAMES);
-            asSprite.IsAnimating = false;
+            asSprite.IsAnimating = true;
+            asSprite.FrameLength = FRAME_LENGTH;
+
+            boundingRadius = 25;
+
+            hitPoints = OILDERRICK_MAX_HIT_POINTS;
 
             buildingheight = OIL_DERRICK_HEIGHT;
             spriteHeight = SPRITE_HEIGHT;
@@ -33,22 +40,38 @@ namespace DreadWyrm2
 
         public override void Update(GameTime gametime)
         {
+            base.Update(gametime);
+
             footToGround();
+
+            asSprite.Update(gametime);
         }
 
         public override void Draw(SpriteBatch sb)
         {
             asSprite.Draw(sb, xPos, yPos, false);
+
+            float greenBarWidth = (hitPoints / OILDERRICK_MAX_HIT_POINTS) * OILDERRICK_HEALTH_BAR_WIDTH;
+
+            sb.Draw(hb_red, new Rectangle(xPos + 15, yPos - 10, OILDERRICK_HEALTH_BAR_WIDTH, 5), Color.White);
+            sb.Draw(hb_green, new Rectangle(xPos + 15, yPos - 10, (int)greenBarWidth, 5), Color.White);
         }
 
         public override int getBoundingX()
         {
-            throw new NotImplementedException();
+            return xPos + 38;
         }
 
         public override int getBoundingY()
         {
-            throw new NotImplementedException();
+            return yPos + 75;
+        }
+
+        public override void getDestroyed()
+        {
+            base.getDestroyed();
+
+            HumanPlayer.numOilDerricks--;
         }
     }
 }

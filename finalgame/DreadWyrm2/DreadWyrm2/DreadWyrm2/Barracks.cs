@@ -11,17 +11,25 @@ namespace DreadWyrm2
 {
     class Barracks : Building
     {
+        //Barracks constants
+        const int BARRACKS_MAX_HIT_POINTS = 50;
+        const int BARRACKS_HEALTH_BAR_WIDTH = 100;    //The width of the health bar in pixels
+
         //spritesheet stuff
-        const int NUM_FRAMES = 0;
-        const int SPRITE_WIDTH = 142;
-        const int SPRITE_HEIGHT = 68;
-        const int BARRACKS_HEIGHT = 69;
+        const int NUM_FRAMES = 3;
+        const int SPRITE_WIDTH = 116;
+        const int SPRITE_HEIGHT = 70;
+        const int BARRACKS_HEIGHT = 71;
 
         public Barracks(int initialX, int initialY, Wyrm predator)
             : base(initialX, initialY, predator)
         {
             asSprite = new AnimatedSprite(buildingTextures[BARRACKS], 0, 0, SPRITE_WIDTH, SPRITE_HEIGHT, NUM_FRAMES);
-            asSprite.IsAnimating = false;
+            asSprite.IsAnimating = true;
+
+            boundingRadius = 25;
+
+            hitPoints = BARRACKS_MAX_HIT_POINTS;
 
             buildingheight = BARRACKS_HEIGHT;
             spriteHeight = SPRITE_HEIGHT;
@@ -30,22 +38,31 @@ namespace DreadWyrm2
 
         public override void Update(GameTime gametime)
         {
+            base.Update(gametime);
+
             footToGround();
+
+            asSprite.Update(gametime);
         }
 
         public override void Draw(SpriteBatch sb)
         {
-            asSprite.Draw(sb, xPos, yPos + 2, false);
+            asSprite.Draw(sb, xPos, yPos + 3, false);
+
+            float greenBarWidth = (hitPoints / BARRACKS_MAX_HIT_POINTS) * BARRACKS_HEALTH_BAR_WIDTH;
+
+            sb.Draw(hb_red, new Rectangle(xPos + 7, yPos - 5, BARRACKS_HEALTH_BAR_WIDTH, 5), Color.White);
+            sb.Draw(hb_green, new Rectangle(xPos + 7, yPos - 5, (int)greenBarWidth, 5), Color.White);
         }
 
         public override int getBoundingX()
         {
-            throw new NotImplementedException();
+            return xPos + 55;
         }
 
         public override int getBoundingY()
         {
-            throw new NotImplementedException();
+            return yPos + 52;
         }
     }
 }
