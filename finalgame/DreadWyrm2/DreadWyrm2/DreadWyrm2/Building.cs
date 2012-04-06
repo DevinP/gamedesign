@@ -12,10 +12,10 @@ namespace DreadWyrm2
     public abstract class Building
     {
 
-        protected AnimatedSprite asSprite;                   //The animated sprite belonging to this prey
+        protected AnimatedSprite asSprite;                  //The animated sprite belonging to this prey
 
-        protected int xPos;                                 //The x position of the building, measured in the top left corner
-        protected int yPos;                                 //The y position of the building, measured in the top left corner
+        public int xPos;                                    //The x position of the building, measured in the top left corner
+        public int yPos;                                    //The y position of the building, measured in the top left corner
 
         protected Vector2 basepoint;                        //The point at the bottom edge of the building
         protected Vector2 footpoint;                        //The point which is slightly above the bottom edge of the building
@@ -24,7 +24,9 @@ namespace DreadWyrm2
         protected int spriteWidth;
         protected int buildingheight;                       //The height of the buildings's bounding box
 
-        protected int hitPoints;                           //The hit points of the building
+        protected float hitPoints;                          //The hit points of the building
+        protected static Texture2D hb_green;
+        protected static Texture2D hb_red;
 
         public float boundingRadius;                        //The radius of the bounding circle for the prey
 
@@ -35,6 +37,11 @@ namespace DreadWyrm2
         public static List<Building> buildings;             //The list of all the buildings on the battlefield
 
         bool damagedRecently = false;
+        bool canBeDamaged = true;
+        float canBeDamagedCounter = 0;
+        const float DAMAGED_COUNTER_LIMIT = 700;            //Number of milliseconds between times that the building can get damaged
+
+        public bool isDestroyed = false;
 
         //Sound effects
         //Turret-related sound effects
@@ -47,11 +54,31 @@ namespace DreadWyrm2
         public const int OIL_DERRICK = 3;
         public const int GENERATOR = 4;
 
+        //Constants for buildings
+        public const float WYRM_DAMAGE_MINIMUM = 2.1f;  //The minimum speed the wyrm must move to damage the building
 
         public bool DamagedThisJump
         {
             get { return damagedRecently; }
             set { damagedRecently = value; }
+        }
+
+        public bool CanBeDamaged
+        {
+            get { return canBeDamaged; }
+            set { canBeDamaged = value; }
+        }
+
+        public virtual int SpriteWidth
+        {
+            get { return spriteWidth; }
+            set { }
+        }
+
+        public virtual int SpriteHeight
+        {
+            get { return spriteHeight; }
+            set { }
         }
 
         /// <summary>
@@ -81,6 +108,10 @@ namespace DreadWyrm2
             buildingTextures.Add(Content.Load<Texture2D>(@"Textures\Factory142x100"));
             buildingTextures.Add(Content.Load<Texture2D>(@"Textures\OilDerrickBuilding55x100"));
             buildingTextures.Add(Content.Load<Texture2D>(@"Textures\Generator251x126"));
+
+            //Load the building health bar textures
+            hb_green = Content.Load<Texture2D>(@"Textures\hb_green");
+            hb_red = Content.Load<Texture2D>(@"Textures\hb_red");
         }
 
         //A helper function which keeps the building near the current ground level
@@ -107,6 +138,20 @@ namespace DreadWyrm2
             basepoint.Y = yPos + spriteHeight;
             footpoint.X = xPos;
             footpoint.Y = yPos + buildingheight;
+        }
+
+        public void takeDamage()
+        {
+            if(theWyrm.HeadSpeed > WYRM_DAMAGE_MINIMUM)
+                hitPoints -= theWyrm.HeadSpeed;
+
+            if (hitPoints <= 0)
+                getDestroyed();
+        }
+
+        public void getDestroyed()
+        {
+            isDestroyed = true;
         }
 
         /// <summary>
@@ -145,13 +190,21 @@ namespace DreadWyrm2
             
         }
 
-        public abstract void Update(GameTime gametime);
+        public virtual void Update(GameTime gametime)
+        {
+            if (!canBeDamaged)
+            {
+                canBeDamagedCounter += (float)gametime.ElapsedGameTime.Milliseconds;
+
+                if (canBeDamagedCounter >= DAMAGED_COUNTER_LIMIT)
+                {
+                    canBeDamaged = true;
+                    canBeDamagedCounter = 0;
+                }
+            }
+        }
 
         public abstract void Draw(SpriteBatch sb);
-
-        public abstract void takeDamage();
-
-        public abstract void getDestroyed(WyrmPlayer thePlayer);
 
         public abstract int getBoundingX();
 

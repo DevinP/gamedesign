@@ -47,15 +47,5 @@ namespace DreadWyrm2
         {
             throw new NotImplementedException();
         }
-
-        public override void takeDamage()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void getDestroyed(WyrmPlayer thePlayer)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

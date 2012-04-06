@@ -27,6 +27,8 @@ namespace DreadWyrm2
         const int BULLETSPEED = 8;
         const int BULLETDAMAGE = 4;
         const int TURRET_MAX_RANGE = 500;
+        const int TURRET_MAX_HIT_POINTS = 20;
+        const int TURRET_HEALTH_BAR_WIDTH = 70;    //The width of the health bar in pixels
 
         //Spritesheet stuff
         const int SPRITE_WIDTH = 140;
@@ -44,21 +46,18 @@ namespace DreadWyrm2
         const int BOUNDING_OFFSET_X = 7;
         const int BOUNDING_OFFSET_Y = 22;
 
-        /*public int boundingCenterX
+        public override int SpriteWidth
         {
-            //Offset values by the sprite width since from outside the class we need to access the center of the sprite
-            //Also we need to ensure the bounding center is at the correct center of the turret, rather than the center of the sprite
-            get{ return xPos + (int)(((SPRITE_WIDTH * TURRET_SPRITE_SCALING)) / 2) + (int) (BOUNDING_OFFSET_X * TURRET_SPRITE_SCALING); }
+            get { return (int)(spriteWidth * TURRET_SPRITE_SCALING); }
             set { }
-        }*/
+        }
 
-        /*public int boundingCenterY
+        public override int SpriteHeight
         {
-            //Offset values by the sprite height since from outside the class we need to access the center of the sprite
-            //Also we need to ensure the bounding center is at the correct center of the turret, rather than the center of the sprite
-            get { return xPos + (int)(((SPRITE_HEIGHT * TURRET_SPRITE_SCALING)) / 2) + (int)(BOUNDING_OFFSET_Y * TURRET_SPRITE_SCALING); }
+            get { return (int)(spriteHeight * TURRET_SPRITE_SCALING); }
             set { }
-        }*/
+        }
+
 
         public Turret(int x, int y, Wyrm predator)
             : base(x, y, predator)
@@ -66,6 +65,8 @@ namespace DreadWyrm2
             asSprite = new AnimatedSprite(buildingTextures[TURRET], 0, 0, SPRITE_WIDTH, SPRITE_HEIGHT, NUM_FRAMES);
             asSprite.IsAnimating = false;
             asSprite.FrameLength = FRAME_LENGTH;
+
+            hitPoints = TURRET_MAX_HIT_POINTS;
 
             buildingheight = TURRET_HEIGHT;
             spriteHeight = SPRITE_HEIGHT;
@@ -78,6 +79,8 @@ namespace DreadWyrm2
 
         public override void Update(GameTime gametime)
         {
+            base.Update(gametime);
+
             if (!theWyrm.b_wyrmGrounded)
             {
                 //Calculate the length from the turret to the wyrm head
@@ -278,6 +281,11 @@ namespace DreadWyrm2
         public override void Draw(SpriteBatch sb)
         {
             asSprite.Draw(sb, xPos, yPos, TURRET_SPRITE_SCALING);
+
+            float greenBarWidth = (hitPoints / TURRET_MAX_HIT_POINTS) * TURRET_HEALTH_BAR_WIDTH;
+
+            sb.Draw(hb_red, new Rectangle(xPos, yPos, TURRET_HEALTH_BAR_WIDTH, 5), Color.White);
+            sb.Draw(hb_green, new Rectangle(xPos, yPos, (int)greenBarWidth, 5), Color.White);
         }
 
         public override int getBoundingX()
@@ -288,16 +296,6 @@ namespace DreadWyrm2
         public override int getBoundingY()
         {
             return yPos + (int)(((SPRITE_HEIGHT * TURRET_SPRITE_SCALING)) / 2) + (int)(BOUNDING_OFFSET_Y * TURRET_SPRITE_SCALING);
-        }
-
-        public override void takeDamage()
-        {
-            Console.WriteLine("Got hit");
-        }
-
-        public override void getDestroyed(WyrmPlayer thePlayer)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -613,19 +613,38 @@ namespace DreadWyrm2
 
                         theBackground.Update();
 
+                        //Check to see if the wyrm is eating and prey
                         checkEat();
 
+                        //Check to see if the wyrm is colliding with (and thus damaging) buildings
                         checkBuildingCollisions();
 
+                        for (int i = 0; i < Building.buildings.Count; i++)
+                        {
+                            if (Building.buildings[i].isDestroyed)
+                            {
+                                explosions.Add(new Explosion(Building.buildings[i].xPos + Building.buildings[i].SpriteWidth / 2, 
+                                    Building.buildings[i].yPos + Building.buildings[i].SpriteHeight / 2, explosionTexture, false));
+
+                                explosion.Play();
+
+                                Building.buildings.RemoveAt(i);
+                            }
+                        }
+
+                        //Update all the prey
                         numPrey = Prey.UpdateAll(gameTime);
 
+                        //Update all the bullets
                         for (int i = 0; i < bullets.Count; i++)
                         {
                             bullets[i].Update(gameTime);
                         }
 
+                        //Update the wyrm player
                         theWyrmPlayer.Update(gameTime, keystate);
 
+                        //Reset the ability for buildings to get damaged by the wyrm if the wyrm is underground
                         if (theWyrmPlayer.theWyrm.b_wyrmGrounded)
                         {
                             foreach (Building theBuilding in Building.buildings)
@@ -636,10 +655,13 @@ namespace DreadWyrm2
 
                         int numBuilding;
 
+                        //Update all the buildings
                         numBuilding = Building.UpdateAll(gameTime);
 
+                        //Check if any bullets are hitting the wyrm
                         checkBullets();
 
+                        //Update any explosions which are happening currently
                         for (int i = 0; i < explosions.Count; i++)
                         {
                             explosions[i].Update(gameTime);
@@ -648,6 +670,7 @@ namespace DreadWyrm2
                                 explosions.RemoveAt(i);
                         }
 
+                        //Update the human player
                         theHumanPlayer.Update(gameTime);
 
                         //Make it so the player can't move off the screen
@@ -876,11 +899,12 @@ namespace DreadWyrm2
 
                     Building.DrawAll(spriteBatch);
 
-                    foreach (Building theBuilding in Building.buildings)
+                    //Draw all of the bounding circles (for debugging)
+                    /*foreach (Building theBuilding in Building.buildings)
                     {
                         spriteBatch.Draw(debugCircle, new Rectangle((int)(theBuilding.getBoundingX() - theBuilding.boundingRadius), (int)(theBuilding.getBoundingY() - theBuilding.boundingRadius),
                                 (int)(2 * theBuilding.boundingRadius), (int)(2 * theBuilding.boundingRadius)), Color.White);
-                    }
+                    }*/
 
                     for (int i = 0; i < bullets.Count; i++)
                     {
@@ -1297,10 +1321,11 @@ namespace DreadWyrm2
                     theWyrmPlayer.theWyrm.eatRadius,
                     Building.buildings[i].getBoundingX(), Building.buildings[i].getBoundingY(), Building.buildings[i].boundingRadius))
                 {
-                    if(!Building.buildings[i].DamagedThisJump)
+                    if(!Building.buildings[i].DamagedThisJump && Building.buildings[i].CanBeDamaged)
                         Building.buildings[i].takeDamage();
 
                     Building.buildings[i].DamagedThisJump = true;
+                    Building.buildings[i].CanBeDamaged = false;
                 }
             }
         }
