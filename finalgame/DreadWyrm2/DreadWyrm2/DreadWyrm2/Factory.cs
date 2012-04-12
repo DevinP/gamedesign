@@ -12,7 +12,7 @@ namespace DreadWyrm2
     class Factory : Building
     {
         //Factory constants
-        const float FRAME_LENGTH = 0.2f;
+        const float FRAME_LENGTH = 0.1f;
         const int FACTORY_MAX_HIT_POINTS = 60;
         const int FACTORY_HEALTH_BAR_WIDTH = 100;    //The width of the health bar in pixels
 

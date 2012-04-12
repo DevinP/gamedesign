@@ -288,6 +288,7 @@ namespace DreadWyrm2
                     //Place the turret at this location
                     Building.buildings.Add(new Turret(mouseX, 350, theWyrm));
                     drawGhostTurret = false;
+                    totalMoney -= TURRET_COST;
                 }
                 else if (drawGhostBarracks)
                 {
@@ -296,6 +297,7 @@ namespace DreadWyrm2
                     barracksLoc = new Vector2(mouseX, 385);
                     drawGhostBarracks = false;
                     hasBarracks = true;
+                    totalMoney -= BARRACKS_COST;
                 }
                 else if (drawGhostFactory)
                 {
@@ -303,12 +305,14 @@ namespace DreadWyrm2
                     factoryLoc = new Vector2(mouseX, 353);
                     drawGhostFactory = false;
                     hasFactory = true;
+                    totalMoney -= FACTORY_COST;
                 }
                 else if (drawGhostOilDerrick)
                 {
                     Building.buildings.Add(new OilDerrick(mouseX, 353, theWyrm));
                     drawGhostOilDerrick = false;
                     numOilDerricks++;
+                    totalMoney -= OILDERRICK_COST;
                 }
             }
             else if (mState.LeftButton == ButtonState.Released && !canClick)
@@ -338,22 +342,27 @@ namespace DreadWyrm2
             else if (clickedTurret && !drawGhostTurret && (totalMoney - TURRET_COST >= 0))
             {
                 drawGhostTurret = true;
-                totalMoney -= TURRET_COST;
             }
             else if (clickedBarracks && !drawGhostBarracks && (totalMoney - BARRACKS_COST >= 0) && !hasBarracks)
             {
                 drawGhostBarracks = true;
-                totalMoney -= BARRACKS_COST;
             }
             else if (clickedFactory && !drawGhostFactory && (totalMoney - FACTORY_COST >= 0) && !hasFactory)
             {
                 drawGhostFactory = true;
-                totalMoney -= FACTORY_COST;
             }
             else if (clickedOilDerrick && !drawGhostOilDerrick && (totalMoney - OILDERRICK_COST >= 0))
             {
                 drawGhostOilDerrick = true;
-                totalMoney -= OILDERRICK_COST;
+            }
+
+            //Cancel any impending build orders with a right click
+            if (mState.RightButton == ButtonState.Pressed)
+            {
+                drawGhostBarracks = false;
+                drawGhostFactory = false;
+                drawGhostOilDerrick = false;
+                drawGhostTurret = false;
             }
 
             //Accumulate money based on income
