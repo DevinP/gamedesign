@@ -23,6 +23,7 @@ namespace DreadWyrm2
         bool isLayingMine = false;
 
         int numMines = 2;
+        int numDepthCharges = 1;
 
         const int SCARE_RANGE = 400;
 
@@ -51,6 +52,8 @@ namespace DreadWyrm2
             spriteHeight = SPRITEHEIGHT;
             spriteWidth = SPRITEWIDTH;
 
+            meatReward = MEAT_AMOUNT;
+
             asSprite = new AnimatedSprite(preyTextures[MINE_LAYER], 0, 0, SPRITEWIDTH,  SPRITEHEIGHT, NUM_FRAMES);
             asSprite.IsAnimating = true;
 
@@ -67,7 +70,7 @@ namespace DreadWyrm2
         {
             elapsedTimeMine += (float)gametime.ElapsedGameTime.TotalSeconds;
 
-            if (!theWyrm.b_wyrmGrounded && numMines <= 0 && withinRange(SCARE_RANGE))
+            if (!theWyrm.b_wyrmGrounded && numMines <= 0 && withinRange(SCARE_RANGE) && numDepthCharges <= 0)
             {
                 //Oh no it's the wyrm!
                 if (xPos > theWyrm.l_segments[0].X)
@@ -101,7 +104,7 @@ namespace DreadWyrm2
                 }
             }
 
-            if (elapsedTimeMine > mineLayTarget && numMines > 0)
+            if (elapsedTimeMine > mineLayTarget && (numMines > 0 || numDepthCharges > 0))
             {
                 //Lay a mine at the current position
                 isLayingMine = true;
@@ -137,11 +140,35 @@ namespace DreadWyrm2
                 if (asSprite.Frame == 5)
                 {
 
-                    //Spawn a mine trap at this position
+                    //Spawn a mine trap or depth charge at this position
                     //Note that we do not need any information about the Wyrm, so we will just pass in null
-                    //prey.Add(new Mine(xPos, yPos, null, Game1.explosionTexture));
-                    PreySpawner.addImmediate(new Mine(xPos, yPos, null, Game1.explosionTexture));
-                    numMines--;
+
+                    if (numDepthCharges > 0 && numMines > 0)
+                    {
+                        //We have both depth charges and mines, lay a mine but with a 20% chance of using the depth charge instead
+                        if (Game1.m_random.Next(100) < 20)
+                        {
+                            PreySpawner.addImmediate(new DepthCharge(xPos, yPos, null, Game1.explosionTexture));
+                            numDepthCharges--;
+                        }
+                        else
+                        {
+                            PreySpawner.addImmediate(new Mine(xPos, yPos, null, Game1.explosionTexture));
+                            numMines--;
+                        }
+                    }
+                    else if (numDepthCharges > 0)
+                    {
+                        //We have no mines, just a depth charge. Use it
+                        PreySpawner.addImmediate(new DepthCharge(xPos, yPos, null, Game1.explosionTexture));
+                        numDepthCharges--;
+                    }
+                    else if(numMines > 0)
+                    {
+                        //We have mines but no depth charges, just lay a mine
+                        PreySpawner.addImmediate(new Mine(xPos, yPos, null, Game1.explosionTexture));
+                        numMines--;
+                    }
 
                     elapsedTimeMine = 0;
                     isLayingMine = false;

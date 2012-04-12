@@ -29,6 +29,8 @@ namespace DreadWyrm2
 
         public int meatReward;
 
+        public bool timeUp = false;
+
         protected Wyrm theWyrm;
 
         public static List<Texture2D> preyTextures;     //The textures used by the prey
@@ -51,6 +53,7 @@ namespace DreadWyrm2
         public const int MINE_LAYER = 4;
         public const int TANK = 5;
         public const int MINE = 6;
+        public const int DEPTH_CHARGE = 7;
 
         public bool isMine = false;
 
@@ -123,6 +126,7 @@ namespace DreadWyrm2
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\mine_layer"));
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\tank"));
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\mine"));
+            preyTextures.Add(Content.Load<Texture2D>(@"Textures\charge_16x16x4"));
         }
 
         //A helper function which keeps the prey near the current ground level
@@ -160,16 +164,8 @@ namespace DreadWyrm2
         public static int UpdateAll(GameTime gameTime)
         {
             int numPrey = prey.Count;
-            /*
-            for (int i = 0; i < prey.Count; i++)
-            {
-                prey[i].Update(gameTime);
 
-                if (prey[i].isMine)
-                    numPrey--;
-            }
-            //*/
-
+            //Update all of the prey
             foreach (Prey p in prey)
             {
                 p.Update(gameTime);
@@ -177,10 +173,12 @@ namespace DreadWyrm2
                     numPrey--;
             }
 
-            /*for (int i = 0; i < bullets.Count; i++)
+            //Allow depth charges to expire
+            for (int i = 0; i < prey.Count; i++)
             {
-                bullets[i].Update(gameTime);
-            }*/
+                if (prey[i].timeUp)
+                    prey.RemoveAt(i);
+            }
 
             return numPrey;
         }

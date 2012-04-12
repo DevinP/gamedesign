@@ -239,7 +239,7 @@ namespace DreadWyrm2
 
         }
 
-        //When a human prey runs offscreen, it calls this
+        //When a nonhuman prey runs offscreen, it calls this
         //The preyspawner will then add it to the queue of things to spawn later
         //Make sure that the prey is set to walk, i.e. facing the correct direction and in the correct state
         public static void ranOffAnimal(Prey p)
@@ -261,8 +261,6 @@ namespace DreadWyrm2
             {
                 meatCount = meatCount + p.meatReward;
             }
-
-            Console.WriteLine(meatCount);
 
             //do we have enought meat?
             if (meatCount > MEAT_SPAWN_LIMIT)

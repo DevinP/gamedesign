@@ -113,6 +113,7 @@
     <Compile Include="Barracks.cs" />
     <Compile Include="Building.cs" />
     <Compile Include="Bullet.cs" />
+    <Compile Include="DepthCharge.cs" />
     <Compile Include="Engineer.cs" />
     <Compile Include="Explosion.cs" />
     <Compile Include="Factory.cs" />
