@@ -13,8 +13,8 @@ namespace DreadWyrm2
     {
         protected AnimatedSprite asprite;               //The animated sprite belonging to this prey
 
-        protected int xPos;                             //The x position of the prey, measured in the center
-        protected int yPos;                             //The y position of the prey, measured in the center
+        protected float xPos;                             //The x position of the prey, measured in the center
+        protected float yPos;                             //The y position of the prey, measured in the center
 
         protected Vector2 basepoint;                    //The point at the bottom edge of the prey
         protected Vector2 footpoint;                    //The point which is slightly above the bottom edge of the prey
@@ -26,6 +26,8 @@ namespace DreadWyrm2
         protected int preyheight;              //The height of the prey's bounding box
 
         public float boundingRadius;           //The radius of the bounding circle for the prey
+
+        public int meatReward;
 
         protected Wyrm theWyrm;
 
@@ -58,14 +60,14 @@ namespace DreadWyrm2
             set { asprite = value; }
         }
 
-        public int xPosistion
+        public float xPosistion
         {
             get { return xPos; }
             set { xPos = value; }
         }
 
 
-        public int yPosition
+        public float yPosition
         {
             get { return yPos; }
             set { yPos = value; }
@@ -95,7 +97,7 @@ namespace DreadWyrm2
             set { preyheight = value; }
         }
 
-        public Prey(int initialX, int initialY, Wyrm predator)
+        public Prey(float initialX, float initialY, Wyrm predator)
         {
             xPos = initialX;
             yPos = initialY;
@@ -158,12 +160,20 @@ namespace DreadWyrm2
         public static int UpdateAll(GameTime gameTime)
         {
             int numPrey = prey.Count;
-
+            /*
             for (int i = 0; i < prey.Count; i++)
             {
                 prey[i].Update(gameTime);
 
                 if (prey[i].isMine)
+                    numPrey--;
+            }
+            //*/
+
+            foreach (Prey p in prey)
+            {
+                p.Update(gameTime);
+                if (p.isMine)
                     numPrey--;
             }
 
@@ -197,6 +207,31 @@ namespace DreadWyrm2
             //bullets = new List<Bullet>();
             prey = new List<Prey>();
         }
+
+        protected bool withinRange(int maxRange)
+        {
+            //Calculate the length from the turret to the wyrm head
+            Vector2 wyrmPos = new Vector2(theWyrm.l_segments[0].X, theWyrm.l_segments[0].Y);
+            Vector2 position = new Vector2(xPos, yPos);
+
+            Vector2 diff = new Vector2(wyrmPos.X - position.X, wyrmPos.Y - position.Y);
+
+            float length = diff.Length();
+
+            //If the wyrm is within the range of the turret, fire at it
+            if (length < maxRange)
+                return true;
+            else
+                return false;
+        }
+
+        protected void determineVelocityUnscared()
+        {
+            xVel = xVel * 0.5f;
+            float velScale = (float)(Game1.m_random.Next(7, 17)) / 10f;
+            xVel = xVel * velScale;
+        }
+
 
         public abstract void Update(GameTime gametime);
 

@@ -206,6 +206,9 @@ namespace DreadWyrm2
             buttons.Add(new HUDElement(disabledFactoryButtonTex, new Rectangle(FACTORY_X, FACTORY_Y, FACTORY_BUTTON_WIDTH, FACTORY_BUTTON_HEIGHT)));
 
             canClick = true;
+
+            //Reset any static variables
+            numOilDerricks = 0;
         }
 
         /// <summary>
@@ -313,21 +316,23 @@ namespace DreadWyrm2
 
             if (clickedSoldier && (totalMoney - SOLDIER_COST >= 0) && hasBarracks)
             {
-                Prey.prey.Add(new SoldierHuman((int)(barracksLoc.X + XCOORD_BARRACKS_DOOR), (int)(barracksLoc.Y + YCOORD_BARRACKS_DOOR), theWyrm));
+
+                PreySpawner.addImmediate(new SoldierHuman((int)(barracksLoc.X + XCOORD_BARRACKS_DOOR), (int)(barracksLoc.Y + YCOORD_BARRACKS_DOOR), theWyrm));
+                //Prey.prey.Add(new SoldierHuman((int)(barracksLoc.X + XCOORD_BARRACKS_DOOR), (int)(barracksLoc.Y + YCOORD_BARRACKS_DOOR), theWyrm));
 
                 totalMoney -= SOLDIER_COST;
             }
             else if (clickedTank && (totalMoney - TANK_COST >= 0) && hasFactory)
             {
-                Prey.prey.Add(new Tank((int)(factoryLoc.X + XCOORD_FACTORY_DOOR), (int)(factoryLoc.Y + YCOORD_FACTORY_DOOR), theWyrm));
-
+                //Prey.prey.Add(new Tank((int)(factoryLoc.X + XCOORD_FACTORY_DOOR), (int)(factoryLoc.Y + YCOORD_FACTORY_DOOR), theWyrm));
+                PreySpawner.addImmediate(new Tank((int)(factoryLoc.X + XCOORD_FACTORY_DOOR), (int)(factoryLoc.Y + YCOORD_FACTORY_DOOR), theWyrm));
                 totalMoney -= TANK_COST;
             }
 
             else if (clickedEngineer && (totalMoney - ENGINEER_COST >= 0) && hasBarracks)
             {
-                Prey.prey.Add(new Engineer((int)(barracksLoc.X + XCOORD_BARRACKS_DOOR), (int)(barracksLoc.Y + YCOORD_BARRACKS_DOOR), theWyrm));
-
+                //Prey.prey.Add(new Engineer((int)(barracksLoc.X + XCOORD_BARRACKS_DOOR), (int)(barracksLoc.Y + YCOORD_BARRACKS_DOOR), theWyrm));
+                PreySpawner.addImmediate(new Engineer((int)(barracksLoc.X + XCOORD_BARRACKS_DOOR), (int)(barracksLoc.Y + YCOORD_BARRACKS_DOOR), theWyrm));
                 totalMoney -= ENGINEER_COST;
             }
             else if (clickedTurret && !drawGhostTurret && (totalMoney - TURRET_COST >= 0))

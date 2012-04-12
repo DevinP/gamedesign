@@ -41,6 +41,7 @@ namespace DreadWyrm2
             boundingRadius = BOUNDING_RADIUS;
             spriteHeight = SPRITE_HEIGHT;
             spriteWidth = SPRITE_WIDTH;
+            meatReward = MEAT_REWARD;
 
             asSprite = new AnimatedSprite(preyTextures[TANK], 0, 0, SPRITE_WIDTH, SPRITE_HEIGHT, 0);
             asSprite.IsAnimating = false;
@@ -112,8 +113,8 @@ namespace DreadWyrm2
                 float unitMultiplier = (float)(1 / (Math.Sqrt(Math.Pow(diffX, 2) + Math.Pow(diffY, 2))));
                 Vector2 velVec = new Vector2(diffX * unitMultiplier, diffY * unitMultiplier);
 
-                int xPosBullet = xPos;
-                int yPosBullet = yPos;
+                float xPosBullet = xPos;
+                float yPosBullet = yPos;
 
                 //Calculate where the tank shell will start from (the end of the tank cannon)
                 if (xVel < 0)

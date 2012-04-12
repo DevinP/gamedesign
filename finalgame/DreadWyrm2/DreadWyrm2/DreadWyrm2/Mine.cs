@@ -25,13 +25,14 @@ namespace DreadWyrm2
         /// <param name="initialX">The initial X position of the mine</param>
         /// <param name="initialY">The initial Y position of the mine</param>
         /// <param name="predator">Not used in this class, but needed to inherit from Prey</param>
-        public Mine(int initialX, int initialY, Wyrm predator, Texture2D explosionTex)
+        public Mine(float initialX, float initialY, Wyrm predator, Texture2D explosionTex)
             : base(initialX, initialY, predator)
         {
             preyheight = PREY_HEIGHT;
             boundingRadius = BOUNDING_RADIUS;
             spriteHeight = SPRITE_HEIGHT;
             spriteWidth = SPRITE_WIDTH;
+            meatReward = 0;
 
             asSprite = new AnimatedSprite(preyTextures[MINE], 0, 0, SPRITE_WIDTH, SPRITE_HEIGHT, NUM_FRAMES);
             asSprite.IsAnimating = true;

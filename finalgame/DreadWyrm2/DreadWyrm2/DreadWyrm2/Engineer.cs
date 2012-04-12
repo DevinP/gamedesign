@@ -24,6 +24,8 @@ namespace DreadWyrm2
 
         int numMines = 2;
 
+        const int SCARE_RANGE = 400;
+
         //Things specific to the Engineer unit
         const int NUM_FRAMES = 6;      //The number of frames in this unit's animation
         const int SPRITEHEIGHT = 23;   //The height (in pixels) of this unit's sprite
@@ -53,9 +55,10 @@ namespace DreadWyrm2
             asSprite.IsAnimating = true;
 
             if (Game1.m_random.NextDouble() < 0.5)
-                xVel = -1;
+                xVel = -2;
             else
-                xVel = 1;
+                xVel = 2;
+            determineVelocityUnscared();
 
             mineLayTarget = MathHelper.Clamp((float)(Game1.m_random.NextDouble() * MAXTIMETOMINE), MINTIMETOMINE, MAXTIMETOMINE);
         }
@@ -64,7 +67,7 @@ namespace DreadWyrm2
         {
             elapsedTimeMine += (float)gametime.ElapsedGameTime.TotalSeconds;
 
-            if (!theWyrm.b_wyrmGrounded && numMines <= 0)
+            if (!theWyrm.b_wyrmGrounded && numMines <= 0 && withinRange(SCARE_RANGE))
             {
                 //Oh no it's the wyrm!
                 if (xPos > theWyrm.l_segments[0].X)
@@ -86,7 +89,9 @@ namespace DreadWyrm2
 
                 //If we were running very fast, slow down to normal speed
                 if (xVel < -1 || xVel > 1)
-                    xVel = xVel * 0.5f;
+                {
+                    determineVelocityUnscared();
+                }
 
                 //Change direction every once in a while
                 if (elapsedTimeVel > TIMETOCHANGE)
@@ -107,7 +112,7 @@ namespace DreadWyrm2
                 elapsedTimeVel += (float)gametime.ElapsedGameTime.TotalSeconds;
 
                 //We only move if we aren't laying a mine
-                xPos = (int)(xPos + xVel);
+                xPos = (xPos + xVel);
 
                 //Use the walking animations when not laying a mine
                 if (xVel > 0)
@@ -134,8 +139,8 @@ namespace DreadWyrm2
 
                     //Spawn a mine trap at this position
                     //Note that we do not need any information about the Wyrm, so we will just pass in null
-                    prey.Add(new Mine(xPos, yPos, null, Game1.explosionTexture));
-
+                    //prey.Add(new Mine(xPos, yPos, null, Game1.explosionTexture));
+                    PreySpawner.addImmediate(new Mine(xPos, yPos, null, Game1.explosionTexture));
                     numMines--;
 
                     elapsedTimeMine = 0;
@@ -144,6 +149,9 @@ namespace DreadWyrm2
                 }
             }
 
+
+            #region Make this unit go into spawn reserves if offscreen
+            /*
             //Keep the engineer on screen
             if (xPos < 50)
             {
@@ -155,6 +163,28 @@ namespace DreadWyrm2
                 xPos = Background.SCREENWIDTH - 50;
                 xVel = -1 * xVel;
             }
+             
+            //*/
+
+
+            if (xPos < 0)
+            {
+                xPos = 1;
+                xVel = -1 * xVel;
+                PreySpawner.ranOffHuman(this);
+            }
+            else if (xPos > Background.SCREENWIDTH)
+            {
+                xPos = Background.SCREENWIDTH - 1;
+                xVel = -1 * xVel;
+                PreySpawner.ranOffHuman(this);
+            }
+
+            #endregion
+
+
+
+
 
             //Keep the engineer on the surface of the ground
             recalcPositions();

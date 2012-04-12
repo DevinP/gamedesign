@@ -120,6 +120,7 @@
     <Compile Include="HUDElement.cs" />
     <Compile Include="HumanPlayer.cs" />
     <Compile Include="OilDerrick.cs" />
+    <Compile Include="PreySpawner.cs" />
     <Compile Include="Turret.cs" />
     <Compile Include="WyrmPlayer.cs" />
     <Compile Include="Prey.cs" />

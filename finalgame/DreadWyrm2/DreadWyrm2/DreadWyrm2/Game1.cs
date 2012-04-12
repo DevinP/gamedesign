@@ -42,7 +42,7 @@ namespace DreadWyrm2
         Texture2D t2dforegroundSinglePlayer;                //The foreground sprite (part of the background)
         Texture2D t2dbackgroundTwoPlayer;                   //The background sprite for the multiplayer arena
         Texture2D t2dforegroundTwoPlayer;                   //The foreground sprite for the multiplayer arena
-        WyrmPlayer theWyrmPlayer;                           //The wyrm player of the game
+        public static WyrmPlayer theWyrmPlayer;                    //The wyrm player of the game
         HumanPlayer theHumanPlayer;                         //The human player of the game
         List<List<int>> levelPrey;                          //The things which must be eaten to advance the wave
 
@@ -107,10 +107,24 @@ namespace DreadWyrm2
 
         int numWaves = 0;
 
+
+        public static PreySpawner preySpawner = new PreySpawner();
+
         //Magical constants
         const int WYRMHEAD_CENTER_NUMBER = 8; //This number is a magic number
         const int QUARTER_OF_WYRMHEAD_SPRITEHEIGHT = 15;
         const int QUARTER_OF_WYRMSEG_SPRITEHEIGHT = 12;
+
+
+
+
+
+
+
+
+
+
+
 
         AnimatedSprite tempGiraffe;
         AnimatedSprite tempElephant;
@@ -258,7 +272,7 @@ namespace DreadWyrm2
                     else
                         endMultiPlayerGame();
                 }
-
+                
                 return;
             }
 
@@ -305,7 +319,11 @@ namespace DreadWyrm2
                 #region GamePlay Mode (m_gameStarted == true)
 
                 int numPrey;
-                
+
+
+                //Tell PreySpawner to update
+                preySpawner.update(gameTime);
+
 
                 if (keystate.IsKeyDown(Keys.U) && upgradeModeCanSwitch)
                 {
@@ -1065,6 +1083,7 @@ namespace DreadWyrm2
 
         void startNewMultiPlayerGame()
         {
+            preySpawner = new PreySpawner();
             isTwoPlayer = true;
 
             singlePlayerVictory = false;
@@ -1099,6 +1118,7 @@ namespace DreadWyrm2
 
         void startNewSinglePlayerGame(bool nuxMode)
         {
+            preySpawner = new PreySpawner();
             isTwoPlayer = false;
 
             singlePlayerVictory = false;
@@ -1302,7 +1322,7 @@ namespace DreadWyrm2
                 if (isColliding((int)(theWyrmPlayer.theWyrm.l_segments[0].X - WYRMHEAD_CENTER_NUMBER * Math.Cos(theWyrmPlayer.theWyrm.HeadDirection)),
                     (int)(theWyrmPlayer.theWyrm.l_segments[0].Y + QUARTER_OF_WYRMHEAD_SPRITEHEIGHT - WYRMHEAD_CENTER_NUMBER * Math.Sin(theWyrmPlayer.theWyrm.HeadDirection)),
                     theWyrmPlayer.theWyrm.eatRadius,
-                    (int)Prey.prey[i].xPosistion, Prey.prey[i].yPosition, Prey.prey[i].boundingRadius))
+                    (int)Prey.prey[i].xPosistion, (int)Prey.prey[i].yPosition, Prey.prey[i].boundingRadius))
                 {
                     Prey.prey[i].getEaten(theWyrmPlayer);
                     Prey.prey.RemoveAt(i);
@@ -1343,7 +1363,7 @@ namespace DreadWyrm2
                     continue;
                 }
 
-                if (Background.checkIsGrounded(bullets[i].xPosistion, bullets[i].yPosition))
+                if (Background.checkIsGrounded((int)bullets[i].xPosistion, (int)bullets[i].yPosition))
                 {
                     bullets.RemoveAt(i);
                     continue;
@@ -1353,7 +1373,7 @@ namespace DreadWyrm2
                 if (isColliding((int)(theWyrmPlayer.theWyrm.l_segments[0].X - WYRMHEAD_CENTER_NUMBER * Math.Cos(theWyrmPlayer.theWyrm.HeadDirection)),
                     (int)(theWyrmPlayer.theWyrm.l_segments[0].Y + QUARTER_OF_WYRMHEAD_SPRITEHEIGHT - WYRMHEAD_CENTER_NUMBER * Math.Sin(theWyrmPlayer.theWyrm.HeadDirection)),
                     theWyrmPlayer.theWyrm.eatRadius,
-                    (int)bullets[i].xPosistion, bullets[i].yPosition, bullets[i].boundingRadius))
+                    (int)bullets[i].xPosistion, (int)bullets[i].yPosition, bullets[i].boundingRadius))
                 {
                     theWyrmPlayer.Health -= bullets[i].DamageDealt;
 
@@ -1367,7 +1387,7 @@ namespace DreadWyrm2
 
                 foreach (WyrmSegment ws in theWyrmPlayer.theWyrm.l_segments)
                 {
-                    if (isColliding((int)ws.X, (int)ws.Y + QUARTER_OF_WYRMHEAD_SPRITEHEIGHT, ws.boundingRadius, bullets[i].xPosistion, bullets[i].yPosition, bullets[i].boundingRadius))
+                    if (isColliding((int)ws.X, (int)ws.Y + QUARTER_OF_WYRMHEAD_SPRITEHEIGHT, ws.boundingRadius, (int)bullets[i].xPosistion, (int)bullets[i].yPosition, bullets[i].boundingRadius))
                     {
                         theWyrmPlayer.Health -= bullets[i].DamageDealt;
 

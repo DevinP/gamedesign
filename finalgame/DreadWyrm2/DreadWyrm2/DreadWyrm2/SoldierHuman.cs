@@ -45,14 +45,17 @@ namespace DreadWyrm2
             boundingRadius = BOUNDING_RADIUS;
             spriteHeight = SPRITE_HEIGHT;
             spriteWidth = SPRITE_WIDTH;
+            meatReward = MEAT_REWARD;
 
             asSprite = new AnimatedSprite(preyTextures[SOLDIER], 0, 0, SPRITE_WIDTH, SPRITE_HEIGHT, NUM_FRAMES);
             asSprite.IsAnimating = true;
 
             if (Game1.m_random.NextDouble() < 0.5)
-                xVel = -1;
+                xVel = -2;
             else
-                xVel = 1;
+                xVel = 2;
+
+            determineVelocityUnscared();
         }
 
         public override void Update(GameTime gametime)
@@ -73,11 +76,13 @@ namespace DreadWyrm2
                 {
                     //It's to the left of us
                     xVel = -1; //Face it so we can shoot at it
+                    determineVelocityUnscared();
                 }
                 else
                 {
                     //It's to the right of us
                     xVel = 1; //Face it so we can shoot at it
+                    determineVelocityUnscared();
                 }
 
                 elapsedTimeVel = 0;
@@ -101,7 +106,7 @@ namespace DreadWyrm2
                 elapsedTimeVel += (float)gametime.ElapsedGameTime.TotalSeconds;
 
                 //We only move if we aren't shooting
-                xPos = (int)(xPos + xVel);
+                xPos = (xPos + xVel);
 
                 //Use the walking animations when not shooting
                 if (xVel > 0)

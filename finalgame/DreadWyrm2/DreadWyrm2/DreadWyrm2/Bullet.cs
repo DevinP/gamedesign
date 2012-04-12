@@ -9,8 +9,8 @@ namespace DreadWyrm2
 {
     public class Bullet
     {
-        int xPos;   // x position of the bullet
-        int yPos;   // y position of the bullet
+        float xPos;   // x position of the bullet
+        float yPos;   // y position of the bullet
 
         int spriteWidth;
         int spriteHeight;
@@ -24,13 +24,13 @@ namespace DreadWyrm2
         Texture2D bulletTexture;
         public AnimatedSprite asprite;
 
-        public int xPosistion
+        public float xPosistion
         {
             get { return xPos; }
             set { xPos = value; }
         }
 
-        public int yPosition
+        public float yPosition
         {
             get { return yPos; }
             set { yPos = value; }
@@ -60,7 +60,7 @@ namespace DreadWyrm2
             set { damage = value; }
         }
 
-        public Bullet(int initialX, int initialY, Vector2 velocity, Texture2D texture, int frames, int spriteheight, int spritewidth,
+        public Bullet(float initialX, float initialY, Vector2 velocity, Texture2D texture, int frames, int spriteheight, int spritewidth,
             float boundingradius, int dam)
         {
             xPos = initialX;
@@ -87,7 +87,7 @@ namespace DreadWyrm2
 
         public void Draw(SpriteBatch sb)
         {
-            asprite.Draw(sb, xPos - spriteWidth / 2, yPos - spriteWidth / 2, false);
+            asprite.Draw(sb, (int)(xPos - spriteWidth / 2), (int)(yPos - spriteWidth / 2), false);
         }
 
     }

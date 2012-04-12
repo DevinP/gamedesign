@@ -16,8 +16,12 @@ namespace DreadWyrm2
         
         bool framesFast;
 
-        int meatReward;
+        //int meatReward;
         int otherFacing;
+
+        //how far away must the wyrm be to be scared of it?
+        const int SCARED_RANGE = 500;
+
 
         /// <summary>
         /// An animal that the Wyrm can eat
@@ -51,16 +55,18 @@ namespace DreadWyrm2
             otherFacing = facingY;
 
             if (Game1.m_random.NextDouble() < 0.5)
-                xVel = -1;
+                xVel = -2;
             else
-                xVel = 1;
+                xVel = 2;
+
+            determineVelocityUnscared();
         }
 
         public override void Update(GameTime gametime)
         {
             elapsedTime += (float)gametime.ElapsedGameTime.TotalSeconds;
 
-            if (!theWyrm.b_wyrmGrounded)
+            if (!theWyrm.b_wyrmGrounded && withinRange(SCARED_RANGE))
             {
                 //Oh no it's the wyrm!
 
@@ -85,7 +91,7 @@ namespace DreadWyrm2
 
                 //If we were running very fast, slow down to normal speed
                 if (xVel < -1 || xVel > 1)
-                    xVel = xVel * 0.5f;
+                    determineVelocityUnscared();
 
                 //Change direction every once in a while
                 if (elapsedTime > TIMETOCHANGE)
@@ -101,7 +107,7 @@ namespace DreadWyrm2
             else
                 asSprite.FrameLength = 0.1f;
 
-            xPos = (int)(xPos + xVel);
+            xPos = (xPos + xVel);
 
             //Change the direction the sprite is facing to match the direction of movement
             if (xVel < 0)
@@ -109,6 +115,10 @@ namespace DreadWyrm2
             else
                 asSprite.frameOffsetY = 0;
 
+
+
+            #region Make this unit go into spawn reserves if offscreen
+            /*
             //Keep the animal on screen
             if (xPos < 50)
             {
@@ -120,6 +130,24 @@ namespace DreadWyrm2
                 xPos = Background.SCREENWIDTH - 50;
                 xVel = -1 * xVel;
             }
+             
+            //*/
+
+
+            if (xPos < 0)
+            {
+                xPos = 2;
+                xVel = -1 * xVel;
+                PreySpawner.ranOffAnimal(this);
+            }
+            else if (xPos > Background.SCREENWIDTH)
+            {
+                xPos = Background.SCREENWIDTH - 2;
+                xVel = -1 * xVel;
+                PreySpawner.ranOffAnimal(this);
+            }
+
+            #endregion
 
             //Keep the animal on the surface of the ground
             recalcPositions();
