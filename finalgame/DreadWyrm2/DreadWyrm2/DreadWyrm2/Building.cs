@@ -34,6 +34,8 @@ namespace DreadWyrm2
 
         public static List<Texture2D> buildingTextures;     //The textures used by the buildings
 
+        protected static SoundEffect hitSound;
+
         public static List<Building> buildings;             //The list of all the buildings on the battlefield
 
         bool damagedRecently = false;
@@ -106,6 +108,7 @@ namespace DreadWyrm2
         public static void LoadContent(ContentManager Content)
         {
             turretShot = Content.Load<SoundEffect>(@"Sounds\turretShot");
+            hitSound = Content.Load<SoundEffect>(@"Sounds\impact1");
 
             buildingTextures = new List<Texture2D>();
             buildingTextures.Add(Content.Load<Texture2D>(@"Textures\turret_sprite_sheet_140x100_4x6"));
@@ -152,6 +155,10 @@ namespace DreadWyrm2
 
             if (hitPoints <= 0)
                 getDestroyed();
+            else
+            {
+                hitSound.Play();
+            }
         }
 
         public virtual void getDestroyed()
