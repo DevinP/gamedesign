@@ -54,6 +54,7 @@ namespace DreadWyrm2
         public const int TANK = 5;
         public const int MINE = 6;
         public const int DEPTH_CHARGE = 7;
+        public const int NEW_TANK = 8;
 
         public bool isMine = false;
 
@@ -127,6 +128,7 @@ namespace DreadWyrm2
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\tank"));
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\mine"));
             preyTextures.Add(Content.Load<Texture2D>(@"Textures\charge_16x16x4"));
+            preyTextures.Add(Content.Load<Texture2D>(@"Textures\tank_75x60x3x12"));
         }
 
         //A helper function which keeps the prey near the current ground level
@@ -177,7 +179,13 @@ namespace DreadWyrm2
             for (int i = 0; i < prey.Count; i++)
             {
                 if (prey[i].timeUp)
+                {
+                    Game1.explosions.Add(new Explosion(prey[i].xPos, prey[i].yPos, Game1.explosionTexture, true));
+
+                    Game1.explosion.Play();
+
                     prey.RemoveAt(i);
+                }
             }
 
             return numPrey;

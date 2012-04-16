@@ -120,6 +120,7 @@
     <Compile Include="Generator.cs" />
     <Compile Include="HUDElement.cs" />
     <Compile Include="HumanPlayer.cs" />
+    <Compile Include="newTank.cs" />
     <Compile Include="OilDerrick.cs" />
     <Compile Include="PreySpawner.cs" />
     <Compile Include="Turret.cs" />
@@ -130,7 +131,7 @@
     <Compile Include="Game1.cs" />
     <Compile Include="SoldierHuman.cs" />
     <Compile Include="Mine.cs" />
-    <Compile Include="Vehicle.cs" />
+    <Compile Include="Tank.cs" />
     <Compile Include="Wyrm.cs" />
     <Compile Include="WyrmSegment.cs" />
     <Compile Include="WyrmTrail.cs" />

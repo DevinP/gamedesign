@@ -263,6 +263,7 @@ namespace DreadWyrm2
             if (mouseY > Game1.SCREENHEIGHT)
                 mouseY = Game1.SCREENHEIGHT;
 
+            bool drawAGhost = drawGhostBarracks || drawGhostFactory || drawGhostOilDerrick || drawGhostTurret;
             bool clickedSoldier = false;
             bool clickedEngineer = false;
             bool clickedTank = false;
@@ -275,13 +276,13 @@ namespace DreadWyrm2
             {
                 canClick = false;
 
-                clickedSoldier = buttons[RECRUIT_SOLDIER].isWithin(new Vector2(mouseX, mouseY));
-                clickedEngineer = buttons[RECRUIT_ENGINEER].isWithin(new Vector2(mouseX, mouseY));
-                clickedTank = buttons[RECRUIT_TANK].isWithin(new Vector2(mouseX, mouseY));
-                clickedTurret = buttons[TURRET].isWithin(new Vector2(mouseX, mouseY));
-                clickedBarracks = buttons[BARRACKS].isWithin(new Vector2(mouseX, mouseY));
-                clickedFactory = buttons[FACTORY].isWithin(new Vector2(mouseX, mouseY));
-                clickedOilDerrick = buttons[OILDERRICK].isWithin(new Vector2(mouseX, mouseY));
+                clickedSoldier = buttons[RECRUIT_SOLDIER].isWithin(new Vector2(mouseX, mouseY)) && !drawAGhost;
+                clickedEngineer = buttons[RECRUIT_ENGINEER].isWithin(new Vector2(mouseX, mouseY)) && !drawAGhost;
+                clickedTank = buttons[RECRUIT_TANK].isWithin(new Vector2(mouseX, mouseY)) && !drawAGhost;
+                clickedTurret = buttons[TURRET].isWithin(new Vector2(mouseX, mouseY)) && !drawAGhost;
+                clickedBarracks = buttons[BARRACKS].isWithin(new Vector2(mouseX, mouseY)) && !drawAGhost;
+                clickedFactory = buttons[FACTORY].isWithin(new Vector2(mouseX, mouseY)) && !drawAGhost;
+                clickedOilDerrick = buttons[OILDERRICK].isWithin(new Vector2(mouseX, mouseY)) && !drawAGhost;
 
                 if (drawGhostTurret)
                 {
@@ -329,7 +330,7 @@ namespace DreadWyrm2
             else if (clickedTank && (totalMoney - TANK_COST >= 0) && hasFactory)
             {
                 //Prey.prey.Add(new Tank((int)(factoryLoc.X + XCOORD_FACTORY_DOOR), (int)(factoryLoc.Y + YCOORD_FACTORY_DOOR), theWyrm));
-                PreySpawner.addImmediate(new Tank((int)(factoryLoc.X + XCOORD_FACTORY_DOOR), (int)(factoryLoc.Y + YCOORD_FACTORY_DOOR), theWyrm));
+                PreySpawner.addImmediate(new newTank((int)(factoryLoc.X + XCOORD_FACTORY_DOOR), (int)(factoryLoc.Y + YCOORD_FACTORY_DOOR), theWyrm));
                 totalMoney -= TANK_COST;
             }
 

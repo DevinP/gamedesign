@@ -70,5 +70,13 @@ namespace DreadWyrm2
         {
             return yPos + SPRITE_HEIGHT / 2;
         }
+
+        public override void getDestroyed()
+        {
+            base.getDestroyed();
+
+            Game1.p2WyrmVictory = true;
+            Game1.gameOver = true;
+        }
     }
 }

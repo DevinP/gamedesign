@@ -63,6 +63,8 @@ namespace DreadWyrm2
         bool instructionMode = false;
         bool titleTransitionOk = true;
         public static bool isTwoPlayer = false;
+        public static bool p2WyrmVictory = false;
+        public static bool p2HumanVictory = false;
 
         int currWave = 1;
 
@@ -114,17 +116,6 @@ namespace DreadWyrm2
         const int WYRMHEAD_CENTER_NUMBER = 8; //This number is a magic number
         const int QUARTER_OF_WYRMHEAD_SPRITEHEIGHT = 15;
         const int QUARTER_OF_WYRMSEG_SPRITEHEIGHT = 12;
-
-
-
-
-
-
-
-
-
-
-
 
         AnimatedSprite tempGiraffe;
         AnimatedSprite tempElephant;
@@ -1011,6 +1002,11 @@ namespace DreadWyrm2
 
                     theHumanPlayer.Draw(spriteBatch);
 
+                    if (p2HumanVictory)
+                        spriteBatch.DrawString(scoreFont, "H U M A N S   W I N", new Vector2(500, 150), Color.Red);
+                    else if (p2WyrmVictory)
+                        spriteBatch.DrawString(scoreFont, "T H E  W Y R M  W I N S", new Vector2(490, 150), Color.Red);
+
                     #endregion
                 }
 
@@ -1087,6 +1083,8 @@ namespace DreadWyrm2
             isTwoPlayer = true;
 
             singlePlayerVictory = false;
+            p2WyrmVictory = false;
+            p2HumanVictory = false;
 
             theBackground = new Background(t2dbackgroundTwoPlayer, t2dforegroundTwoPlayer);
 
@@ -1188,7 +1186,7 @@ namespace DreadWyrm2
                     if (i == Prey.MINE_LAYER)
                         Prey.prey.Add(new Engineer(m_random.Next(20, 1050), 100, theWyrmPlayer.theWyrm));
                     if (i == Prey.TANK)
-                        Prey.prey.Add(new Tank(m_random.Next(20, 1050), 100, theWyrmPlayer.theWyrm));
+                        Prey.prey.Add(new newTank(m_random.Next(20, 1050), 100, theWyrmPlayer.theWyrm));
                 }
             }
         }
@@ -1328,7 +1326,11 @@ namespace DreadWyrm2
                     Prey.prey.RemoveAt(i);
 
                     if (theWyrmPlayer.Health <= 0 && !WyrmPlayer.nuxMode)
+                    {
                         gameOver = true;
+                        if (isTwoPlayer)
+                            p2HumanVictory = true;
+                    }
                 }
             }
 
@@ -1378,7 +1380,11 @@ namespace DreadWyrm2
                     theWyrmPlayer.Health -= bullets[i].DamageDealt;
 
                     if (theWyrmPlayer.Health <= 0 && !WyrmPlayer.nuxMode)
+                    {
                         gameOver = true;
+                        if (isTwoPlayer)
+                            p2HumanVictory = true;
+                    }
 
                     bullets.RemoveAt(i);
 
@@ -1392,7 +1398,11 @@ namespace DreadWyrm2
                         theWyrmPlayer.Health -= bullets[i].DamageDealt;
 
                         if (theWyrmPlayer.Health <= 0 && !WyrmPlayer.nuxMode)
+                        {
                             gameOver = true;
+                            if (isTwoPlayer)
+                                p2HumanVictory = true;
+                        }
 
                         bullets.RemoveAt(i);
 

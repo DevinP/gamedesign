@@ -154,13 +154,9 @@ namespace DreadWyrm2
                         else
                         {
                             //Heck, throw a civvie in there too
-                            animals.Add(new Animal(1, 100, Prey.preyTextures[Prey.UNARMEDHUMAN], 4, 24, 21, 23, 6, Game1.theWyrmPlayer.theWyrm, 80, 25));
-                            numAnimals = numAnimals + 1;
-
-                            humans.Add(new Animal(1, 100, Prey.preyTextures[Prey.UNARMEDHUMAN], 4, 24, 21, 23, 6, Game1.theWyrmPlayer.theWyrm, 80, 25));
-                            numHumans = numAnimals + 1;
-                            humans.Add(new Animal(1, 100, Prey.preyTextures[Prey.UNARMEDHUMAN], 4, 24, 21, 23, 6, Game1.theWyrmPlayer.theWyrm, 80, 25));
-                            numHumans = numAnimals + 1;
+                            addAnimal(new Animal(1, 100, Prey.preyTextures[Prey.UNARMEDHUMAN], 4, 24, 21, 23, 6, Game1.theWyrmPlayer.theWyrm, 80, 25));
+                            addHuman(new Animal(1, 100, Prey.preyTextures[Prey.UNARMEDHUMAN], 4, 24, 21, 23, 6, Game1.theWyrmPlayer.theWyrm, 80, 25));
+                            addHuman(new Animal(1, 100, Prey.preyTextures[Prey.UNARMEDHUMAN], 4, 24, 21, 23, 6, Game1.theWyrmPlayer.theWyrm, 80, 25));
                         }
                     }
                 }
@@ -200,6 +196,20 @@ namespace DreadWyrm2
 
         public static void addAnimal(Prey p)
         {
+            int randomNum = Game1.m_random.Next(0, 100);
+            if (randomNum < 50)
+            {
+                //place this prey on the left side
+                p.xPosistion = 1;
+                p.xVelocity = Math.Abs(p.xVelocity);
+            }
+            else
+            {
+                //place this prey on the right side
+                p.xPosistion = Game1.SCREENWIDTH - 1;
+                p.xVelocity = -1 * Math.Abs(p.xVelocity);
+            }
+
             //Well, just add it to the list
             animals.Add(p);
             //and increment the count
@@ -216,6 +226,19 @@ namespace DreadWyrm2
 
         public static  void addHuman(Prey p)
         {
+            int randomNum = Game1.m_random.Next(0, 100);
+            if (randomNum < 50)
+            {
+                //place this prey on the left side
+                p.xPosistion = 1;
+                p.xVelocity = Math.Abs(p.xVelocity);
+            }
+            else
+            {
+                //place this prey on the right side
+                p.xPosistion = Game1.SCREENWIDTH - 1;
+                p.xVelocity = -1 * Math.Abs(p.xVelocity);
+            }
             //Well, just add it to the list
             humans.Add(p);
             //and increment the count
@@ -229,9 +252,8 @@ namespace DreadWyrm2
         public static void ranOffHuman(Prey p)
         {
             //Well, just add it to the list
-            humans.Add(p);
-            //and increment the count
-            numHumans = numHumans + 1;
+            addHuman(p);
+
 
             //Then remove it from the prey list, since it just ran off
             removals.Add(p);
@@ -244,10 +266,9 @@ namespace DreadWyrm2
         //Make sure that the prey is set to walk, i.e. facing the correct direction and in the correct state
         public static void ranOffAnimal(Prey p)
         {
+
             //Well, just add it to the list
-            animals.Add(p);
-            //and increment the count
-            numAnimals = numAnimals + 1;
+            addAnimal(p);
 
             //Then remove it from the prey list, since it just ran off
             removals.Add(p);
