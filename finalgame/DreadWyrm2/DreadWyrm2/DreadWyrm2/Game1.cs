@@ -34,6 +34,7 @@ namespace DreadWyrm2
         bool m_gameStarted = false;                        //Whether or not we are at the title screen
         SpriteFont titleFont;                              //The font used in the game for the title screen
         SpriteFont upgradeFont;                            //The font used in the game for the upgrade screen
+        SpriteFont upgradeFontNumbers;                     //The font used for specific upgrade numbers in two player mode
         SpriteFont scoreFont;                              //The font used to dispaly the meat score
         Vector2 vStartTitleTextLoc = new Vector2(440, 440);//The location for the additional title screen text
         SoundEffect roar;
@@ -42,7 +43,7 @@ namespace DreadWyrm2
         Texture2D t2dforegroundSinglePlayer;                //The foreground sprite (part of the background)
         Texture2D t2dbackgroundTwoPlayer;                   //The background sprite for the multiplayer arena
         Texture2D t2dforegroundTwoPlayer;                   //The foreground sprite for the multiplayer arena
-        public static WyrmPlayer theWyrmPlayer;                    //The wyrm player of the game
+        public static WyrmPlayer theWyrmPlayer;             //The wyrm player of the game
         HumanPlayer theHumanPlayer;                         //The human player of the game
         List<List<int>> levelPrey;                          //The things which must be eaten to advance the wave
 
@@ -72,6 +73,11 @@ namespace DreadWyrm2
 
         //The game's random numbers
         public static Random m_random;
+
+        bool p2CanUpgradeRegen = true;
+        bool p2CanUpgradeHealth = true;
+        bool p2CanUpgradeSpeed = true;
+        bool p2CanUpgradeSprint = true;
 
         bool canRoar = true;
         bool canSwitchSongs = true;
@@ -169,6 +175,7 @@ namespace DreadWyrm2
 
             titleFont = Content.Load<SpriteFont>(@"Fonts\Title");
             upgradeFont = Content.Load<SpriteFont>(@"Fonts\Upgrade");
+            upgradeFontNumbers = Content.Load<SpriteFont>(@"Fonts\upgradeFontNumbers");
             scoreFont = Content.Load<SpriteFont>(@"Fonts\scoreFont");
 
             t2dTitleScreen = Content.Load<Texture2D>(@"Textures\titleScreen");
@@ -518,7 +525,107 @@ namespace DreadWyrm2
                 {
                     #region twoPlayerMode
 
-                    if (upgradeMode)
+                    #region Handling upgrades in real-time
+
+                    //Check if the player is pressing the health regen key (1)
+                    if (p2CanUpgradeRegen && keystate.IsKeyDown(Keys.D1))
+                    {
+                        p2CanUpgradeRegen = false;
+
+                        //Make sure the player has enough meat and is missing health
+                        if (!(theWyrmPlayer.Meat < regenCost) && (theWyrmPlayer.Health < theWyrmPlayer.HealthMax))
+                        {
+                            theWyrmPlayer.healthPerMS = (float)((theWyrmPlayer.REGEN_FACTOR * theWyrmPlayer.HealthMax) / (theWyrmPlayer.REGEN_DURATION));
+                            theWyrmPlayer.healthAfterRegen += theWyrmPlayer.REGEN_DURATION * theWyrmPlayer.healthPerMS;
+
+                            if (theWyrmPlayer.healthAfterRegen < theWyrmPlayer.HealthMax * 1.24)
+                            {
+                                theWyrmPlayer.regen++;
+                                theWyrmPlayer.Meat -= regenCost;
+                            }
+                        }
+                    }
+                    else if(keystate.IsKeyUp(Keys.D1))
+                    {
+                        p2CanUpgradeRegen = true;
+                    }
+
+                    //Check if the player is pressing the max health key (2)
+                    if (p2CanUpgradeHealth && keystate.IsKeyDown(Keys.D2))
+                    {
+                        p2CanUpgradeHealth = false;
+
+                        if (!(theWyrmPlayer.Meat < maxHealthCost) && (theWyrmPlayer.HealthMax + MAXHEALTH_UPGRADE_INCR <= HEALTHMAX_MAX))
+                            {
+                                theWyrmPlayer.HealthMax += MAXHEALTH_UPGRADE_INCR;
+                                theWyrmPlayer.Meat -= maxHealthCost;
+                                maxHealthCost += MAXHEALTH_COST_INCR;
+                                regenCost += REGEN_COST_INCR;
+
+                                theWyrmPlayer.healthPerMS = (float)((theWyrmPlayer.REGEN_FACTOR * theWyrmPlayer.HealthMax) / (theWyrmPlayer.REGEN_DURATION));
+                                theWyrmPlayer.healthAfterRegen =
+                                    theWyrmPlayer.Health + ((theWyrmPlayer.REGEN_DURATION - theWyrmPlayer.elapsedTimeTotalRegen) * theWyrmPlayer.healthPerMS)
+                                    + (theWyrmPlayer.REGEN_DURATION * theWyrmPlayer.healthPerMS * (theWyrmPlayer.regen - 1));
+                            }
+                    }
+                    else if (keystate.IsKeyUp(Keys.D2))
+                    {
+                        p2CanUpgradeHealth = true;
+                    }
+
+                    //Check if the player is pressing the max speed key (3)
+                    if (p2CanUpgradeSpeed && keystate.IsKeyDown(Keys.D3))
+                    {
+                        p2CanUpgradeSpeed = false;
+
+                        if (!(theWyrmPlayer.Meat < digSpeedCost))
+                        {
+                            if ((theWyrmPlayer.theWyrm.HeadSpeedMax + DIGSPEED_UPGRADE_INCR) > SPEEDMAX)
+                            {
+                                theWyrmPlayer.theWyrm.HeadSpeedMax = SPEEDMAX;
+                            }
+                            else
+                            {
+                                theWyrmPlayer.theWyrm.HeadSpeedMax += DIGSPEED_UPGRADE_INCR;
+                                theWyrmPlayer.theWyrm.HeadSpeedNormalMax += DIGSPEED_UPGRADE_INCR;
+                                theWyrmPlayer.theWyrm.HeadSpeedBoostMax += DIGSPEED_UPGRADE_INCR * WYRM_BOOST_FACTOR;
+                                theWyrmPlayer.Meat -= digSpeedCost;
+                                digSpeedCost += DIGSPEED_COST_INCR;
+                            }
+                        }
+                    }
+                    else if (keystate.IsKeyUp(Keys.D3))
+                    {
+                        p2CanUpgradeSpeed = true;
+                    }
+
+                    //Check if the player is pressing the max stamina key (4)
+                    if (p2CanUpgradeSprint && keystate.IsKeyDown(Keys.D4))
+                    {
+                        p2CanUpgradeSprint = false;
+
+                        if (!(theWyrmPlayer.Meat < staminaCost))
+                        {
+                            if ((theWyrmPlayer.MaxStamina + STAMINA_UPGRADE_INCR) >= STAMINA_MAX)
+                            {
+                                theWyrmPlayer.MaxStamina = STAMINA_MAX;
+                            }
+                            else
+                            {
+                                theWyrmPlayer.MaxStamina += STAMINA_UPGRADE_INCR;
+                                theWyrmPlayer.Meat -= staminaCost;
+                                staminaCost += STAMINA_COST_INCR;
+                            }
+                        }
+                    }
+                    else if (keystate.IsKeyUp(Keys.D4))
+                    {
+                        p2CanUpgradeSprint = true;
+                    }
+
+                    #endregion
+
+                    /*if (upgradeMode)
                     {
                         #region Upgrade Mode (upgradeMode == true)
 
@@ -615,10 +722,12 @@ namespace DreadWyrm2
                             upgraded = false;
 
                         #endregion
-                    }
-                    else
-                    {
-                        #region Gameplay Mode (upgradeMode == false)
+                    }*/
+                    //else
+                   // {
+                        //#region Gameplay Mode (upgradeMode == false)
+
+
 
                         theBackground.Update();
 
@@ -705,8 +814,8 @@ namespace DreadWyrm2
                             canRoar = true;
                         }
 
-                        #endregion
-                    }
+                       // #endregion
+                    //}
 
                     #endregion
                 }
@@ -929,7 +1038,64 @@ namespace DreadWyrm2
                         explosions[i].Draw(spriteBatch);
                     }
 
-                    if (upgradeMode)
+                    #region Drawing Upgrade Info
+
+                    spriteBatch.DrawString(upgradeFontNumbers, "PRESS: ", new Vector2(760,660), Color.Red);
+
+                    //Draw the health regen indicator
+                    if(theWyrmPlayer.Health >= theWyrmPlayer.HealthMax)
+                        spriteBatch.DrawString(upgradeFont, "Fully Healthy", new Vector2(840, 645), Color.Red);
+                    else
+                        spriteBatch.DrawString(upgradeFont, regenCost + " KG", new Vector2(865, 645), Color.Red);
+
+                    spriteBatch.DrawString(upgradeFontNumbers, "1", new Vector2(880, 660), Color.Red);
+
+                    spriteBatch.DrawString(upgradeFont, "REGEN", new Vector2(865, 690), Color.Red);
+
+
+                    //Draw the max health indicator
+                    if (theWyrmPlayer.HealthMax >= HEALTHMAX_MAX)
+                    {
+                        spriteBatch.DrawString(upgradeFont, "MAX", new Vector2(990,645), Color.Red);
+                    }
+                    else
+                    {
+                        spriteBatch.DrawString(upgradeFont,  maxHealthCost + " KG", new Vector2(980,645), Color.Red);
+                    }
+
+                    spriteBatch.DrawString(upgradeFontNumbers, "2", new Vector2(1000,660), Color.Red);
+
+                    spriteBatch.DrawString(upgradeFont, "MAX HEALTH", new Vector2(965, 690), Color.Red);
+
+
+                    //Draw the max speed indicator
+                    if ((theWyrmPlayer.theWyrm.HeadSpeedMax + DIGSPEED_UPGRADE_INCR) > SPEEDMAX)
+                        spriteBatch.DrawString(upgradeFont, "MAX", new Vector2(1090,645), Color.Red);
+                    else
+                        spriteBatch.DrawString(upgradeFont, digSpeedCost + " KG", new Vector2(1080,645), Color.Red);
+
+                    spriteBatch.DrawString(upgradeFontNumbers, "3", new Vector2(1100, 660), Color.Red);
+
+                    spriteBatch.DrawString(upgradeFont, "MAX SPEED", new Vector2(1075,690), Color.Red);
+
+
+                    //Draw the max stamina indicator
+                    if (theWyrmPlayer.MaxStamina >= STAMINA_MAX)
+                    {
+                        spriteBatch.DrawString(upgradeFont, "MAX", new Vector2(1195,645), Color.Red);
+                    }
+                    else
+                    {
+                        spriteBatch.DrawString(upgradeFont, staminaCost + " KG", new Vector2(1180,645), Color.Red);
+                    }
+
+                    spriteBatch.DrawString(upgradeFontNumbers, "4", new Vector2(1200,660), Color.Red);
+
+                    spriteBatch.DrawString(upgradeFont, "MAX STAMINA", new Vector2(1165,690), Color.Red);
+
+                    #endregion
+
+                    /*if (upgradeMode)
                     {
                         #region upgradeMode
                         //Draw the partly-transparent black layer over the screen to darken it
@@ -998,7 +1164,7 @@ namespace DreadWyrm2
                         #endregion
                     }
                     else
-                        spriteBatch.DrawString(titleFont, "Press U for UPGRADES", new Vector2(920, 570), Color.Red);
+                        spriteBatch.DrawString(titleFont, "Press U for UPGRADES", new Vector2(920, 570), Color.Red);*/
 
                     theHumanPlayer.Draw(spriteBatch);
 
@@ -1085,6 +1251,11 @@ namespace DreadWyrm2
             singlePlayerVictory = false;
             p2WyrmVictory = false;
             p2HumanVictory = false;
+
+            p2CanUpgradeRegen = true;
+            p2CanUpgradeHealth = true;
+            p2CanUpgradeSpeed = true;
+            p2CanUpgradeSprint = true;
 
             theBackground = new Background(t2dbackgroundTwoPlayer, t2dforegroundTwoPlayer);
 

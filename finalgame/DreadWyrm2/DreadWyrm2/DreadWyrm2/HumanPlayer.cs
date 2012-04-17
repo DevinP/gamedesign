@@ -238,7 +238,7 @@ namespace DreadWyrm2
             factoryButtonTex = Content.Load<Texture2D>(@"Textures\FactoryIcon");
             disabledFactoryButtonTex = Content.Load<Texture2D>(@"Textures\FactoryIconDisabled");
 
-            tankRecruitTex = Content.Load<Texture2D>(@"Textures\addUnit");
+            tankRecruitTex = Content.Load<Texture2D>(@"Textures\tankRecruitIcon");
 
             ghostTurret = Content.Load<Texture2D>(@"Textures\ghostTurret");
             ghostBarracks = Content.Load<Texture2D>(@"Textures\GhostBarracks");

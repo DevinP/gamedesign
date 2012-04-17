@@ -6,6 +6,7 @@ Content\Sounds\explosion.xnb
 Content\Sounds\Predator Roar.xnb
 Content\Sounds\soldierShot.xnb
 Content\Sounds\tankShot.xnb
+Content\Sounds\turretShot.xnb
 Content\Sounds\bgm.xnb
 Content\Sounds\bgm2.xnb
 Content\Sounds\bgm3.xnb
@@ -47,7 +48,6 @@ Content\Textures\2pbackground.xnb
 Content\Textures\2pforeground.xnb
 Content\Textures\soldierIcon.xnb
 Content\Textures\engineerIcon.xnb
-Content\Sounds\turretShot.xnb
 Content\Textures\turret_sprite_sheet_140x100_4x6.xnb
 Content\Textures\BarracksIconDisabled.xnb
 Content\Textures\FactoryIconDisabled.xnb
@@ -62,9 +62,11 @@ Content\Textures\factorySpriteSheet.xnb
 Content\Textures\barracksSpriteSheet.xnb
 Content\Textures\GhostBarracks.xnb
 Content\Textures\GhostFactory.xnb
-Content\Sounds\impact1.xnb
 Content\Textures\charge_16x16x4.xnb
+Content\Sounds\impact1.xnb
 Content\Textures\tank_75x60x3x12.xnb
+Content\Fonts\upgradeFontNumbers.xnb
+Content\Textures\tankRecruitIcon.xnb
 Content\Sounds\bgm.wma
 Content\Sounds\bgm2.wma
 Content\Sounds\bgm3.wma

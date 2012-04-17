@@ -20,7 +20,7 @@ namespace DreadWyrm2
         const int BULLETDAMAGE = 50;
         const int BULLETSPEED = 12;
 
-        const float TIMETOCHANGEVEL = 11;
+        float TIMETOCHANGEVEL; //11
         const float SHOOTDELAY = 1000;        //Number of milliseconds in between shots
 
         bool isShooting = false;
@@ -67,7 +67,10 @@ namespace DreadWyrm2
                 xVel = -1;
             else
                 xVel = 1;
+
+            TIMETOCHANGEVEL = (float) (Game1.m_random.NextDouble() * 12 + 2);
         }
+
         public override void Update(GameTime gametime)
         {
             //Use the regular animations when not shooting
@@ -212,7 +215,7 @@ namespace DreadWyrm2
 
                         break;
                     case 2:
-                        bulletOriginOffset = new Vector2(0, 0);
+                       bulletOriginOffset = new Vector2(0, 0);
 
                         if (xVel > 0)
                         {
