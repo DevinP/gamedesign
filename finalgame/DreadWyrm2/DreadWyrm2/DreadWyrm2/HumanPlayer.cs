@@ -16,10 +16,10 @@ namespace DreadWyrm2
     {
         float incomeCounter = 0;
         const float INCOME_LIMIT = 5000;    //The number of milliseconds between income accumulations
-        const float BASE_INCOME = 1;       //Base income per 5 seconds that can't be touched by the wyrm
-        const float INCOME_ADJUSTMENT_PER_OIL_DERRICK = 5;  //The number of dollars per 5 seconds an oil derrick provides
+        const float BASE_INCOME = 100;       //Base income per 5 seconds that can't be touched by the wyrm
+        const float INCOME_ADJUSTMENT_PER_OIL_DERRICK = 500;  //The number of dollars per 5 seconds an oil derrick provides
 
-        int totalMoney = 100;
+        int totalMoney = 10000;
         public static int numOilDerricks = 0;
 
         static SpriteFont humanFontFunds;
@@ -144,13 +144,13 @@ namespace DreadWyrm2
         const int MOUSECURSOR_HEIGHT = 32;
 
         //Building and unit costs
-        const int TURRET_COST = 25;
-        const int OILDERRICK_COST = 15;
-        const int BARRACKS_COST = 30;
-        const int SOLDIER_COST = 5;
-        const int ENGINEER_COST = 8;
-        const int FACTORY_COST = 60;
-        const int TANK_COST = 20;
+        const int TURRET_COST = 2500;
+        const int OILDERRICK_COST = 1500;
+        const int BARRACKS_COST = 3000;
+        const int SOLDIER_COST = 500;
+        const int ENGINEER_COST = 800;
+        const int FACTORY_COST = 6000;
+        const int TANK_COST = 2000;
 
         public int money
         {

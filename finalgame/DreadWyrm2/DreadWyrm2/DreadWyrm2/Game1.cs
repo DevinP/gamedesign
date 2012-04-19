@@ -23,10 +23,19 @@ namespace DreadWyrm2
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        Texture2D blueBoxTitleScreen;
+
+        //Title screen booleans
+        bool singlePlayerGameSelected = true;
+        bool twoPlayerGameSelected = false;
+        bool nuxModeSelected = false;
+        bool quitToDesktop_MMSelected = false;
+
         Texture2D t2dTitleScreen;                          //The title screen for the game
         Texture2D t2dTitleScreenNoWords;
         Texture2D t2dtransparentBlack;                     //A partially transparent texture to draw over the game
         Texture2D t2dupgradeBox;                           //A box to put upgrade messages in
+        Texture2D t2dupgradeBoxOffColor;                   //A box to indicated it is selected
         Texture2D t2dupgradeArrow;                         //Arrow to indicate which upgrade the player will select
         Song bgm;                                          //The background music for the game
         Song bgm2;
@@ -63,6 +72,7 @@ namespace DreadWyrm2
         bool singlePlayerVictory = false;                   //The player has won in single player
         bool instructionMode = false;
         bool titleTransitionOk = true;
+        bool titleScreenSelectionChangeOk = true;
         public static bool isTwoPlayer = false;
         public static bool p2WyrmVictory = false;
         public static bool p2HumanVictory = false;
@@ -84,6 +94,14 @@ namespace DreadWyrm2
         bool bgm1Playing = false;
         bool bgm2Playing = false;
         bool bgm3Playing = false;
+
+        //Pause mode variables
+        bool gamePaused = false;
+        bool gamePausedCanSwitch = true;
+        bool canSwitchMenuSelection = true;
+        bool returnToGameSelected = false;
+        bool quitToMenuSelected = false;
+        bool quitToDesktopSelected = false;
 
         //Upgrade variables
         bool upgradeMode = false;
@@ -178,10 +196,13 @@ namespace DreadWyrm2
             upgradeFontNumbers = Content.Load<SpriteFont>(@"Fonts\upgradeFontNumbers");
             scoreFont = Content.Load<SpriteFont>(@"Fonts\scoreFont");
 
+            blueBoxTitleScreen = Content.Load<Texture2D>(@"Textures\blueBox");
+
             t2dTitleScreen = Content.Load<Texture2D>(@"Textures\titleScreen");
             t2dTitleScreenNoWords = Content.Load<Texture2D>(@"Textures\titlescreen_no_words");
             t2dtransparentBlack = Content.Load<Texture2D>(@"Textures\transparentBlack");
             t2dupgradeBox = Content.Load<Texture2D>(@"Textures\wordbubble");
+            t2dupgradeBoxOffColor = Content.Load<Texture2D>(@"Textures\wordbubble_offcolor");
             t2dupgradeArrow = Content.Load<Texture2D>(@"Textures\arrow");
 
             HumanPlayer.LoadContent(Content);
@@ -225,8 +246,8 @@ namespace DreadWyrm2
             tempEngineer.IsAnimating = true;
             tempMine = new AnimatedSprite(Prey.preyTextures[Prey.MINE], 0, 0, 16, 9, 3);
 
-            tempTank = new AnimatedSprite(Prey.preyTextures[Prey.TANK], 0, 50, 145, 50, 0);
-            tempTank.IsAnimating = false;
+            tempTank = new AnimatedSprite(Prey.preyTextures[Prey.NEW_TANK], 0, 300, 75, 60, 3);
+            tempTank.IsAnimating = true;
 
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(bgm);
@@ -252,10 +273,6 @@ namespace DreadWyrm2
             // Store values for the Keyboard so we aren't
             // Querying them multiple times per Update
             KeyboardState keystate = Keyboard.GetState();
-
-            //If the Escape Key is pressed, exit the game.
-            if (keystate.IsKeyDown(Keys.Escape))
-                this.Exit();
 
             if (gameOver)
             {
@@ -318,27 +335,123 @@ namespace DreadWyrm2
 
                 int numPrey;
 
+                if ((keystate.IsKeyDown(Keys.P) || keystate.IsKeyDown(Keys.Escape)) && gamePausedCanSwitch && !upgradeMode && !gamePaused)
+                {
+                    gamePaused = true;
+                    gamePausedCanSwitch = false;
+                    returnToGameSelected = true;
+                }
+                else if (keystate.IsKeyUp(Keys.P) && keystate.IsKeyUp(Keys.Escape))
+                {
+                    gamePausedCanSwitch = true;
+                }
 
                 //Tell PreySpawner to update
                 preySpawner.update(gameTime);
 
-
-                if (keystate.IsKeyDown(Keys.U) && upgradeModeCanSwitch)
+                if (!gamePaused && !isTwoPlayer)
                 {
-                    //Toggle the upgrade mode
-                    if (upgradeMode)
-                        upgradeMode = false;
-                    else if (!upgradeMode)
-                        upgradeMode = true;
+                    if (keystate.IsKeyDown(Keys.U) && upgradeModeCanSwitch)
+                    {
+                        //Toggle the upgrade mode
+                        if (upgradeMode)
+                            upgradeMode = false;
+                        else if (!upgradeMode)
+                            upgradeMode = true;
 
-                    upgradeModeCanSwitch = false;
+                        upgradeModeCanSwitch = false;
+                    }
+                    else if (keystate.IsKeyUp(Keys.U) && !upgradeModeCanSwitch)
+                    {
+                        upgradeModeCanSwitch = true;
+                    }
                 }
-                else if (keystate.IsKeyUp(Keys.U) && !upgradeModeCanSwitch)
+
+                if (gamePaused)
                 {
-                    upgradeModeCanSwitch = true;
-                }
+                    #region Pause Mode
 
-                if (!isTwoPlayer)
+                    if (gamePausedCanSwitch && (keystate.IsKeyDown(Keys.P) || keystate.IsKeyDown(Keys.Escape)))
+                    {
+                        gamePaused = false;
+                        gamePausedCanSwitch = false;
+                    }
+
+                    if (returnToGameSelected)
+                    {
+                        if (canSwitchMenuSelection)
+                        {
+                            if (keystate.IsKeyDown(Keys.Down))
+                            {
+                                //Change the current menu selection
+                                returnToGameSelected = false;
+                                quitToMenuSelected = true;
+                                quitToDesktopSelected = false;
+                                canSwitchMenuSelection = false;
+                            }
+                        }
+
+                        if (keystate.IsKeyDown(Keys.Enter))
+                        {
+                            //Return to the game
+                            gamePaused = false;
+                            gamePausedCanSwitch = false;
+                        }
+                    }
+                    else if (quitToMenuSelected)
+                    {
+                        if (canSwitchMenuSelection)
+                        {
+                            //Change the current menu selection based on input
+                            if (keystate.IsKeyDown(Keys.Down))
+                            {
+                                returnToGameSelected = false;
+                                quitToMenuSelected = false;
+                                quitToDesktopSelected = true;
+                                canSwitchMenuSelection = false;
+                            }
+                            else if (keystate.IsKeyDown(Keys.Up))
+                            {
+                                returnToGameSelected = true;
+                                quitToMenuSelected = false;
+                                quitToDesktopSelected = false;
+                                canSwitchMenuSelection = false;
+                            }
+                        }
+
+                        if (keystate.IsKeyDown(Keys.Enter))
+                        {
+                            //Quit to the main menu
+                            endSinglePlayerGame();
+                            endMultiPlayerGame();
+                        }
+                    }
+                    else if (quitToDesktopSelected)
+                    {
+                        if (canSwitchMenuSelection)
+                        {
+                            if (keystate.IsKeyDown(Keys.Up))
+                            {
+                                returnToGameSelected = false;
+                                quitToMenuSelected = true;
+                                quitToDesktopSelected = false;
+                                canSwitchMenuSelection = false;
+                            }
+                        }
+
+                        if (keystate.IsKeyDown(Keys.Enter))
+                        {
+                            //Quit to desktop
+                            this.Exit();
+                        }
+                    }
+
+                    if (keystate.IsKeyUp(Keys.Up) && keystate.IsKeyUp(Keys.Down))
+                        canSwitchMenuSelection = true;
+
+                    #endregion
+                }
+                else if (!isTwoPlayer)
                 {
                     #region onePlayerMode
 
@@ -545,7 +658,7 @@ namespace DreadWyrm2
                             }
                         }
                     }
-                    else if(keystate.IsKeyUp(Keys.D1))
+                    else if (keystate.IsKeyUp(Keys.D1))
                     {
                         p2CanUpgradeRegen = true;
                     }
@@ -556,17 +669,17 @@ namespace DreadWyrm2
                         p2CanUpgradeHealth = false;
 
                         if (!(theWyrmPlayer.Meat < maxHealthCost) && (theWyrmPlayer.HealthMax + MAXHEALTH_UPGRADE_INCR <= HEALTHMAX_MAX))
-                            {
-                                theWyrmPlayer.HealthMax += MAXHEALTH_UPGRADE_INCR;
-                                theWyrmPlayer.Meat -= maxHealthCost;
-                                maxHealthCost += MAXHEALTH_COST_INCR;
-                                regenCost += REGEN_COST_INCR;
+                        {
+                            theWyrmPlayer.HealthMax += MAXHEALTH_UPGRADE_INCR;
+                            theWyrmPlayer.Meat -= maxHealthCost;
+                            maxHealthCost += MAXHEALTH_COST_INCR;
+                            regenCost += REGEN_COST_INCR;
 
-                                theWyrmPlayer.healthPerMS = (float)((theWyrmPlayer.REGEN_FACTOR * theWyrmPlayer.HealthMax) / (theWyrmPlayer.REGEN_DURATION));
-                                theWyrmPlayer.healthAfterRegen =
-                                    theWyrmPlayer.Health + ((theWyrmPlayer.REGEN_DURATION - theWyrmPlayer.elapsedTimeTotalRegen) * theWyrmPlayer.healthPerMS)
-                                    + (theWyrmPlayer.REGEN_DURATION * theWyrmPlayer.healthPerMS * (theWyrmPlayer.regen - 1));
-                            }
+                            theWyrmPlayer.healthPerMS = (float)((theWyrmPlayer.REGEN_FACTOR * theWyrmPlayer.HealthMax) / (theWyrmPlayer.REGEN_DURATION));
+                            theWyrmPlayer.healthAfterRegen =
+                                theWyrmPlayer.Health + ((theWyrmPlayer.REGEN_DURATION - theWyrmPlayer.elapsedTimeTotalRegen) * theWyrmPlayer.healthPerMS)
+                                + (theWyrmPlayer.REGEN_DURATION * theWyrmPlayer.healthPerMS * (theWyrmPlayer.regen - 1));
+                        }
                     }
                     else if (keystate.IsKeyUp(Keys.D2))
                     {
@@ -625,200 +738,95 @@ namespace DreadWyrm2
 
                     #endregion
 
-                    /*if (upgradeMode)
+                    theBackground.Update();
+
+                    //Check to see if the wyrm is eating and prey
+                    checkEat();
+
+                    //Check to see if the wyrm is colliding with (and thus damaging) buildings
+                    checkBuildingCollisions();
+
+                    for (int i = 0; i < Building.buildings.Count; i++)
                     {
-                        #region Upgrade Mode (upgradeMode == true)
-
-                        if (keystate.IsKeyDown(Keys.Left))
+                        if (Building.buildings[i].isDestroyed)
                         {
-                            upgradeArrowDir = (float)Math.PI; //Speed burst
+                            explosions.Add(new Explosion(Building.buildings[i].xPos + Building.buildings[i].SpriteWidth / 2,
+                                Building.buildings[i].yPos + Building.buildings[i].SpriteHeight / 2, explosionTexture, false));
+
+                            explosion.Play();
+
+                            Building.buildings.RemoveAt(i);
                         }
-                        else if (keystate.IsKeyDown(Keys.Down))
+                    }
+
+                    //Update all the prey
+                    numPrey = Prey.UpdateAll(gameTime);
+
+                    //Update all the bullets
+                    for (int i = 0; i < bullets.Count; i++)
+                    {
+                        bullets[i].Update(gameTime);
+                    }
+
+                    //Update the wyrm player
+                    theWyrmPlayer.Update(gameTime, keystate);
+
+                    //Reset the ability for buildings to get damaged by the wyrm if the wyrm is underground
+                    if (theWyrmPlayer.theWyrm.b_wyrmGrounded)
+                    {
+                        foreach (Building theBuilding in Building.buildings)
                         {
-                            upgradeArrowDir = (float)(Math.PI / 2); //Dig speed
+                            theBuilding.DamagedThisJump = false;
                         }
-                        else if (keystate.IsKeyDown(Keys.Right))
-                        {
-                            upgradeArrowDir = 0; //Max health
-                        }
-                        else if (keystate.IsKeyDown(Keys.Up))
-                        {
-                            upgradeArrowDir = (float)((3 * Math.PI) / 2); //Health regen
-                        }
+                    }
 
-                        if (keystate.IsKeyDown(Keys.Enter) && !upgraded)
-                        {
-                            upgraded = true;
+                    int numBuilding;
 
-                            if (upgradeArrowDir == (float)Math.PI) //Stamina
-                            {
-                                if (!(theWyrmPlayer.Meat < staminaCost))
-                                {
-                                    if ((theWyrmPlayer.MaxStamina + STAMINA_UPGRADE_INCR) >= STAMINA_MAX)
-                                    {
-                                        theWyrmPlayer.MaxStamina = STAMINA_MAX;
-                                    }
-                                    else
-                                    {
-                                        theWyrmPlayer.MaxStamina += STAMINA_UPGRADE_INCR;
-                                        theWyrmPlayer.Meat -= staminaCost;
-                                        staminaCost += STAMINA_COST_INCR;
-                                    }
-                                }
-                            }
+                    //Update all the buildings
+                    numBuilding = Building.UpdateAll(gameTime);
 
-                            else if (upgradeArrowDir == (float)(Math.PI / 2)) //Dig Speed
-                            {
-                                if (!(theWyrmPlayer.Meat < digSpeedCost))
-                                {
-                                    if ((theWyrmPlayer.theWyrm.HeadSpeedMax + DIGSPEED_UPGRADE_INCR) > SPEEDMAX)
-                                    {
-                                        theWyrmPlayer.theWyrm.HeadSpeedMax = SPEEDMAX;
-                                    }
-                                    else
-                                    {
-                                        theWyrmPlayer.theWyrm.HeadSpeedMax += DIGSPEED_UPGRADE_INCR;
-                                        theWyrmPlayer.theWyrm.HeadSpeedNormalMax += DIGSPEED_UPGRADE_INCR;
-                                        theWyrmPlayer.theWyrm.HeadSpeedBoostMax += DIGSPEED_UPGRADE_INCR * WYRM_BOOST_FACTOR;
-                                        theWyrmPlayer.Meat -= digSpeedCost;
-                                        digSpeedCost += DIGSPEED_COST_INCR;
-                                    }
-                                }
+                    //Check if any bullets are hitting the wyrm
+                    checkBullets();
 
-                            }
-                            else if (upgradeArrowDir == 0) //Max Health
-                            {
-                                if (!(theWyrmPlayer.Meat < maxHealthCost) && (theWyrmPlayer.HealthMax + MAXHEALTH_UPGRADE_INCR <= HEALTHMAX_MAX))
-                                {
-                                    theWyrmPlayer.HealthMax += MAXHEALTH_UPGRADE_INCR;
-                                    theWyrmPlayer.Meat -= maxHealthCost;
-                                    maxHealthCost += MAXHEALTH_COST_INCR;
-                                    regenCost += REGEN_COST_INCR;
+                    //Update any explosions which are happening currently
+                    for (int i = 0; i < explosions.Count; i++)
+                    {
+                        explosions[i].Update(gameTime);
 
-                                    theWyrmPlayer.healthPerMS = (float)((theWyrmPlayer.REGEN_FACTOR * theWyrmPlayer.HealthMax) / (theWyrmPlayer.REGEN_DURATION));
-                                    theWyrmPlayer.healthAfterRegen =
-                                        theWyrmPlayer.Health + ((theWyrmPlayer.REGEN_DURATION - theWyrmPlayer.elapsedTimeTotalRegen) * theWyrmPlayer.healthPerMS)
-                                        + (theWyrmPlayer.REGEN_DURATION * theWyrmPlayer.healthPerMS * (theWyrmPlayer.regen - 1));
-                                }
+                        if (explosions[i].isDone)
+                            explosions.RemoveAt(i);
+                    }
 
-                            }
-                            else if (upgradeArrowDir == (float)((3 * Math.PI) / 2)) //Health Regen
-                            {
-                                //Make sure the player has enough meat and is missing health
-                                if (!(theWyrmPlayer.Meat < regenCost) && (theWyrmPlayer.Health < theWyrmPlayer.HealthMax))
-                                {
-                                    theWyrmPlayer.healthPerMS = (float)((theWyrmPlayer.REGEN_FACTOR * theWyrmPlayer.HealthMax) / (theWyrmPlayer.REGEN_DURATION));
-                                    theWyrmPlayer.healthAfterRegen += theWyrmPlayer.REGEN_DURATION * theWyrmPlayer.healthPerMS;
+                    //Update the human player
+                    theHumanPlayer.Update(gameTime);
 
-                                    if (theWyrmPlayer.healthAfterRegen < theWyrmPlayer.HealthMax * 1.24)
-                                    {
-                                        theWyrmPlayer.regen++;
-                                        theWyrmPlayer.Meat -= regenCost;
-                                    }
-                                }
-                            }
-                        }
-                        else if (keystate.IsKeyUp(Keys.Enter))
-                            upgraded = false;
+                    //Make it so the player can't move off the screen
+                    for (int i = 0; i < Wyrm.WYRMSEGS; i++)
+                    {
+                        if (theWyrmPlayer.theWyrm.l_segments[i].X < 25)
+                            theWyrmPlayer.theWyrm.l_segments[i].X = 25;
 
-                        #endregion
-                    }*/
-                    //else
-                   // {
-                        //#region Gameplay Mode (upgradeMode == false)
+                        if (theWyrmPlayer.theWyrm.l_segments[i].X > SCREENWIDTH - 25)
+                            theWyrmPlayer.theWyrm.l_segments[i].X = (float)SCREENWIDTH - 25;
 
+                        if (theWyrmPlayer.theWyrm.l_segments[i].Y > SCREENHEIGHT - 50)
+                            theWyrmPlayer.theWyrm.l_segments[i].Y = (float)SCREENHEIGHT - 50;
+                    }
 
-
-                        theBackground.Update();
-
-                        //Check to see if the wyrm is eating and prey
-                        checkEat();
-
-                        //Check to see if the wyrm is colliding with (and thus damaging) buildings
-                        checkBuildingCollisions();
-
-                        for (int i = 0; i < Building.buildings.Count; i++)
-                        {
-                            if (Building.buildings[i].isDestroyed)
-                            {
-                                explosions.Add(new Explosion(Building.buildings[i].xPos + Building.buildings[i].SpriteWidth / 2, 
-                                    Building.buildings[i].yPos + Building.buildings[i].SpriteHeight / 2, explosionTexture, false));
-
-                                explosion.Play();
-
-                                Building.buildings.RemoveAt(i);
-                            }
-                        }
-
-                        //Update all the prey
-                        numPrey = Prey.UpdateAll(gameTime);
-
-                        //Update all the bullets
-                        for (int i = 0; i < bullets.Count; i++)
-                        {
-                            bullets[i].Update(gameTime);
-                        }
-
-                        //Update the wyrm player
-                        theWyrmPlayer.Update(gameTime, keystate);
-
-                        //Reset the ability for buildings to get damaged by the wyrm if the wyrm is underground
-                        if (theWyrmPlayer.theWyrm.b_wyrmGrounded)
-                        {
-                            foreach (Building theBuilding in Building.buildings)
-                            {
-                                theBuilding.DamagedThisJump = false;
-                            }
-                        }
-
-                        int numBuilding;
-
-                        //Update all the buildings
-                        numBuilding = Building.UpdateAll(gameTime);
-
-                        //Check if any bullets are hitting the wyrm
-                        checkBullets();
-
-                        //Update any explosions which are happening currently
-                        for (int i = 0; i < explosions.Count; i++)
-                        {
-                            explosions[i].Update(gameTime);
-
-                            if (explosions[i].isDone)
-                                explosions.RemoveAt(i);
-                        }
-
-                        //Update the human player
-                        theHumanPlayer.Update(gameTime);
-
-                        //Make it so the player can't move off the screen
-                        for (int i = 0; i < Wyrm.WYRMSEGS; i++)
-                        {
-                            if (theWyrmPlayer.theWyrm.l_segments[i].X < 25)
-                                theWyrmPlayer.theWyrm.l_segments[i].X = 25;
-
-                            if (theWyrmPlayer.theWyrm.l_segments[i].X > SCREENWIDTH - 25)
-                                theWyrmPlayer.theWyrm.l_segments[i].X = (float)SCREENWIDTH - 25;
-
-                            if (theWyrmPlayer.theWyrm.l_segments[i].Y > SCREENHEIGHT - 50)
-                                theWyrmPlayer.theWyrm.l_segments[i].Y = (float)SCREENHEIGHT - 50;
-                        }
-
-                        if (keystate.IsKeyDown(Keys.LeftControl) && canRoar)
-                        {
-                            roar.Play();
-                            canRoar = false;
-                        }
-                        else if (keystate.IsKeyUp(Keys.LeftControl) && !canRoar)
-                        {
-                            canRoar = true;
-                        }
-
-                       // #endregion
-                    //}
+                    if (keystate.IsKeyDown(Keys.LeftControl) && canRoar)
+                    {
+                        roar.Play();
+                        canRoar = false;
+                    }
+                    else if (keystate.IsKeyUp(Keys.LeftControl) && !canRoar)
+                    {
+                        canRoar = true;
+                    }
 
                     #endregion
                 }
+
+                
 
                 #endregion
 
@@ -827,29 +835,118 @@ namespace DreadWyrm2
             {
                 #region Title Screen Mode (m_gameStarted == false)
 
-                if (keystate.IsKeyDown(Keys.Space))
+                if (singlePlayerGameSelected && titleTransitionOk)
                 {
-                    nuxmode = false;
-                    instructionMode = true;
-                    titleTransitionOk = false;
-                    isTwoPlayer = false;
+                    if (titleScreenSelectionChangeOk)
+                    {
+                        if (keystate.IsKeyDown(Keys.Down))
+                        {
+                            //Change the current menu selection
+                            singlePlayerGameSelected = false;
+                            twoPlayerGameSelected = true;
+                            nuxModeSelected = false;
+                            quitToDesktop_MMSelected = false;
+                            titleScreenSelectionChangeOk = false;
+                        }
+                    }
+
+                    if (keystate.IsKeyDown(Keys.Enter))
+                    {
+                        nuxmode = false;
+                        instructionMode = true;
+                        titleTransitionOk = false;
+                        isTwoPlayer = false;
+                    }
                 }
-                else if (keystate.IsKeyDown(Keys.N))
+                else if (twoPlayerGameSelected && titleTransitionOk)
                 {
-                    nuxmode = true;
-                    instructionMode = true;
-                    titleTransitionOk = false;
-                    isTwoPlayer = false;
+                    if (titleScreenSelectionChangeOk)
+                    {
+                        if (keystate.IsKeyDown(Keys.Up))
+                        {
+                            //Change the current menu selection
+                            singlePlayerGameSelected = true;
+                            twoPlayerGameSelected = false;
+                            nuxModeSelected = false;
+                            quitToDesktop_MMSelected = false;
+                            titleScreenSelectionChangeOk = false;
+                        }
+                        else if (keystate.IsKeyDown(Keys.Down))
+                        {
+                            //Change the current menu selection
+                            singlePlayerGameSelected = false;
+                            twoPlayerGameSelected = false;
+                            nuxModeSelected = true;
+                            quitToDesktop_MMSelected = false;
+                            titleScreenSelectionChangeOk = false;
+                        }
+                    }
+
+                    if (keystate.IsKeyDown(Keys.Enter))
+                    {
+                        nuxmode = false;
+                        instructionMode = false;
+                        titleTransitionOk = false;
+                        startNewMultiPlayerGame();
+                    }
                 }
-                else if (keystate.IsKeyDown(Keys.T))
+                else if (nuxModeSelected && titleTransitionOk)
                 {
-                    nuxmode = false;
-                    instructionMode = false;
-                    titleTransitionOk = false;
-                    startNewMultiPlayerGame();
+                    if (titleScreenSelectionChangeOk)
+                    {
+                        if (keystate.IsKeyDown(Keys.Up))
+                        {
+                            //Change the current menu selection
+                            singlePlayerGameSelected = false;
+                            twoPlayerGameSelected = true;
+                            nuxModeSelected = false;
+                            quitToDesktop_MMSelected = false;
+                            titleScreenSelectionChangeOk = false;
+                        }
+                        else if (keystate.IsKeyDown(Keys.Down))
+                        {
+                            //Change the current menu selection
+                            singlePlayerGameSelected = false;
+                            twoPlayerGameSelected = false;
+                            nuxModeSelected = false;
+                            quitToDesktop_MMSelected = true;
+                            titleScreenSelectionChangeOk = false;
+                        }
+                    }
+
+                    if (keystate.IsKeyDown(Keys.Enter))
+                    {
+                        nuxmode = true;
+                        instructionMode = true;
+                        titleTransitionOk = false;
+                        isTwoPlayer = false;
+                    }
+                }
+                else if (quitToDesktop_MMSelected && titleTransitionOk)
+                {
+                    if (titleScreenSelectionChangeOk)
+                    {
+                        if (keystate.IsKeyDown(Keys.Up))
+                        {
+                            //Change the current menu selection
+                            singlePlayerGameSelected = false;
+                            twoPlayerGameSelected = false;
+                            nuxModeSelected = true;
+                            quitToDesktop_MMSelected = false;
+                            titleScreenSelectionChangeOk = false;
+                        }
+                    }
+
+                    if (keystate.IsKeyDown(Keys.Enter))
+                    {
+                        this.Exit();
+                    }
                 }
 
-                if (keystate.IsKeyUp(Keys.Space))
+                if (keystate.IsKeyUp(Keys.Up) && keystate.IsKeyUp(Keys.Down))
+                    titleScreenSelectionChangeOk = true;
+
+                if (keystate.IsKeyUp(Keys.Enter))
                     titleTransitionOk = true;
 
                 #endregion
@@ -858,14 +955,14 @@ namespace DreadWyrm2
             {
                 #region Instruction Screen Mode
 
-                if (keystate.IsKeyDown(Keys.Space) && titleTransitionOk)
+                if (keystate.IsKeyDown(Keys.Enter) && titleTransitionOk)
                 {
                     instructionMode = false;
                     titleTransitionOk = false;
                     startNewSinglePlayerGame(nuxmode);
                 }
 
-                if (keystate.IsKeyUp(Keys.Space))
+                if (keystate.IsKeyUp(Keys.Enter))
                     titleTransitionOk = true;
 
                 tempGiraffe.Update(gameTime);
@@ -1176,6 +1273,38 @@ namespace DreadWyrm2
                     #endregion
                 }
 
+                if(gamePaused)
+                {
+                    #region Game Paused Mode
+                    //Draw the partly-transparent black layer over the screen to darken it
+                    spriteBatch.Draw(t2dtransparentBlack, new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT), Color.White);
+
+                    spriteBatch.DrawString(scoreFont, "Game Paused", new Vector2(525, 20), Color.Red);
+
+                    //Draw the menu items
+                    if(!returnToGameSelected)
+                        spriteBatch.Draw(t2dupgradeBox, new Rectangle(505, 100, 250, 150), Color.White);
+                    else
+                        spriteBatch.Draw(t2dupgradeBoxOffColor, new Rectangle(505, 100, 250, 150), Color.White);
+
+                    spriteBatch.DrawString(titleFont, "Return to game", new Vector2(550, 160), Color.Red);
+
+                    if(!quitToMenuSelected)
+                         spriteBatch.Draw(t2dupgradeBox, new Rectangle(505, 300, 250, 150), Color.White);
+                    else
+                        spriteBatch.Draw(t2dupgradeBoxOffColor, new Rectangle(505, 300, 250, 150), Color.White);
+
+                    spriteBatch.DrawString(titleFont, "Quit to Main Menu", new Vector2(530, 360), Color.Red);
+
+                    if (!quitToDesktopSelected)
+                        spriteBatch.Draw(t2dupgradeBox, new Rectangle(505, 500, 250, 150), Color.White);
+                    else
+                        spriteBatch.Draw(t2dupgradeBoxOffColor, new Rectangle(505, 500, 250, 150), Color.White);
+
+                    spriteBatch.DrawString(titleFont, "Quit to Desktop", new Vector2(545, 560), Color.Red);
+                    #endregion
+                }
+
                 #endregion
             }
             else if (!m_gameStarted && !instructionMode)
@@ -1184,12 +1313,28 @@ namespace DreadWyrm2
 
                 spriteBatch.Draw(t2dTitleScreen, new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT), Color.White);
 
-                if (gameTime.TotalGameTime.Milliseconds % 1000 < 700)
+                /*if (gameTime.TotalGameTime.Milliseconds % 1000 < 700)
                 {
                     spriteBatch.DrawString(titleFont, "Press Spacebar to BEGIN YOUR FEAST", vStartTitleTextLoc, Color.OrangeRed);
                     spriteBatch.DrawString(titleFont, "Press N to start the game with NUX MODE", new Vector2(410, 500), Color.OrangeRed);
                     spriteBatch.DrawString(titleFont, "Press T to ENGAGE TWO PLAYERS", new Vector2(460, 565), Color.OrangeRed);
-                }
+                }*/
+
+                if (singlePlayerGameSelected)
+                    spriteBatch.Draw(blueBoxTitleScreen, new Rectangle(420, 440, 380, 25), Color.White);
+                spriteBatch.DrawString(titleFont, "Begin your SINGLE PLAYER FEAST", new Vector2(440, 440), Color.OrangeRed);
+                
+                if(twoPlayerGameSelected)
+                    spriteBatch.Draw(blueBoxTitleScreen, new Rectangle(420, 500, 380, 25), Color.White);
+                spriteBatch.DrawString(titleFont, "Begin a TWO PLAYER BATTLE", new Vector2(470, 500), Color.OrangeRed);
+
+                if(nuxModeSelected)
+                    spriteBatch.Draw(blueBoxTitleScreen, new Rectangle(420, 565, 380, 25), Color.White);
+                spriteBatch.DrawString(titleFont, "Experience NUX MODE", new Vector2(490, 565), Color.OrangeRed);
+
+                if(quitToDesktop_MMSelected)
+                    spriteBatch.Draw(blueBoxTitleScreen, new Rectangle(420, 620, 380, 25), Color.White);
+                spriteBatch.DrawString(titleFont, "Quit to Desktop", new Vector2(520, 620), Color.OrangeRed);
 
                 #endregion
             }
@@ -1204,7 +1349,7 @@ namespace DreadWyrm2
 
                 if (gameTime.TotalGameTime.Milliseconds % 1000 < 700)
                 {
-                    spriteBatch.DrawString(titleFont, "Press SPACE to PROCEED", new Vector2(490, 650), Color.OrangeRed);
+                    spriteBatch.DrawString(titleFont, "Press ENTER to PROCEED", new Vector2(490, 650), Color.OrangeRed);
                 }
 
                 //Instruct the player on controls
@@ -1245,6 +1390,10 @@ namespace DreadWyrm2
 
         void startNewMultiPlayerGame()
         {
+            returnToGameSelected = false;
+            quitToMenuSelected = false;
+            quitToDesktopSelected = false;
+
             preySpawner = new PreySpawner();
             isTwoPlayer = true;
 
@@ -1287,6 +1436,10 @@ namespace DreadWyrm2
 
         void startNewSinglePlayerGame(bool nuxMode)
         {
+            returnToGameSelected = false;
+            quitToMenuSelected = false;
+            quitToDesktopSelected = false;
+
             preySpawner = new PreySpawner();
             isTwoPlayer = false;
 
@@ -1326,14 +1479,28 @@ namespace DreadWyrm2
 
         void endSinglePlayerGame()
         {
+            gamePaused = false;
+            gamePausedCanSwitch = true;
             m_gameStarted = false;
             gameOver = false;
+            singlePlayerGameSelected = true;
+            twoPlayerGameSelected = false;
+            nuxModeSelected = false;
+            quitToDesktop_MMSelected = false;
+            titleTransitionOk = false;
         }
 
         void endMultiPlayerGame()
         {
+            gamePaused = false;
+            gamePausedCanSwitch = true;
             m_gameStarted = false;
             gameOver = false;
+            singlePlayerGameSelected = true;
+            twoPlayerGameSelected = false;
+            nuxModeSelected = false;
+            quitToDesktop_MMSelected = false;
+            titleTransitionOk = false;
         }
 
         void startNewWave(int wave)
