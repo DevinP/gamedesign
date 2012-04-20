@@ -176,7 +176,7 @@ namespace DreadWyrm2
             // TODO: Add your initialization logic here
             graphics.PreferredBackBufferHeight = SCREENHEIGHT;
             graphics.PreferredBackBufferWidth = SCREENWIDTH;
-            //graphics.IsFullScreen = true;
+            graphics.IsFullScreen = true;
             graphics.ApplyChanges();
 
             base.Initialize();
@@ -1352,6 +1352,7 @@ namespace DreadWyrm2
             damageIndicators = new List<FloatingText>();
 
             preySpawner = new PreySpawner();
+            PreySpawner.resetSpawnQueues();
             isTwoPlayer = true;
 
             singlePlayerVictory = false;
@@ -1400,6 +1401,7 @@ namespace DreadWyrm2
             damageIndicators = new List<FloatingText>();
 
             preySpawner = new PreySpawner();
+            PreySpawner.resetSpawnQueues();
             isTwoPlayer = false;
 
             singlePlayerVictory = false;

@@ -28,7 +28,7 @@ namespace DreadWyrm2
 
 
         //arbitrary spawn delays and timers
-        const float ANIMAL_SPAWN_DELAY = 7;
+        const float ANIMAL_SPAWN_DELAY = 2;
         static float ANIMAL_SPAWN_ELAPSED = 0;
 
         const float HUMAN_SPAWN_DELAY = 5;
@@ -38,10 +38,25 @@ namespace DreadWyrm2
         int limitNoAnimals = 1;
         int timesNoAnimals = 0;
 
-        const int MEAT_SPAWN_LIMIT = 500;
+        const int MEAT_SPAWN_LIMIT = 1000;
 
         //The constructor
         public PreySpawner()
+        {
+            //The constructor initializes the lists
+            animals = new List<Prey>();
+            humans = new List<Prey>();
+            immediates = new List<Prey>();
+            removals = new List<Prey>();
+
+            //and the counts
+            numAnimals = 0;
+            numHumans = 0;
+            numImmediates = 0;
+            numRemovals = 0;
+        }
+
+        public static void resetSpawnQueues()
         {
             //The constructor initializes the lists
             animals = new List<Prey>();
@@ -137,7 +152,7 @@ namespace DreadWyrm2
                     //Then reset the "no animals" counter
                     timesNoAnimals = 0;
                 }
-                else
+                else if(Game1.isTwoPlayer)
                 {
                     //No animals to spawn? is it time that we do somethign about that?
                     timesNoAnimals = timesNoAnimals + 1;
@@ -155,8 +170,8 @@ namespace DreadWyrm2
                         {
                             //Heck, throw a civvie in there too
                             addAnimal(new Animal(1, 100, Prey.preyTextures[Prey.UNARMEDHUMAN], 4, 24, 21, 23, 6, Game1.theWyrmPlayer.theWyrm, 80, 25));
-                            addHuman(new Animal(1, 100, Prey.preyTextures[Prey.UNARMEDHUMAN], 4, 24, 21, 23, 6, Game1.theWyrmPlayer.theWyrm, 80, 25));
-                            addHuman(new Animal(1, 100, Prey.preyTextures[Prey.UNARMEDHUMAN], 4, 24, 21, 23, 6, Game1.theWyrmPlayer.theWyrm, 80, 25));
+                            //addHuman(new Animal(1, 100, Prey.preyTextures[Prey.UNARMEDHUMAN], 4, 24, 21, 23, 6, Game1.theWyrmPlayer.theWyrm, 80, 25));
+                            //addHuman(new Animal(1, 100, Prey.preyTextures[Prey.UNARMEDHUMAN], 4, 24, 21, 23, 6, Game1.theWyrmPlayer.theWyrm, 80, 25));
                         }
                     }
                 }

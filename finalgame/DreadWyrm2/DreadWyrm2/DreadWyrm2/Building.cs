@@ -164,6 +164,20 @@ namespace DreadWyrm2
         public virtual void getDestroyed()
         {
             isDestroyed = true;
+
+            if (this is OilDerrick)
+            {
+                //Spawn two civilians
+                PreySpawner.addImmediate(new Animal(xPos, yPos, Prey.preyTextures[Prey.UNARMEDHUMAN], 4, 24, 21, 23, 6,  theWyrm, 80, 25));
+                PreySpawner.addImmediate(new Animal(xPos, yPos, Prey.preyTextures[Prey.UNARMEDHUMAN], 4, 24, 21, 23, 6,  theWyrm, 80, 25));
+            }
+
+            if (this is Turret)
+            {
+                //Spawn two soldiers
+                PreySpawner.addImmediate(new SoldierHuman(xPos, yPos, theWyrm));
+                PreySpawner.addImmediate(new SoldierHuman(xPos, yPos, theWyrm));
+            }
         }
 
         /// <summary>

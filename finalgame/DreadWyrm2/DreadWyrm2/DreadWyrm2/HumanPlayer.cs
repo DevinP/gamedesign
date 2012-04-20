@@ -15,8 +15,8 @@ namespace DreadWyrm2
     class HumanPlayer
     {
         float incomeCounter = 0;
-        const float INCOME_LIMIT = 5000;    //The number of milliseconds between income accumulations
-        const float BASE_INCOME = 100;       //Base income per 5 seconds that can't be touched by the wyrm
+        const float INCOME_LIMIT = 5000;                      //The number of milliseconds between income accumulations
+        const float BASE_INCOME = 500;                        //Base income per 5 seconds that can't be touched by the wyrm
         const float INCOME_ADJUSTMENT_PER_OIL_DERRICK = 500;  //The number of dollars per 5 seconds an oil derrick provides
 
         //Building and unit costs
@@ -28,7 +28,7 @@ namespace DreadWyrm2
         const int FACTORY_COST = 6000;
         const int TANK_COST = 2000;
 
-        int totalMoney = 10000;
+        int totalMoney = 6000;
         public static int numOilDerricks = 0;
 
         static SpriteFont humanFontFunds;
