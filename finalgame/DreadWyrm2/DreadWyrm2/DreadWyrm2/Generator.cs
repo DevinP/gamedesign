@@ -13,7 +13,7 @@ namespace DreadWyrm2
     {
         //Generator constants
         const float FRAME_LENGTH = 0.15f;
-        const int GENERATOR_MAX_HIT_POINTS = 200;
+        const int GENERATOR_MAX_HIT_POINTS = 100;
         const int GENERATOR_HEALTH_BAR_WIDTH = 100;    //The width of the health bar in pixels
 
         //Spritesheet stuff

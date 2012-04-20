@@ -66,6 +66,8 @@ namespace DreadWyrm2
         public static Texture2D bulletTexture;              //The texture for bullets in the game
         public static Texture2D cannonballTexture;          //The texture for larger cannonballs in the game
 
+        List<FloatingText> damageIndicators;
+
         Background theBackground;
 
         public static bool gameOver = false;                //The game has ended
@@ -174,6 +176,7 @@ namespace DreadWyrm2
             // TODO: Add your initialization logic here
             graphics.PreferredBackBufferHeight = SCREENHEIGHT;
             graphics.PreferredBackBufferWidth = SCREENWIDTH;
+            //graphics.IsFullScreen = true;
             graphics.ApplyChanges();
 
             base.Initialize();
@@ -210,6 +213,8 @@ namespace DreadWyrm2
             Prey.LoadContent(Content);
 
             Building.LoadContent(Content);
+
+            FloatingText.LoadContent(Content);
 
             roar = Content.Load<SoundEffect>(@"Sounds\Predator Roar");
 
@@ -572,6 +577,14 @@ namespace DreadWyrm2
 
                         checkBullets();
 
+                        for (int i = 0; i < damageIndicators.Count; i++)
+                        {
+                            damageIndicators[i].Update(gameTime);
+
+                            if (damageIndicators[i].isDone)
+                                damageIndicators.RemoveAt(i);
+                        }
+
                         for (int i = 0; i < explosions.Count; i++)
                         {
                             explosions[i].Update(gameTime);
@@ -787,6 +800,14 @@ namespace DreadWyrm2
 
                     //Check if any bullets are hitting the wyrm
                     checkBullets();
+
+                    for (int i = 0; i < damageIndicators.Count; i++)
+                    {
+                        damageIndicators[i].Update(gameTime);
+
+                        if (damageIndicators[i].isDone)
+                            damageIndicators.RemoveAt(i);
+                    }
 
                     //Update any explosions which are happening currently
                     for (int i = 0; i < explosions.Count; i++)
@@ -1166,7 +1187,7 @@ namespace DreadWyrm2
 
 
                     //Draw the max speed indicator
-                    if ((theWyrmPlayer.theWyrm.HeadSpeedMax + DIGSPEED_UPGRADE_INCR) > SPEEDMAX)
+                    if ((theWyrmPlayer.theWyrm.HeadSpeedNormalMax + DIGSPEED_UPGRADE_INCR) > SPEEDMAX)
                         spriteBatch.DrawString(upgradeFont, "MAX", new Vector2(1090,645), Color.Red);
                     else
                         spriteBatch.DrawString(upgradeFont, digSpeedCost + " KG", new Vector2(1080,645), Color.Red);
@@ -1192,85 +1213,19 @@ namespace DreadWyrm2
 
                     #endregion
 
-                    /*if (upgradeMode)
-                    {
-                        #region upgradeMode
-                        //Draw the partly-transparent black layer over the screen to darken it
-                        spriteBatch.Draw(t2dtransparentBlack, new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT), Color.White);
-
-                        //Draw each upgrade box
-                        spriteBatch.Draw(t2dupgradeBox, new Rectangle(515, 60, 250, 150), Color.White);
-                        spriteBatch.DrawString(upgradeFont, "METABOLISM BOOST", new Vector2(570, 87), Color.Red);
-                        spriteBatch.DrawString(upgradeFont, "Heal " + theWyrmPlayer.REGEN_FACTOR * 100 + "% of max health", new Vector2(545, 110), Color.Red);
-                        spriteBatch.DrawString(upgradeFont, "over " + theWyrmPlayer.REGEN_DURATION / 500 + " seconds", new Vector2(545, 125), Color.Red);
-                        if (theWyrmPlayer.Health >= theWyrmPlayer.HealthMax)
-                        {
-                            spriteBatch.DrawString(upgradeFont, "Already At Max Health", new Vector2(550, 40), Color.Red);
-                        }
-                        else
-                        {
-                            spriteBatch.DrawString(upgradeFont, "Cost: " + regenCost + " KG", new Vector2(585, 40), Color.Red);
-                        }
-
-                        spriteBatch.Draw(t2dupgradeBox, new Rectangle(515, 440, 250, 150), Color.White);
-                        spriteBatch.DrawString(upgradeFont, "MUSCLE VIBRATION", new Vector2(575, 467), Color.Red);
-                        spriteBatch.DrawString(upgradeFont, "Increase max dig speed", new Vector2(545, 490), Color.Red);
-                        spriteBatch.DrawString(upgradeFont, "by " + DIGSPEED_UPGRADE_INCR, new Vector2(545, 505), Color.Red);
-                        spriteBatch.DrawString(upgradeFont, "Current max speed: " + theWyrmPlayer.theWyrm.HeadSpeedNormalMax, new Vector2(545, 530), Color.Red);
-
-                        if ((theWyrmPlayer.theWyrm.HeadSpeedMax + DIGSPEED_UPGRADE_INCR) > SPEEDMAX)
-                            spriteBatch.DrawString(upgradeFont, "Maximum Upgrade Reached", new Vector2(540, 590), Color.Red);
-                        else
-                            spriteBatch.DrawString(upgradeFont, "Cost: " + digSpeedCost + " KG", new Vector2(590, 590), Color.Red);
-
-
-                        spriteBatch.Draw(t2dupgradeBox, new Rectangle(755, 250, 250, 150), Color.White);
-                        spriteBatch.DrawString(upgradeFont, "FAT TISSUE", new Vector2(837, 277), Color.Red);
-                        spriteBatch.DrawString(upgradeFont, "Increase max health by " + MAXHEALTH_UPGRADE_INCR, new Vector2(780, 305), Color.Red);
-                        spriteBatch.DrawString(upgradeFont, "Current max health: " + theWyrmPlayer.HealthMax, new Vector2(780, 330), Color.Red);
-
-                        if (theWyrmPlayer.HealthMax >= HEALTHMAX_MAX)
-                        {
-                            spriteBatch.DrawString(upgradeFont, "Maximum Upgrade Reached", new Vector2(785, 230), Color.Red);
-                        }
-                        else
-                        {
-                            spriteBatch.DrawString(upgradeFont, "Cost: " + maxHealthCost + " KG", new Vector2(817, 230), Color.Red);
-                        }
-
-                        spriteBatch.Draw(t2dupgradeBox, new Rectangle(275, 250, 250, 150), Color.White);
-                        spriteBatch.DrawString(upgradeFont, "MUSCLE COILING", new Vector2(338, 278), Color.Red);
-                        spriteBatch.DrawString(upgradeFont, "Increase max stamina", new Vector2(310, 300), Color.Red);
-                        spriteBatch.DrawString(upgradeFont, "by " + STAMINA_UPGRADE_INCR, new Vector2(310, 315), Color.Red);
-                        spriteBatch.DrawString(upgradeFont, "Current max stamina: " + theWyrmPlayer.MaxStamina, new Vector2(310, 345), Color.Red);
-                        if (theWyrmPlayer.MaxStamina >= STAMINA_MAX)
-                        {
-                            spriteBatch.DrawString(upgradeFont, "Maximum Upgrade Reached", new Vector2(305, 230), Color.Red);
-                        }
-                        else
-                        {
-                            spriteBatch.DrawString(upgradeFont, "Cost: " + staminaCost + " KG", new Vector2(345, 230), Color.Red);
-                        }
-
-                        //Draw the arrow which points to the currently selected box
-                        spriteBatch.Draw(t2dupgradeArrow, new Rectangle(640, 325, 112, 51), null, Color.White, upgradeArrowDir, new Vector2(0, 25.5f), SpriteEffects.None, 0);
-
-                        spriteBatch.DrawString(titleFont, "Press U to RETURN TO GAME", new Vector2(495, 680), Color.Red);
-                        spriteBatch.DrawString(titleFont, "Press ENTER to DIGEST UPGRADE", new Vector2(475, 5), Color.Red);
-
-                        #endregion
-                    }
-                    else
-                        spriteBatch.DrawString(titleFont, "Press U for UPGRADES", new Vector2(920, 570), Color.Red);*/
-
                     theHumanPlayer.Draw(spriteBatch);
 
                     if (p2HumanVictory)
                         spriteBatch.DrawString(scoreFont, "H U M A N S   W I N", new Vector2(500, 150), Color.Red);
                     else if (p2WyrmVictory)
-                        spriteBatch.DrawString(scoreFont, "T H E  W Y R M  W I N S", new Vector2(490, 150), Color.Red);
+                        spriteBatch.DrawString(scoreFont, "T H E  W Y R M  W Y N S", new Vector2(490, 150), Color.Red);
 
                     #endregion
+                }
+
+                for (int i = 0; i < damageIndicators.Count; i++)
+                {
+                    damageIndicators[i].Draw(spriteBatch);
                 }
 
                 if(gamePaused)
@@ -1394,6 +1349,8 @@ namespace DreadWyrm2
             quitToMenuSelected = false;
             quitToDesktopSelected = false;
 
+            damageIndicators = new List<FloatingText>();
+
             preySpawner = new PreySpawner();
             isTwoPlayer = true;
 
@@ -1439,6 +1396,8 @@ namespace DreadWyrm2
             returnToGameSelected = false;
             quitToMenuSelected = false;
             quitToDesktopSelected = false;
+
+            damageIndicators = new List<FloatingText>();
 
             preySpawner = new PreySpawner();
             isTwoPlayer = false;
@@ -1724,6 +1683,8 @@ namespace DreadWyrm2
                             p2HumanVictory = true;
                     }
 
+                    damageIndicators.Add(new FloatingText((int)bullets[i].xPosistion, (int)bullets[i].yPosition, "-" + bullets[i].DamageDealt, Color.Red));
+
                     bullets.RemoveAt(i);
 
                     continue;
@@ -1741,6 +1702,8 @@ namespace DreadWyrm2
                             if (isTwoPlayer)
                                 p2HumanVictory = true;
                         }
+
+                        damageIndicators.Add(new FloatingText((int)bullets[i].xPosistion, (int)bullets[i].yPosition, "-" + bullets[i].DamageDealt, Color.Red));
 
                         bullets.RemoveAt(i);
 

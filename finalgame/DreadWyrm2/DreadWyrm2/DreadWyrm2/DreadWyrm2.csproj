@@ -117,6 +117,7 @@
     <Compile Include="Engineer.cs" />
     <Compile Include="Explosion.cs" />
     <Compile Include="Factory.cs" />
+    <Compile Include="FloatingText.cs" />
     <Compile Include="Generator.cs" />
     <Compile Include="HUDElement.cs" />
     <Compile Include="HumanPlayer.cs" />

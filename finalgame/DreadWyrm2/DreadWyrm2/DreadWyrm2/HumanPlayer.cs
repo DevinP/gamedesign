@@ -19,6 +19,15 @@ namespace DreadWyrm2
         const float BASE_INCOME = 100;       //Base income per 5 seconds that can't be touched by the wyrm
         const float INCOME_ADJUSTMENT_PER_OIL_DERRICK = 500;  //The number of dollars per 5 seconds an oil derrick provides
 
+        //Building and unit costs
+        const int TURRET_COST = 2500;
+        const int OILDERRICK_COST = 1500;
+        const int BARRACKS_COST = 3000;
+        const int SOLDIER_COST = 500;
+        const int ENGINEER_COST = 800;
+        const int FACTORY_COST = 6000;
+        const int TANK_COST = 2000;
+
         int totalMoney = 10000;
         public static int numOilDerricks = 0;
 
@@ -35,6 +44,8 @@ namespace DreadWyrm2
         static Texture2D mouseTex;
 
         List<HUDElement> buttons;
+
+        List<FloatingText> incomeIndicators;
 
         public static bool hasBarracks = false;
         public static bool hasFactory = false;
@@ -143,15 +154,6 @@ namespace DreadWyrm2
         const int MOUSECURSOR_WIDTH = 32;
         const int MOUSECURSOR_HEIGHT = 32;
 
-        //Building and unit costs
-        const int TURRET_COST = 2500;
-        const int OILDERRICK_COST = 1500;
-        const int BARRACKS_COST = 3000;
-        const int SOLDIER_COST = 500;
-        const int ENGINEER_COST = 800;
-        const int FACTORY_COST = 6000;
-        const int TANK_COST = 2000;
-
         public int money
         {
             get { return totalMoney; }
@@ -166,6 +168,7 @@ namespace DreadWyrm2
 
             barracksLoc = new Vector2();
             factoryLoc = new Vector2();
+            incomeIndicators = new List<FloatingText>();
 
             //Create the generator
             Building.buildings.Add(new Generator(Game1.m_random.Next(200, 1080), 330, theWyrm));
@@ -373,6 +376,24 @@ namespace DreadWyrm2
                 totalMoney += (int)(BASE_INCOME + (INCOME_ADJUSTMENT_PER_OIL_DERRICK * numOilDerricks));
 
                 incomeCounter = 0;
+
+                //Float some text indicating that the oil derrick has provided money
+                foreach (Building theBuilding in Building.buildings)
+                {
+                    if (theBuilding is OilDerrick)
+                    {
+                        incomeIndicators.Add(new FloatingText(theBuilding.xPos + 20, theBuilding.yPos, "+$" + INCOME_ADJUSTMENT_PER_OIL_DERRICK, Color.Black));
+                    }
+                }
+            }
+
+            //Update all of the floating text for oil derrick incomes
+            for (int i = 0; i < incomeIndicators.Count; i++)
+            {
+                incomeIndicators[i].Update(gameTime);
+
+                if (incomeIndicators[i].isDone)
+                    incomeIndicators.RemoveAt(i);
             }
         }
 
@@ -477,6 +498,12 @@ namespace DreadWyrm2
 
             //Draw the total money of the human player
             sb.DrawString(humanFontFunds, "Funds: $" + totalMoney, new Vector2(1050, 10), Color.Black);
+
+            //Draw the income indicators
+            foreach (FloatingText theText in incomeIndicators)
+            {
+                theText.Draw(sb);
+            }
 
             //Finally, draw the mouse cursor
             sb.Draw(mouseTex, new Rectangle(mouseX, mouseY, MOUSECURSOR_WIDTH, MOUSECURSOR_HEIGHT), Color.White);

@@ -13,7 +13,7 @@ namespace DreadWyrm2
     {
         //game variables
         public Wyrm theWyrm;
-        int totalMeat = 100000;
+        int totalMeat = 0;
         static SpriteFont scoreFont;
 
         //health
