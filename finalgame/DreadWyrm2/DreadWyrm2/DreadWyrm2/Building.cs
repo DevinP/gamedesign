@@ -108,7 +108,7 @@ namespace DreadWyrm2
         public static void LoadContent(ContentManager Content)
         {
             turretShot = Content.Load<SoundEffect>(@"Sounds\turretShot");
-            hitSound = Content.Load<SoundEffect>(@"Sounds\impact1");
+            hitSound = Content.Load<SoundEffect>(@"Sounds\impact2");
 
             buildingTextures = new List<Texture2D>();
             buildingTextures.Add(Content.Load<Texture2D>(@"Textures\turret_sprite_sheet_140x100_4x6"));

@@ -47,6 +47,7 @@ namespace DreadWyrm2
         SpriteFont scoreFont;                              //The font used to dispaly the meat score
         Vector2 vStartTitleTextLoc = new Vector2(440, 440);//The location for the additional title screen text
         SoundEffect roar;
+        SoundEffect missileDown;
        
         Texture2D t2dbackgroundSinglePlayer;                //The background sprite
         Texture2D t2dforegroundSinglePlayer;                //The foreground sprite (part of the background)
@@ -176,7 +177,7 @@ namespace DreadWyrm2
             // TODO: Add your initialization logic here
             graphics.PreferredBackBufferHeight = SCREENHEIGHT;
             graphics.PreferredBackBufferWidth = SCREENWIDTH;
-            graphics.IsFullScreen = true;
+            graphics.IsFullScreen = false;
             graphics.ApplyChanges();
 
             base.Initialize();
@@ -217,6 +218,8 @@ namespace DreadWyrm2
             FloatingText.LoadContent(Content);
 
             roar = Content.Load<SoundEffect>(@"Sounds\Predator Roar");
+            missileDown = Content.Load<SoundEffect>(@"Sounds\Missile");
+
 
             explosion = Content.Load<SoundEffect>(@"Sounds\explosion");
 
@@ -255,6 +258,7 @@ namespace DreadWyrm2
             tempTank.IsAnimating = true;
 
             MediaPlayer.IsRepeating = true;
+            //MediaPlayer.Volume = 0.5f;
             MediaPlayer.Play(bgm);
             bgm1Playing = true;
         }
@@ -751,6 +755,12 @@ namespace DreadWyrm2
 
                     #endregion
 
+                    //Increase volume back to max over time if it isn't already
+                    if (MediaPlayer.Volume < 1)
+                    {
+                        MediaPlayer.Volume = MediaPlayer.Volume + 0.0005f;
+                    }
+
                     theBackground.Update();
 
                     //Check to see if the wyrm is eating and prey
@@ -771,6 +781,8 @@ namespace DreadWyrm2
                             Building.buildings.RemoveAt(i);
                         }
                     }
+
+                    
 
                     //Update all the prey
                     numPrey = Prey.UpdateAll(gameTime);
@@ -1345,6 +1357,7 @@ namespace DreadWyrm2
 
         void startNewMultiPlayerGame()
         {
+            MediaPlayer.Volume = 0.25f;     // Reduce volume so we can hear the missle blast
             returnToGameSelected = false;
             quitToMenuSelected = false;
             quitToDesktopSelected = false;
@@ -1372,6 +1385,8 @@ namespace DreadWyrm2
             List<Texture2D> wyrmTextures = new List<Texture2D>();
 
             theWyrmPlayer = new WyrmPlayer();
+
+            missileDown.Play();
 
             explosions = new List<Explosion>();
 
