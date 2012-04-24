@@ -73,7 +73,10 @@ namespace DreadWyrm2
         public WyrmPlayer()
         {
             //Create a Wyrm
-            theWyrm = new Wyrm(100, -3650);
+            if (Game1.isTwoPlayer)
+                theWyrm = new Wyrm(100, -3650);
+            else
+                theWyrm = new Wyrm(100, 450);
 
             stamina = staminaMax;
         }

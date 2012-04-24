@@ -48,6 +48,7 @@ namespace DreadWyrm2
         Vector2 vStartTitleTextLoc = new Vector2(440, 440);//The location for the additional title screen text
         SoundEffect roar;
         SoundEffect missileDown;
+        SoundEffectInstance missileDownInstance;
        
         Texture2D t2dbackgroundSinglePlayer;                //The background sprite
         Texture2D t2dforegroundSinglePlayer;                //The foreground sprite (part of the background)
@@ -219,7 +220,7 @@ namespace DreadWyrm2
 
             roar = Content.Load<SoundEffect>(@"Sounds\Predator Roar");
             missileDown = Content.Load<SoundEffect>(@"Sounds\Missile");
-
+            missileDownInstance = missileDown.CreateInstance();
 
             explosion = Content.Load<SoundEffect>(@"Sounds\explosion");
 
@@ -346,9 +347,11 @@ namespace DreadWyrm2
 
                 if ((keystate.IsKeyDown(Keys.P) || keystate.IsKeyDown(Keys.Escape)) && gamePausedCanSwitch && !upgradeMode && !gamePaused)
                 {
+                    //Activate pause mode
                     gamePaused = true;
                     gamePausedCanSwitch = false;
                     returnToGameSelected = true;
+                    MediaPlayer.Volume = MediaPlayer.Volume * 0.25f;
                 }
                 else if (keystate.IsKeyUp(Keys.P) && keystate.IsKeyUp(Keys.Escape))
                 {
@@ -380,10 +383,15 @@ namespace DreadWyrm2
                 {
                     #region Pause Mode
 
+                    missileDownInstance.Pause();
+                    
+
                     if (gamePausedCanSwitch && (keystate.IsKeyDown(Keys.P) || keystate.IsKeyDown(Keys.Escape)))
                     {
                         gamePaused = false;
                         gamePausedCanSwitch = false;
+                        missileDownInstance.Resume();
+                        MediaPlayer.Volume = MediaPlayer.Volume * 4;
                     }
 
                     if (returnToGameSelected)
@@ -433,6 +441,7 @@ namespace DreadWyrm2
                             //Quit to the main menu
                             endSinglePlayerGame();
                             endMultiPlayerGame();
+                            MediaPlayer.Volume = MediaPlayer.Volume * 4;
                         }
                     }
                     else if (quitToDesktopSelected)
@@ -1386,7 +1395,8 @@ namespace DreadWyrm2
 
             theWyrmPlayer = new WyrmPlayer();
 
-            missileDown.Play();
+            //missileDown.Play();
+            missileDownInstance.Play();
 
             explosions = new List<Explosion>();
 
@@ -1464,6 +1474,7 @@ namespace DreadWyrm2
             nuxModeSelected = false;
             quitToDesktop_MMSelected = false;
             titleTransitionOk = false;
+            missileDownInstance.Stop();
         }
 
         void endMultiPlayerGame()
@@ -1477,6 +1488,7 @@ namespace DreadWyrm2
             nuxModeSelected = false;
             quitToDesktop_MMSelected = false;
             titleTransitionOk = false;
+            missileDownInstance.Stop();
         }
 
         void startNewWave(int wave)

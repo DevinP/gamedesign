@@ -15,9 +15,9 @@ namespace DreadWyrm2
     class HumanPlayer
     {
         float incomeCounter = 0;
-        const float INCOME_LIMIT = 5000;                      //The number of milliseconds between income accumulations
-        const float BASE_INCOME = 500;                        //Base income per 5 seconds that can't be touched by the wyrm
-        const float INCOME_ADJUSTMENT_PER_OIL_DERRICK = 500;  //The number of dollars per 5 seconds an oil derrick provides
+        const float INCOME_LIMIT = 1000;                      //The number of milliseconds between income accumulations
+        const float BASE_INCOME = 100;                        //Base income per 5 seconds that can't be touched by the wyrm
+        const float INCOME_ADJUSTMENT_PER_OIL_DERRICK = 100;  //The number of dollars per 5 seconds an oil derrick provides
 
         //Building and unit costs
         const int TURRET_COST = 2500;
@@ -429,7 +429,7 @@ namespace DreadWyrm2
                 buttons[TURRET_DISABLED].Draw(sb);
             }
             //Draw the cost of the turret under the turret icon
-            sb.DrawString(humanFontCosts, "$" + TURRET_COST, new Vector2(TURRET_X + 25, TURRET_Y + TURRETBUTTON_HEIGHT), Color.Black);
+            sb.DrawString(humanFontCosts, "$" + TURRET_COST, new Vector2(TURRET_X + 15, TURRET_Y + TURRETBUTTON_HEIGHT), Color.Black);
 
             if ((totalMoney - OILDERRICK_COST >= 0))
             {
@@ -440,14 +440,14 @@ namespace DreadWyrm2
                 buttons[OILDERRICK_DISABLED].Draw(sb);
             }
             //Draw the cost of the oil derrick under the derrick icon
-            sb.DrawString(humanFontCosts, "$" + OILDERRICK_COST, new Vector2(OILDERRICK_X + 25, OILDERRICK_Y + OILDERRICK_BUTTON_HEIGHT), Color.Black);
+            sb.DrawString(humanFontCosts, "$" + OILDERRICK_COST, new Vector2(OILDERRICK_X + 15, OILDERRICK_Y + OILDERRICK_BUTTON_HEIGHT), Color.Black);
 
             if (!hasBarracks && (totalMoney - BARRACKS_COST >= 0))
             {
                 buttons[BARRACKS].Draw(sb);
 
                 //Draw the cost of the barracks under the icon
-                sb.DrawString(humanFontCosts, "$" + BARRACKS_COST, new Vector2(BARRACKS_X + 25, BARRACKS_Y + BARRACKS_BUTTON_HEIGHT), Color.Black);
+                sb.DrawString(humanFontCosts, "$" + BARRACKS_COST, new Vector2(BARRACKS_X + 15, BARRACKS_Y + BARRACKS_BUTTON_HEIGHT), Color.Black);
             }
             else
             {
@@ -457,7 +457,7 @@ namespace DreadWyrm2
             if (!hasBarracks && (totalMoney - BARRACKS_COST < 0))
             {
                 //Draw the cost of the barracks even if the player can't afford it
-                sb.DrawString(humanFontCosts, "$" + BARRACKS_COST, new Vector2(BARRACKS_X + 25, BARRACKS_Y + BARRACKS_BUTTON_HEIGHT), Color.Black);
+                sb.DrawString(humanFontCosts, "$" + BARRACKS_COST, new Vector2(BARRACKS_X + 15, BARRACKS_Y + BARRACKS_BUTTON_HEIGHT), Color.Black);
             }
 
             if (!hasFactory && (totalMoney - FACTORY_COST >= 0))
@@ -465,7 +465,7 @@ namespace DreadWyrm2
                 buttons[FACTORY].Draw(sb);
 
                 //Draw the cost of the factory under the icon
-                sb.DrawString(humanFontCosts, "$" + FACTORY_COST, new Vector2(FACTORY_X + 25, FACTORY_Y + FACTORY_BUTTON_HEIGHT), Color.Black);
+                sb.DrawString(humanFontCosts, "$" + FACTORY_COST, new Vector2(FACTORY_X + 15, FACTORY_Y + FACTORY_BUTTON_HEIGHT), Color.Black);
             }
             else
             {
@@ -475,7 +475,7 @@ namespace DreadWyrm2
             if (!hasFactory && (totalMoney - FACTORY_COST < 0))
             {
                 //Draw the cost of the factory even if the player can't afford it
-                sb.DrawString(humanFontCosts, "$" + FACTORY_COST, new Vector2(FACTORY_X + 25, FACTORY_Y + FACTORY_BUTTON_HEIGHT), Color.Black);
+                sb.DrawString(humanFontCosts, "$" + FACTORY_COST, new Vector2(FACTORY_X + 15, FACTORY_Y + FACTORY_BUTTON_HEIGHT), Color.Black);
             }
 
             if (hasFactory)
@@ -483,7 +483,7 @@ namespace DreadWyrm2
                 buttons[RECRUIT_TANK].Draw(sb);
 
                 //Draw the cost of the tank
-                sb.DrawString(humanFontCosts, "$" + TANK_COST, new Vector2(ADDTANK_X + 2, ADDTANK_Y + ADDTANK_HEIGHT), Color.Black);
+                sb.DrawString(humanFontCosts, "$" + TANK_COST, new Vector2(ADDTANK_X - 10, ADDTANK_Y + ADDTANK_HEIGHT), Color.Black);
             }
 
             if (hasBarracks)
@@ -492,8 +492,8 @@ namespace DreadWyrm2
                 buttons[RECRUIT_ENGINEER].Draw(sb);
 
                 //Draw the costs of the units that be trained from a barracks
-                sb.DrawString(humanFontCosts, "$" + SOLDIER_COST, new Vector2(ADDTROOPS_X + 2, ADDTROOPS_Y + ADDTROOPS_HEIGHT), Color.Black);
-                sb.DrawString(humanFontCosts, "$" + ENGINEER_COST, new Vector2(ADDENGINEER_X + 2, ADDENGINEER_Y + ADDENGINEER_HEIGHT), Color.Black);
+                sb.DrawString(humanFontCosts, "$" + SOLDIER_COST, new Vector2(ADDTROOPS_X - 7, ADDTROOPS_Y + ADDTROOPS_HEIGHT), Color.Black);
+                sb.DrawString(humanFontCosts, "$" + ENGINEER_COST, new Vector2(ADDENGINEER_X - 5, ADDENGINEER_Y + ADDENGINEER_HEIGHT), Color.Black);
             }
 
             //Draw the total money of the human player
