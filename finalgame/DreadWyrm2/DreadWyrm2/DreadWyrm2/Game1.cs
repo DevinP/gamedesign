@@ -8,9 +8,11 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using System.Runtime.InteropServices;
 
 namespace DreadWyrm2
 {
+
     /// <summary>
     /// This is the main type for your game
     /// </summary>
@@ -178,11 +180,14 @@ namespace DreadWyrm2
             // TODO: Add your initialization logic here
             graphics.PreferredBackBufferHeight = SCREENHEIGHT;
             graphics.PreferredBackBufferWidth = SCREENWIDTH;
-            graphics.IsFullScreen = false;
+            graphics.IsFullScreen = true;
             graphics.ApplyChanges();
 
             base.Initialize();
         }
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+        public static extern bool ClipCursor(ref Rectangle rcClip);
 
         /// <summary>
         /// LoadContent will be called once per game and is the place to load
@@ -283,6 +288,11 @@ namespace DreadWyrm2
             // Store values for the Keyboard so we aren't
             // Querying them multiple times per Update
             KeyboardState keystate = Keyboard.GetState();
+
+            Rectangle newRec = new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT);
+
+            //Keep the cursor on the screen
+            ClipCursor(ref newRec);
 
             if (gameOver)
             {

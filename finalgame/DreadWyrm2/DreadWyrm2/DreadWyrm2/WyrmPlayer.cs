@@ -118,9 +118,13 @@ namespace DreadWyrm2
                     theWyrm.HeadRotationSpeed = 0;
                 }
 
+
                 // Begin bursting
                 if (keystate.IsKeyDown(Keys.LeftShift) && canBurst)
+                {
                     burst = true;
+                    theWyrm.HeadAcceleration = 0.3f;
+                }
 
                 //Stop bursting
                 if (keystate.IsKeyUp(Keys.LeftShift) && canBurst)
