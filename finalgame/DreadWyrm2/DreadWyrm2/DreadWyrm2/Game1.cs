@@ -904,6 +904,7 @@ namespace DreadWyrm2
 
                     if (keystate.IsKeyDown(Keys.Enter))
                     {
+                        //Start a single player game
                         nuxmode = false;
                         instructionMode = true;
                         titleTransitionOk = false;
@@ -936,6 +937,7 @@ namespace DreadWyrm2
 
                     if (keystate.IsKeyDown(Keys.Enter))
                     {
+                        //Start a two player game
                         nuxmode = false;
                         instructionMode = false;
                         titleTransitionOk = false;
@@ -968,6 +970,7 @@ namespace DreadWyrm2
 
                     if (keystate.IsKeyDown(Keys.Enter))
                     {
+                        //Start a single player game with nux mode
                         nuxmode = true;
                         instructionMode = true;
                         titleTransitionOk = false;
@@ -991,6 +994,7 @@ namespace DreadWyrm2
 
                     if (keystate.IsKeyDown(Keys.Enter))
                     {
+                        //Quit to desktop
                         this.Exit();
                     }
                 }
@@ -1405,7 +1409,6 @@ namespace DreadWyrm2
 
             theWyrmPlayer = new WyrmPlayer();
 
-            //missileDown.Play();
             missileDownInstance.Play();
 
             explosions = new List<Explosion>();
@@ -1443,6 +1446,8 @@ namespace DreadWyrm2
 
             if (nuxMode)
                 WyrmPlayer.nuxMode = true;
+            else
+                WyrmPlayer.nuxMode = false;
 
             WyrmPlayer.LoadContent(Content);
 
@@ -1485,6 +1490,7 @@ namespace DreadWyrm2
             quitToDesktop_MMSelected = false;
             titleTransitionOk = false;
             missileDownInstance.Stop();
+            nuxmode = false;
         }
 
         void endMultiPlayerGame()
@@ -1499,6 +1505,7 @@ namespace DreadWyrm2
             quitToDesktop_MMSelected = false;
             titleTransitionOk = false;
             missileDownInstance.Stop();
+            nuxmode = false;
         }
 
         void startNewWave(int wave)
