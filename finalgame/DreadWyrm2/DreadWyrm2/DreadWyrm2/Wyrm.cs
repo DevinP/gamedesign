@@ -109,7 +109,7 @@ namespace DreadWyrm2
         public float HeadSpeed
         {
             get { return f_HeadSpeed; }
-            set { f_HeadSpeed = MathHelper.Clamp(value, HEADSPEEDMIN, f_HeadSpeedMax); }
+            set { f_HeadSpeed = value; }
         }
 
         public float HeadSpeedMax

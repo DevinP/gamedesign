@@ -43,6 +43,8 @@ namespace DreadWyrm2
         float canBeDamagedCounter = 0;
         const float DAMAGED_COUNTER_LIMIT = 700;            //Number of milliseconds between times that the building can get damaged
 
+        const float WYRM_SPEED_REDUCTION_ON_HIT = 0.85f;
+
         public bool isDestroyed = false;
 
         //Sound effects
@@ -150,8 +152,15 @@ namespace DreadWyrm2
 
         public void takeDamage()
         {
-            if(theWyrm.HeadSpeed > WYRM_DAMAGE_MINIMUM)
+            if (theWyrm.HeadSpeed >= WYRM_DAMAGE_MINIMUM)
+            {
                 hitPoints -= theWyrm.HeadSpeed;
+
+                theWyrm.HeadSpeed = theWyrm.HeadSpeed * WYRM_SPEED_REDUCTION_ON_HIT;
+
+                if (theWyrm.HeadSpeed < WYRM_DAMAGE_MINIMUM)
+                    theWyrm.HeadSpeed = WYRM_DAMAGE_MINIMUM;
+            }
 
             if (hitPoints <= 0)
                 getDestroyed();

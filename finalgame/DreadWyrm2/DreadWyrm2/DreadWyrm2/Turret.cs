@@ -25,7 +25,7 @@ namespace DreadWyrm2
 
         //Turret constants
         const int BULLETSPEED = 8;
-        const int BULLETDAMAGE = 2;
+        const int BULLETDAMAGE = 3;
         const int TURRET_MAX_RANGE = 500;
         const int TURRET_MAX_HIT_POINTS = 20;
         const int TURRET_HEALTH_BAR_WIDTH = 70;    //The width of the health bar in pixels

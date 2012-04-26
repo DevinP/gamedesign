@@ -15,9 +15,11 @@ namespace DreadWyrm2
     class HumanPlayer
     {
         float incomeCounter = 0;
-        const float INCOME_LIMIT = 1000;                      //The number of milliseconds between income accumulations
-        const float BASE_INCOME = 100;                        //Base income per 5 seconds that can't be touched by the wyrm
-        const float INCOME_ADJUSTMENT_PER_OIL_DERRICK = 100;  //The number of dollars per 5 seconds an oil derrick provides
+        const float INCOME_LIMIT = 1000;                            //The number of milliseconds between income accumulations
+        const float BASE_INCOME = 100;                              //Base income per 5 seconds that can't be touched by the wyrm
+        public static float incomeAdjustmentPerOilDerrick = 100;    //The number of dollars per 5 seconds an oil derrick provides
+        public static float DEFAULT_INCOME_ADJUSTMENT_PER_OIL_DERRICK = 100;
+        public static float INCOME_REDUCTION_PER_OIL_DERRICK = 2f;
 
         //Building and unit costs
         const int TURRET_COST = 2500;
@@ -28,7 +30,7 @@ namespace DreadWyrm2
         const int FACTORY_COST = 6000;
         const int TANK_COST = 2000;
 
-        int totalMoney = 6000;
+        float totalMoney = 6000;
         public static int numOilDerricks = 0;
 
         static SpriteFont humanFontFunds;
@@ -154,7 +156,7 @@ namespace DreadWyrm2
         const int MOUSECURSOR_WIDTH = 32;
         const int MOUSECURSOR_HEIGHT = 32;
 
-        public int money
+        public float money
         {
             get { return totalMoney; }
             set { totalMoney = value; }
@@ -305,6 +307,7 @@ namespace DreadWyrm2
                 }
                 else if (drawGhostFactory)
                 {
+                    //Place a factory at this location
                     Building.buildings.Add(new Factory(mouseX, 353, theWyrm));
                     factoryLoc = new Vector2(mouseX, 353);
                     drawGhostFactory = false;
@@ -313,10 +316,19 @@ namespace DreadWyrm2
                 }
                 else if (drawGhostOilDerrick)
                 {
+                    //Place an oil derrick at this location
                     Building.buildings.Add(new OilDerrick(mouseX, 353, theWyrm));
                     drawGhostOilDerrick = false;
                     numOilDerricks++;
                     totalMoney -= OILDERRICK_COST;
+
+                    if (numOilDerricks > 1)
+                    {
+                        //Cause diminishing returns on oil derricks
+                        incomeAdjustmentPerOilDerrick = incomeAdjustmentPerOilDerrick - INCOME_REDUCTION_PER_OIL_DERRICK;
+                        if (incomeAdjustmentPerOilDerrick <= 0)
+                            incomeAdjustmentPerOilDerrick = 1;
+                    }
                 }
             }
             else if (mState.LeftButton == ButtonState.Released && !canClick)
@@ -373,7 +385,7 @@ namespace DreadWyrm2
             incomeCounter += (float) gameTime.ElapsedGameTime.Milliseconds;
             if(incomeCounter >= INCOME_LIMIT)
             {
-                totalMoney += (int)(BASE_INCOME + (INCOME_ADJUSTMENT_PER_OIL_DERRICK * numOilDerricks));
+                totalMoney += (int)(BASE_INCOME + (incomeAdjustmentPerOilDerrick * numOilDerricks));
 
                 incomeCounter = 0;
 
@@ -382,7 +394,7 @@ namespace DreadWyrm2
                 {
                     if (theBuilding is OilDerrick)
                     {
-                        incomeIndicators.Add(new FloatingText(theBuilding.xPos + 20, theBuilding.yPos, "+$" + INCOME_ADJUSTMENT_PER_OIL_DERRICK, Color.Black));
+                        incomeIndicators.Add(new FloatingText(theBuilding.xPos + 20, theBuilding.yPos, "+$" + (int)incomeAdjustmentPerOilDerrick, Color.Black));
                     }
                 }
             }
@@ -497,7 +509,7 @@ namespace DreadWyrm2
             }
 
             //Draw the total money of the human player
-            sb.DrawString(humanFontFunds, "Funds: $" + totalMoney, new Vector2(1050, 10), Color.Black);
+            sb.DrawString(humanFontFunds, "Funds: $" + (int)totalMoney, new Vector2(1050, 10), Color.Black);
 
             //Draw the income indicators
             foreach (FloatingText theText in incomeIndicators)

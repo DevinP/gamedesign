@@ -257,7 +257,8 @@ namespace DreadWyrm2
 
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(bgm);
-            MediaPlayer.Volume = MediaPlayer.Volume * 0.85f;
+
+            SoundEffect.MasterVolume = SoundEffect.MasterVolume * 0.7f;
         }
 
         /// <summary>
@@ -1405,6 +1406,7 @@ namespace DreadWyrm2
 
             HumanPlayer.hasFactory = false;
             HumanPlayer.hasBarracks = false;
+            HumanPlayer.incomeAdjustmentPerOilDerrick = HumanPlayer.DEFAULT_INCOME_ADJUSTMENT_PER_OIL_DERRICK;    //Reset the oil derrick to the default
 
             regenCost = DEFAULT_REGEN_COST;
             digSpeedCost = DEFAULT_DIGSPEED_COST;

@@ -71,6 +71,11 @@ namespace DreadWyrm2
         {
             base.getDestroyed();
 
+            HumanPlayer.incomeAdjustmentPerOilDerrick = (int)(HumanPlayer.incomeAdjustmentPerOilDerrick + HumanPlayer.INCOME_REDUCTION_PER_OIL_DERRICK);
+
+            if (HumanPlayer.incomeAdjustmentPerOilDerrick > HumanPlayer.DEFAULT_INCOME_ADJUSTMENT_PER_OIL_DERRICK)
+                HumanPlayer.incomeAdjustmentPerOilDerrick = HumanPlayer.DEFAULT_INCOME_ADJUSTMENT_PER_OIL_DERRICK;
+
             HumanPlayer.numOilDerricks--;
         }
     }
