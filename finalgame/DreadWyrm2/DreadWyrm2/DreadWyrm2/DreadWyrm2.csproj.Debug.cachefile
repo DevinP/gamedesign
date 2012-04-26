@@ -6,9 +6,6 @@ Content\Sounds\explosion.xnb
 Content\Sounds\Predator Roar.xnb
 Content\Sounds\soldierShot.xnb
 Content\Sounds\tankShot.xnb
-Content\Sounds\bgm.xnb
-Content\Sounds\bgm2.xnb
-Content\Sounds\bgm3.xnb
 Content\Textures\arrow.xnb
 Content\Textures\background.xnb
 Content\Textures\bullet.xnb
@@ -72,6 +69,5 @@ Content\Textures\wordbubble_offcolor.xnb
 Content\Textures\blueBox.xnb
 Content\Sounds\impact2.xnb
 Content\Sounds\Missile.xnb
-Content\Sounds\bgm.wma
-Content\Sounds\bgm2.wma
-Content\Sounds\bgm3.wma
+Content\Sounds\Pizza.xnb
+Content\Sounds\Pizza.wma

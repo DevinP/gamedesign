@@ -74,7 +74,7 @@ namespace DreadWyrm2
         {
             //Create a Wyrm
             if (Game1.isTwoPlayer)
-                theWyrm = new Wyrm(100, -3650);
+                theWyrm = new Wyrm(100, -3300);
             else
                 theWyrm = new Wyrm(100, 450);
 

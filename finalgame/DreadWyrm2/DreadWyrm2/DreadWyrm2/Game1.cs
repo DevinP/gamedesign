@@ -40,8 +40,6 @@ namespace DreadWyrm2
         Texture2D t2dupgradeBoxOffColor;                   //A box to indicated it is selected
         Texture2D t2dupgradeArrow;                         //Arrow to indicate which upgrade the player will select
         Song bgm;                                          //The background music for the game
-        Song bgm2;
-        Song bgm3;
         bool m_gameStarted = false;                        //Whether or not we are at the title screen
         SpriteFont titleFont;                              //The font used in the game for the title screen
         SpriteFont upgradeFont;                            //The font used in the game for the upgrade screen
@@ -96,10 +94,6 @@ namespace DreadWyrm2
         bool p2CanUpgradeSprint = true;
 
         bool canRoar = true;
-        bool canSwitchSongs = true;
-        bool bgm1Playing = false;
-        bool bgm2Playing = false;
-        bool bgm3Playing = false;
 
         //Pause mode variables
         bool gamePaused = false;
@@ -229,9 +223,7 @@ namespace DreadWyrm2
 
             explosion = Content.Load<SoundEffect>(@"Sounds\explosion");
 
-            bgm = Content.Load<Song>(@"Sounds\bgm");
-            bgm2 = Content.Load<Song>(@"Sounds\bgm2");
-            bgm3 = Content.Load<Song>(@"Sounds\bgm3");
+            bgm = Content.Load<Song>(@"Sounds\Pizza");
 
             WyrmPlayer.LoadContent(Content);
 
@@ -264,9 +256,8 @@ namespace DreadWyrm2
             tempTank.IsAnimating = true;
 
             MediaPlayer.IsRepeating = true;
-            //MediaPlayer.Volume = 0.5f;
             MediaPlayer.Play(bgm);
-            bgm1Playing = true;
+            MediaPlayer.Volume = MediaPlayer.Volume * 0.85f;
         }
 
         /// <summary>
@@ -291,8 +282,11 @@ namespace DreadWyrm2
 
             Rectangle newRec = new Rectangle(0, 0, SCREENWIDTH, SCREENHEIGHT);
 
-            //Keep the cursor on the screen
-            ClipCursor(ref newRec);
+           if (this.IsActive)
+            {
+                //Keep the cursor on the screen
+                ClipCursor(ref newRec);
+            }
 
             if (gameOver)
             {
@@ -311,41 +305,6 @@ namespace DreadWyrm2
                 return;
             }
 
-            #region SongSwitching (Code to handle the switching of the song with right shift)
-
-            if (keystate.IsKeyDown(Keys.RightShift) && canSwitchSongs)
-            {
-                if (bgm1Playing)
-                {
-                    MediaPlayer.Play(bgm2);
-                    bgm1Playing = false;
-                    bgm2Playing = true;
-                    bgm3Playing = false;
-                }
-                else if (bgm2Playing)
-                {
-                    MediaPlayer.Play(bgm3);
-                    bgm1Playing = false;
-                    bgm2Playing = false;
-                    bgm3Playing = true;
-                }
-                else if (bgm3Playing)
-                {
-                    MediaPlayer.Play(bgm);
-                    bgm1Playing = true;
-                    bgm2Playing = false;
-                    bgm3Playing = false;
-                }
-
-                canSwitchSongs = false;
-            }
-            else if (keystate.IsKeyUp(Keys.RightShift) && !canSwitchSongs)
-            {
-                canSwitchSongs = true;
-            }
-
-            #endregion
-
             // Get elapsed game time since last call to Update
             float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -355,12 +314,27 @@ namespace DreadWyrm2
 
                 int numPrey;
 
+                //Autopause when the game loses focus
+                if (!this.IsActive && gamePausedCanSwitch && !upgradeMode && !gamePaused)
+                {
+                    //Activate pause mode
+                    gamePaused = true;
+                    gamePausedCanSwitch = false;
+                    returnToGameSelected = true;
+                    quitToMenuSelected = false;
+                    quitToDesktopSelected = false;
+                    MediaPlayer.Volume = MediaPlayer.Volume * 0.25f;
+                }
+
+                //Pause if the user presses the pause button
                 if ((keystate.IsKeyDown(Keys.P) || keystate.IsKeyDown(Keys.Escape)) && gamePausedCanSwitch && !upgradeMode && !gamePaused)
                 {
                     //Activate pause mode
                     gamePaused = true;
                     gamePausedCanSwitch = false;
                     returnToGameSelected = true;
+                    quitToMenuSelected = false;
+                    quitToDesktopSelected = false;
                     MediaPlayer.Volume = MediaPlayer.Volume * 0.25f;
                 }
                 else if (keystate.IsKeyUp(Keys.P) && keystate.IsKeyUp(Keys.Escape))
@@ -394,13 +368,16 @@ namespace DreadWyrm2
                     #region Pause Mode
 
                     missileDownInstance.Pause();
-                    
 
                     if (gamePausedCanSwitch && (keystate.IsKeyDown(Keys.P) || keystate.IsKeyDown(Keys.Escape)))
                     {
+                        //Return to the game
                         gamePaused = false;
                         gamePausedCanSwitch = false;
-                        missileDownInstance.Resume();
+
+                        if(isTwoPlayer)
+                            missileDownInstance.Resume();
+
                         MediaPlayer.Volume = MediaPlayer.Volume * 4;
                     }
 
@@ -423,6 +400,11 @@ namespace DreadWyrm2
                             //Return to the game
                             gamePaused = false;
                             gamePausedCanSwitch = false;
+
+                            if(isTwoPlayer)
+                                missileDownInstance.Resume();
+
+                            MediaPlayer.Volume = MediaPlayer.Volume * 4;
                         }
                     }
                     else if (quitToMenuSelected)
@@ -775,10 +757,10 @@ namespace DreadWyrm2
                     #endregion
 
                     //Increase volume back to max over time if it isn't already
-                    if (MediaPlayer.Volume < 1)
-                    {
-                        MediaPlayer.Volume = MediaPlayer.Volume + 0.0005f;
-                    }
+                   // if (MediaPlayer.Volume < 1)
+                   // {
+                    //    MediaPlayer.Volume = MediaPlayer.Volume + 0.0005f;
+                   // }
 
                     theBackground.Update();
 
@@ -1380,7 +1362,7 @@ namespace DreadWyrm2
 
         void startNewMultiPlayerGame()
         {
-            MediaPlayer.Volume = 0.25f;     // Reduce volume so we can hear the missle blast
+            //MediaPlayer.Volume = 0.25f;     // Reduce volume so we can hear the missle blast
             returnToGameSelected = false;
             quitToMenuSelected = false;
             quitToDesktopSelected = false;
