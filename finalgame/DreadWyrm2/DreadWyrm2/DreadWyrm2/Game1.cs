@@ -1390,6 +1390,10 @@ namespace DreadWyrm2
             //Add the wyrm head segment texture to the wyrm textures list
             List<Texture2D> wyrmTextures = new List<Texture2D>();
 
+            WyrmPlayer.nuxMode = false;
+
+            WyrmPlayer.LoadContent(Content);
+
             theWyrmPlayer = new WyrmPlayer();
 
             missileDownInstance.Play();
